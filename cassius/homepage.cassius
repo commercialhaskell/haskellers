@@ -1,0 +1,7 @@
+#users, #login
+    display: table-cell
+#users
+    width: 70%
+    padding-right: 100px
+#login
+    width: 30%

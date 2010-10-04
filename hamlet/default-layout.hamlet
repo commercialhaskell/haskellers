@@ -1,0 +1,14 @@
+!!!
+%html
+    %head
+        %title $pageTitle.pc$
+        ^pageHead.pc^
+    %body
+        #wrapper
+            %h1
+                %img!src=@StaticR.lambda_png@
+                %a!href=@RootR@ Haskellers
+            %h2 The meeting place for professional Haskell programmers.
+            $maybe mmsg msg
+                #message $msg$
+            ^pageBody.pc^

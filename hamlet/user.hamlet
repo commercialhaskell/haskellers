@@ -1,0 +1,15 @@
+$maybe userEmail.u email
+    %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
+%table
+    %tr
+        %th Name
+        %td $userFullName.u$
+    $maybe userWebsite.u w
+        %tr
+            %th Website
+            %td
+                %a!href=$w$ $w$
+    $maybe userDesc.u d
+        %tr
+            %th Description
+            %td $d$
