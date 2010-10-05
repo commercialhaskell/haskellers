@@ -25,7 +25,7 @@ h2
     margin-top: 10px
     padding-top: 10px
     text-align: center
-    border-top: 1px dashed #000
+    border-top: 1px dashed #0e485a
 .addthis_toolbox
     margin: 5px auto
     width: 180px

@@ -8,6 +8,8 @@
                 %br
                 %b $userFullName'.snd.u$
                 %br
+                %a!href=@ProfileR@ Edit my Profile
+                %br
                 %a!href=@AuthR.LogoutR@ Logout
         $nothing
             %h3 Login with
@@ -30,3 +32,6 @@
                 $nothing
                     %img!src=$(gravatar.50).fakeEmail$!alt="Gravatar Profile Picture"
                 $userFullName'.snd.user$
+                $if userReal.snd.user
+                    \ $
+                    %span.real-badge Real Haskeller

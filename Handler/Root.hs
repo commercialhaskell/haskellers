@@ -19,7 +19,9 @@ import StaticFiles
 getRootR :: Handler RepHtml
 getRootR = do
     mu <- maybeAuth
-    users <- runDB $ selectList [] [UserFullNameAsc] 0 0
+    users <- runDB $ selectList [ UserHumanEq True
+                                , UserVisibleEq True
+                                ] [UserFullNameAsc] 0 0
     defaultLayout $ do
         setTitle "Haskellers"
         addStyle $(cassiusFile "homepage")

@@ -18,6 +18,10 @@
                 \ and powered by the $
                 %a!href="http://docs.yesodweb.com/" Yesod Web Framework
                 \.
+                %br
+                Graphics by $
+                %a!href="http://www.google.com/profiles/miriam.snoyman" Miriam Snoyman
+                \.
                 .addthis_toolbox.addthis_default_style
                     %a.addthis_button_compact!href="http://www.addthis.com/bookmark.php?v=250&amp;username=snoyberg" Share
                     %span.addthis_separator |

@@ -68,6 +68,12 @@ mkYesodData "Haskellers" [$parseRoutes|
 / RootR GET
 /profile ProfileR GET POST
 /user/#UserId UserR GET
+
+/user/#UserId/admin AdminR POST
+/user/#UserId/unadmin UnadminR POST
+
+/user/#UserId/real RealR POST
+/user/#UserId/unreal UnrealR POST
 |]
 
 -- Please see the documentation for the Yesod typeclass. There are a number
@@ -128,6 +134,10 @@ instance YesodAuth Haskellers where
                     , userWebsite = Nothing
                     , userEmail = Nothing
                     , userDesc = Nothing
+                    , userHuman = False
+                    , userVisible = False
+                    , userReal = False
+                    , userAdmin = False
                     }
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid

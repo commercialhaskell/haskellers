@@ -2,12 +2,14 @@
     display: table-cell
     vertical-align: top
 #blurb
-    width: 70%
-    padding: 15px 50px 0 15px
+    width: 60%
+    padding: 15px 25px 0 15px
     text-align: justify
     font-size: 120%
+    border-right: 2px solid #0e485a
 #login
-    width: 30%
+    width: 40%
+    padding-left: 25px
 #login h3
     text-align: center
     margin: 0
@@ -25,7 +27,7 @@ form.button
 #users
     margin-top: 15px
     padding-top: 15px
-    border-top: 1px dashed #000
+    border-top: 1px dashed #0e485a
 .user a, .user a:visited
     text-decoration: none
     color: #00f
