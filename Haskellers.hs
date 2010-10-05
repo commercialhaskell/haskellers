@@ -80,6 +80,7 @@ instance Yesod Haskellers where
         pc <- widgetToPageContent $ do
             widget
             addStyle $(Settings.cassiusFile "default-layout")
+            addScript $(Settings.juliusFile "analytics")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
     -- This is done to provide an optimization for serving static files from
