@@ -27,3 +27,4 @@
                     <a class="addthis_button_preferred_4"></a>
                     <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
                     <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg"></script>
+                %a!href="http://github.com/snoyberg/haskellers" View Source
