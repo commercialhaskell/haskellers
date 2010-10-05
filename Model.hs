@@ -17,6 +17,13 @@ User
     desc Textarea null id=desc
 |]
 
+userFullName' :: User -> String
+userFullName' u =
+    let s = userFullName u
+     in if length s > 50
+            then take 40 s ++ "..."
+            else s
+
 mkPersist [$persist|
 Ident
     ident String

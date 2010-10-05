@@ -1,34 +1,47 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE QuasiQuotes, OverloadedStrings, TemplateHaskell #-}
 module Handler.Profile
     ( getProfileR
     , postProfileR
     ) where
 
 import Haskellers
+import Control.Applicative
+
+userForm :: User -> Form s m User
+userForm u = fieldsToTable $ User
+    <$> stringField "Full name"
+            { ffsId = Just "full-name"
+            } (Just $ userFullName u)
+    <*> maybeStringField "Website"
+            { ffsId = Just "website"
+            } (Just $ userWebsite u)
+    <*> maybeEmailField "Email"
+            { ffsTooltip = [$hamlet|
+Your email is protected via $
+%a!href="http://www.google.com/recaptcha" recaptcha
+\ and used for $
+%a!href="http://gravatar.com/" gravatar
+\ profile images.
+|]
+            , ffsId = Just "email"
+            } (Just $ userEmail u)
+    <*> maybeTextareaField "Description"
+            { ffsId = Just "desc"
+            } (Just $ userDesc u)
 
 getProfileR :: Handler RepHtml
 getProfileR = do
     (uid, u) <- requireAuth
-    (res, form, enctype) <- runFormPost $ toForm $ Just u
+    (res, form, enctype) <- runFormPost $ userForm u
     case res of
-        FormSuccess u' -> runDB $ replace uid u'
+        FormSuccess u' -> do
+            runDB $ replace uid u'
+            setMessage "Updated your profile"
+            redirect RedirectTemporary ProfileR
         _ -> return ()
     defaultLayout $ do
-        addStyle [$cassius|
-#full-name, #website, #email
-    width: 300px
-#desc
-    width: 300px
-    height: 70px
-|]
-        [$hamlet|
-%form!method=post!action=@ProfileR@!enctype=$enctype$
-    %table
-        ^form^
-        %tr
-            %td!colspan=2
-                %input!type=submit!value="Update Profile"
-|]
+        addStyle $(cassiusFile "profile")
+        $(hamletFile "profile")
 
 postProfileR :: Handler RepHtml
 postProfileR = getProfileR

@@ -1,0 +1,8 @@
+#full-name, #website, #email
+    width: 300px
+#desc
+    width: 300px
+    height: 70px
+.tooltip
+    width: 300px
+    color: #666

@@ -24,7 +24,7 @@ import Yesod.WebRoutes
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
-import StaticFiles (lambda_png)
+import StaticFiles (logo_png)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application

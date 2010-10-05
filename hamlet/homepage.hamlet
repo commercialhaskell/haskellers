@@ -1,27 +1,32 @@
+#topbar
+    #blurb
+        Haskellers is a centralized place for professional Haskell programmers to publish themselves. If you'd like to create a profile, simply log in on the right. If you are looking for a Haskeller, just continue down the page.
+    #login
+        $maybe mu u
+            %p
+                You are logged in as
+                %br
+                %b $userFullName'.snd.u$
+                %br
+                %a!href=@AuthR.LogoutR@ Logout
+        $nothing
+            %h3 Login with
+            %form.button!method=get!action=@AuthR.forwardUrl@
+                %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
+                %input!type=image!src=@StaticR.google_png@!value="Login via Google"
+            %form.button!method=get!action=@AuthR.forwardUrl@
+                %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
+                %input!type=image!src=@StaticR.yahoo_png@!value="Login via Yahoo!"
+            %h3 &mdash; OR &mdash;
+            %form!method=get!action=@AuthR.forwardUrl@
+                %input#openid_identifier!type=text!name=openid_identifier!value="http://"
+                %input!type=submit!value="Login via OpenID"
 #users
-    %dl
-        $forall users user
-            %dt
-                %a!href=@UserR.fst.user@ $userFullName.snd.user$
-            %dd
-                $maybe userWebsite.snd.user url
-                    %div
-                        %a!href=$url$ $url$
+    $forall users user
+        .user
+            %a!href=@UserR.fst.user@
                 $maybe userEmail.snd.user email
                     %img!src=$(gravatar.50).email$!alt="Gravatar Profile Picture"
-                $maybe userDesc.snd.user desc
-                    %p $desc$
-#login
-    $maybe mu u
-        %p
-            You are logged in as $userFullName.snd.u$. $
-            %a!href=@AuthR.LogoutR@ Logout
-            \.
-    $nothing
-        ^(apLogin.authOpenId).AuthR^
-        %form!method=get!action=@AuthR.forwardUrl@
-            %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
-            %input!type=submit!value="Login via Google"
-        %form!method=get!action=@AuthR.forwardUrl@
-            %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
-            %input!type=submit!value="Login via Yahoo!"
+                $nothing
+                    %img!src=$(gravatar.50).fakeEmail$!alt="Gravatar Profile Picture"
+                $userFullName'.snd.user$

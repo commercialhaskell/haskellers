@@ -1,0 +1,8 @@
+%form!method=post!action=@ProfileR@!enctype=$enctype$
+    %table
+        ^form^
+        %tr
+            %td!colspan=2
+                %input!type=submit!value="Update Profile"
+                \ $
+                %a!href=@RootR@ Homepage

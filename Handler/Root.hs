@@ -7,6 +7,7 @@ import Yesod.Helpers.Auth2.OpenId (authOpenId, forwardUrl)
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace)
+import StaticFiles
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -20,9 +21,11 @@ getRootR = do
     mu <- maybeAuth
     users <- runDB $ selectList [] [UserFullNameAsc] 0 0
     defaultLayout $ do
-        setTitle "haskellers homepage"
+        setTitle "Haskellers"
         addStyle $(cassiusFile "homepage")
         $(hamletFile "homepage")
+  where
+    fakeEmail = "fake@email.com"
 
 gravatar :: Int -> String -> String
 gravatar s x =

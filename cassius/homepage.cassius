@@ -1,7 +1,36 @@
-#users, #login
+#blurb, #login
     display: table-cell
-#users
+    vertical-align: top
+#blurb
     width: 70%
-    padding-right: 100px
+    padding: 15px 50px 0 15px
+    text-align: justify
+    font-size: 120%
 #login
     width: 30%
+#login h3
+    text-align: center
+    margin: 0
+#login input[type=submit]
+    display: block
+    margin: 0 auto
+form.button
+    display: inline
+    width: 120px
+    padding: 0 10px
+#openid_identifier
+    width: 100%
+    background: #fff url(@StaticR.openid_icon_small_gif@) no-repeat scroll 0pt 50%;
+    padding-left: 18px;
+#users
+    margin-top: 15px
+    padding-top: 15px
+    border-top: 1px dashed #000
+.user a, .user a:visited
+    text-decoration: none
+    color: #00f
+    line-height: 50px
+    vertical-align: top
+.user img
+    border: 0
+    padding-right: 10px
