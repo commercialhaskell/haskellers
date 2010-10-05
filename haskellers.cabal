@@ -29,7 +29,10 @@ executable         simple-server
                    persistent,
                    persistent-postgresql,
                    template-haskell,
-                   hamlet
+                   hamlet,
+                   pureMD5,
+                   http-enumerator,
+                   utf8-string
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
 

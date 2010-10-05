@@ -21,7 +21,7 @@
         ^(apLogin.authOpenId).AuthR^
         %form!method=get!action=@AuthR.forwardUrl@
             %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
-            %input!type=submit!value="Login via Google (currently broken)"
+            %input!type=submit!value="Login via Google"
         %form!method=get!action=@AuthR.forwardUrl@
             %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
             %input!type=submit!value="Login via Yahoo!"

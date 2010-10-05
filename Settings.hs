@@ -63,7 +63,7 @@ staticroot = approot ++ "/static"
 -- specific.
 connStr :: String
 #ifdef PRODUCTION
-connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers_production"
+connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers"
 #else
 connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers"
 #endif
