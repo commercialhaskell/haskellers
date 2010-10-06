@@ -40,6 +40,8 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
     flip runConnectionPool p $ runMigration $ do
         migrate (undefined :: User)
         migrate (undefined :: Ident)
+        migrate (undefined :: Skill)
+        migrate (undefined :: UserSkill)
     let h = Haskellers s p
     toWaiApp h >>= f
   where

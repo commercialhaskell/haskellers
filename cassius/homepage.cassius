@@ -28,11 +28,19 @@ form.button
     margin-top: 15px
     padding-top: 15px
     border-top: 1px dashed #0e485a
-.user a, .user a:visited
-    text-decoration: none
-    color: #00f
-    line-height: 50px
-    vertical-align: top
+    text-align: center
+.user
+    display: inline-block
+.user a
+    display: block
+    width: 150px
+    margin: 5px
+    text-align: center
+    border: 1px solid #aaa
+    background: #eee
+    padding: 10px 0
+.user span.name
+    display: block
 .user img
     border: 0
     padding-right: 10px

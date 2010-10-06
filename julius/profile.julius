@@ -4,5 +4,6 @@ $(function(){
             expires: 1
         }
     });
-    $("input[type=submit]").button();
+    $("#tabs > ul > li > a").css("font-size", "80%%");
+    $("input[type=submit]").css("font-size", "80%%").button();
 });

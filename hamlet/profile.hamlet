@@ -5,6 +5,8 @@
         %li
             %a!href="#profile" Profile
         %li
+            %a!href="#skills" Skills
+        %li
             %a!href="#delete" Delete
   #email-box
     $if userVerifiedEmail.u
@@ -40,6 +42,19 @@
             %tr
                 %td!colspan=2
                     %input!type=submit!value="Update Profile"
+  #skills
+    %form!method=post!action=@SkillsR@
+        %table
+            $forall skills skill
+                %tr
+                    %th
+                        %label!for=skill-$showIntegral.fst.fst.skill$
+                            $skillName.snd.fst.skill$
+                    %td
+                        %input#skill-$showIntegral.fst.fst.skill$!type=checkbox!name=$showIntegral.fst.fst.skill$!:snd.skill:checked
+            %tr
+                %td
+                    %input!type=submit!value="Update Skills"
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?

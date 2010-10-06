@@ -13,3 +13,5 @@
     display: block
 #reset
     margin-left: 150px
+#skills th
+    text-align: left

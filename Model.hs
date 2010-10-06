@@ -15,6 +15,7 @@ User
     email String null toFormField=maybeEmailField id=email update
     verifiedEmail Bool default=false Eq update
     verkey String null update
+    haskellExp Int null
     desc Textarea null id=desc
     visible Bool default=true Eq
     real Bool default=false
@@ -23,6 +24,13 @@ Ident
     ident String
     user UserId Eq
     UniqueIdent ident
+Skill
+    name String
+    order Int Asc
+UserSkill
+    user UserId Eq
+    skill SkillId
+    UniqueUserSkill user skill
 |]
 
 userFullName' :: User -> String

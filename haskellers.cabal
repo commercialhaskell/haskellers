@@ -32,6 +32,7 @@ executable         simple-server
                    hamlet,
                    pureMD5,
                    http-enumerator,
+                   random,
                    utf8-string
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies

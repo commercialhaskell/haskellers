@@ -11,6 +11,7 @@ module Haskellers
     , module Model
     , StaticRoute (..)
     , AuthRoute (..)
+    , showIntegral
     ) where
 
 import Yesod
@@ -70,6 +71,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile ProfileR GET POST
 /user/#UserId UserR GET
 /profile/delete DeleteAccountR POST
+/profile/skills SkillsR POST
 
 /user/#UserId/admin AdminR POST
 /user/#UserId/unadmin UnadminR POST
@@ -144,6 +146,7 @@ instance YesodAuth Haskellers where
                     , userEmail = Nothing
                     , userVerifiedEmail = False
                     , userVerkey = Nothing
+                    , userHaskellExp = Nothing
                     , userDesc = Nothing
                     , userVisible = False
                     , userReal = False

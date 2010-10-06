@@ -3,6 +3,7 @@ module Handler.Profile
     ( getProfileR
     , postProfileR
     , postDeleteAccountR
+    , postSkillsR
     ) where
 
 import Haskellers
@@ -10,6 +11,8 @@ import Control.Applicative
 import Handler.Root (gravatar)
 import Yesod.Form.Jquery
 import StaticFiles (jquery_cookie_js)
+import Data.Maybe (isJust)
+import Control.Monad (filterM, forM_)
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -22,6 +25,7 @@ userForm u = fieldsToTable $ User
     <*> pure (userEmail u)
     <*> pure (userVerifiedEmail u)
     <*> pure (userVerkey u)
+    <*> maybeIntField "Years of Haskell Experience" (Just $ userHaskellExp u)
     <*> maybeTextareaField "Description"
             { ffsId = Just "desc"
             } (Just $ userDesc u)
@@ -42,6 +46,10 @@ getProfileR = do
             redirect RedirectTemporary ProfileR
         _ -> return ()
     y <- getYesod
+    skills <- runDB $ selectList [] [SkillOrderAsc] 0 0 >>= mapM (\(sid, s) -> do
+        x <- getBy $ UniqueUserSkill uid sid
+        return $ ((sid, s), isJust x)
+        )
     defaultLayout $ do
         addScriptEither $ urlJqueryJs y
         addScript $ StaticR jquery_cookie_js
@@ -57,9 +65,22 @@ postProfileR = getProfileR
 
 postDeleteAccountR :: Handler ()
 postDeleteAccountR = do
-    (uid, u) <- requireAuth
+    (uid, _) <- requireAuth
     runDB $ do
         deleteWhere [IdentUserEq uid]
+        deleteWhere [UserSkillUserEq uid]
         delete uid
     setMessage "Your account has been deleted."
     redirect RedirectTemporary RootR
+
+postSkillsR :: Handler ()
+postSkillsR = do
+    (uid, _) <- requireAuth
+    allSkills <- fmap (map fst) $ runDB $ selectList [] [] 0 0
+    skills <- flip filterM allSkills $ \sid ->
+        runFormPost' (boolInput $ showIntegral sid)
+    runDB $ do
+        deleteWhere [UserSkillUserEq uid]
+        forM_ skills $ \sid -> insert (UserSkill uid sid)
+    setMessage "Your skills have been updated"
+    redirect RedirectTemporary ProfileR
