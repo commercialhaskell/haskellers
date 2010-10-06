@@ -1,15 +1,26 @@
-$maybe userEmail.u email
+#gravatar
     %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
-%table
-    %tr
-        %th Name
-        %td $userFullName.u$
+#basics
+    .name $userFullName.u$
+    $maybe userHaskellExp.u e
+        .experience
+            $show.e$ year
+            $if notOne.e
+                s
+            \ Haskell experience
+    $maybe userEmail.u email
+        .email
+            %a!href=$emailLink.email$ Reveal email address
     $maybe userWebsite.u w
-        %tr
-            %th Website
-            %td
-                %a!href=$w$ $w$
-    $maybe userDesc.u d
-        %tr
-            %th Description
-            %td $d$
+        .website
+            %a!href=$w$ $w$
+$maybe userDesc.u d
+    #desc $d$
+#skills
+    $if null.skills
+        %p $userFullName.u$ has not entered any skills.
+    $else
+        %h3 Skills
+        %ul
+            $forall skills s
+                %li $s$

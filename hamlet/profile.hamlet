@@ -47,13 +47,13 @@
         %table
             $forall skills skill
                 %tr
+                    %td
+                        %input#skill-$showIntegral.fst.fst.skill$!type=checkbox!name=$showIntegral.fst.fst.skill$!:snd.skill:checked
                     %th
                         %label!for=skill-$showIntegral.fst.fst.skill$
                             $skillName.snd.fst.skill$
-                    %td
-                        %input#skill-$showIntegral.fst.fst.skill$!type=checkbox!name=$showIntegral.fst.fst.skill$!:snd.skill:checked
             %tr
-                %td
+                %td!colspan=2
                     %input!type=submit!value="Update Skills"
   #delete
     %form!method=post!action=@DeleteAccountR@

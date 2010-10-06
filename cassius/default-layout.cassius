@@ -14,7 +14,7 @@ h1
 h1 img
     border: 0
 h2
-    margin: 0 0 15px 0
+    margin: 0 0 20px 0
     color: #0e485a
 #message
     border: 1px solid #200e5a

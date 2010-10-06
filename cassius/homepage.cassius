@@ -31,14 +31,15 @@ form.button
     text-align: center
 .user
     display: inline-block
+    vertical-align: top
 .user a
     display: block
-    width: 150px
+    width: 180px
     margin: 5px
     text-align: center
     border: 1px solid #aaa
     background: #eee
-    padding: 10px 0
+    padding: 10px 3px
 .user span.name
     display: block
 .user img

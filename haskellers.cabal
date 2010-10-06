@@ -33,6 +33,7 @@ executable         simple-server
                    pureMD5,
                    http-enumerator,
                    random,
+                   HsOpenSSL,
                    utf8-string
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
