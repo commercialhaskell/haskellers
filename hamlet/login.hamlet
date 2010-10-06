@@ -4,6 +4,8 @@
 %form.button!method=get!action=@AuthR.forwardUrl@
     %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
     %input!type=image!src=@StaticR.yahoo_png@!value="Login via Yahoo!"
+%a!href=@AuthR.facebookUrl@
+    %img!src=@StaticR.facebook_png@!value="Login via Facebook"
 %h3 &mdash; OR &mdash;
 %form!method=get!action=@AuthR.forwardUrl@
     %input#openid_identifier!type=text!name=openid_identifier!value="http://"

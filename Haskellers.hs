@@ -28,7 +28,7 @@ import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
 import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
-                    openid_icon_small_gif)
+                    openid_icon_small_gif, facebook_png)
 import Yesod.Form.Jquery
 
 -- | The site argument for your application. This can be a good place to
