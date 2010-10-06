@@ -1,8 +1,9 @@
 #full-name, #website, #email
-    width: 300px
+    width: 400px
 #desc
-    width: 300px
-    height: 70px
+    width: 400px
+    height: 100px
+    font-size: 80%
 .tooltip
     width: 300px
     color: #666
