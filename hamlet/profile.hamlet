@@ -7,6 +7,8 @@
         %li
             %a!href="#skills" Skills
         %li
+            %a!href="#identifiers" Identifiers
+        %li
             %a!href="#delete" Delete
   #email-box
     $if userVerifiedEmail.u
@@ -55,6 +57,17 @@
             %tr
                 %td!colspan=2
                     %input!type=submit!value="Update Skills"
+  #identifiers
+    %h3 Current identifiers
+    %ul
+        $forall idents ident
+            %li
+                %a!href=$identIdent.snd.ident$ $identIdent.snd.ident$
+                $if notOne.idents
+                    %form.delete-ident!method=post!action=@DeleteIdentR.fst.ident@
+                        %input!type=submit!value=Remove
+    %h3 Add new identifier
+    ^login^
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?

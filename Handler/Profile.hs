@@ -4,6 +4,7 @@ module Handler.Profile
     , postProfileR
     , postDeleteAccountR
     , postSkillsR
+    , postDeleteIdentR
     ) where
 
 import Haskellers
@@ -12,7 +13,7 @@ import Handler.Root (gravatar)
 import Yesod.Form.Jquery
 import StaticFiles (jquery_cookie_js)
 import Data.Maybe (isJust)
-import Control.Monad (filterM, forM_)
+import Control.Monad (filterM, forM_, unless)
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -50,6 +51,7 @@ getProfileR = do
         x <- getBy $ UniqueUserSkill uid sid
         return $ ((sid, s), isJust x)
         )
+    idents <- runDB $ selectList [IdentUserEq uid] [IdentIdentAsc] 0 0
     defaultLayout $ do
         addScriptEither $ urlJqueryJs y
         addScript $ StaticR jquery_cookie_js
@@ -59,6 +61,9 @@ getProfileR = do
         addStyle $(cassiusFile "profile")
         addJavascript $(juliusFile "profile")
         $(hamletFile "profile")
+  where
+    notOne [_] = False
+    notOne _ = True
 
 postProfileR :: Handler RepHtml
 postProfileR = getProfileR
@@ -83,4 +88,17 @@ postSkillsR = do
         deleteWhere [UserSkillUserEq uid]
         forM_ skills $ \sid -> insert (UserSkill uid sid)
     setMessage "Your skills have been updated"
+    redirect RedirectTemporary ProfileR
+
+postDeleteIdentR :: IdentId -> Handler ()
+postDeleteIdentR iid = do
+    (uid, _) <- requireAuth
+    i <- runDB $ get404 iid
+    unless (uid == identUser i) notFound
+    idents <- runDB $ count [IdentUserEq uid]
+    if idents > 1
+        then do
+            runDB $ delete iid
+            setMessage "Identifier deleted"
+        else setMessage "You cannot delete your last identifier"
     redirect RedirectTemporary ProfileR

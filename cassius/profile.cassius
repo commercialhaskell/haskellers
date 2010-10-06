@@ -16,3 +16,5 @@
     margin-left: 150px
 #skills th
     text-align: left
+.delete-ident
+    display: inline

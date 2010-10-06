@@ -21,7 +21,7 @@ User
     real Bool default=false
     admin Bool default=false
 Ident
-    ident String
+    ident String Asc
     user UserId Eq
     UniqueIdent ident
 Skill

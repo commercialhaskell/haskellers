@@ -2,11 +2,9 @@
 module Handler.Root where
 
 import Haskellers
-import Yesod.Helpers.Auth2.OpenId (forwardUrl)
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace)
-import StaticFiles
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in

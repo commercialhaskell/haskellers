@@ -1,0 +1,11 @@
+#openid_submit
+    display: block
+    margin: 0 auto
+form.button
+    display: inline
+    width: 120px
+    padding: 0 10px
+#openid_identifier
+    width: 100%
+    background: #fff url(@StaticR.openid_icon_small_gif@) no-repeat scroll 0pt 50%;
+    padding-left: 18px;

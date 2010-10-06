@@ -1,0 +1,10 @@
+%form.button!method=get!action=@AuthR.forwardUrl@
+    %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
+    %input!type=image!src=@StaticR.google_png@!value="Login via Google"
+%form.button!method=get!action=@AuthR.forwardUrl@
+    %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
+    %input!type=image!src=@StaticR.yahoo_png@!value="Login via Yahoo!"
+%h3 &mdash; OR &mdash;
+%form!method=get!action=@AuthR.forwardUrl@
+    %input#openid_identifier!type=text!name=openid_identifier!value="http://"
+    %input#openid_submit!type=submit!value="Login via OpenID"

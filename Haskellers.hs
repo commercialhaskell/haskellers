@@ -12,12 +12,14 @@ module Haskellers
     , StaticRoute (..)
     , AuthRoute (..)
     , showIntegral
+    , login
     ) where
 
 import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth2
 import Yesod.Helpers.Auth2.OpenId
+import Yesod.Helpers.Auth2.Facebook
 import qualified Settings
 import System.Directory
 import qualified Data.ByteString.Lazy as L
@@ -25,7 +27,8 @@ import Yesod.WebRoutes
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
-import StaticFiles (logo_png, jquery_ui_css)
+import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
+                    openid_icon_small_gif)
 import Yesod.Form.Jquery
 
 -- | The site argument for your application. This can be a good place to
@@ -68,11 +71,13 @@ mkYesodData "Haskellers" [$parseRoutes|
 /robots.txt RobotsR GET
 
 / RootR GET
+
 /profile ProfileR GET POST
-/user/#UserId UserR GET
 /profile/delete DeleteAccountR POST
 /profile/skills SkillsR POST
+/profile/ident/#IdentId/delete DeleteIdentR POST
 
+/user/#UserId UserR GET
 /user/#UserId/admin AdminR POST
 /user/#UserId/unadmin UnadminR POST
 
@@ -135,11 +140,12 @@ instance YesodAuth Haskellers where
     loginDest _ = ProfileR
     logoutDest _ = RootR
 
-    getAuthId creds = runDB $ do
-        x <- getBy $ UniqueIdent $ credsIdent creds
-        case x of
-            Just (_, i) -> return $ Just $ identUser i
-            Nothing -> do
+    getAuthId creds = do
+        muid <- maybeAuth
+        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        case (x, muid) of
+            (Just (_, i), Nothing) -> return $ Just $ identUser i
+            (Nothing, Nothing) -> runDB $ do
                 uid <- insert $ User
                     { userFullName = credsIdent creds
                     , userWebsite = Nothing
@@ -154,10 +160,21 @@ instance YesodAuth Haskellers where
                     }
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
+            (Nothing, Just (uid, _)) -> do
+                setMessage $ string "Identifier added to your account"
+                _ <- runDB $ insert $ Ident (credsIdent creds) uid
+                return $ Just uid
+            (Just _, Just _) -> do
+                setMessage $ string "That identifier is already attached to an account. Please detach it from the other account first."
+                redirect RedirectTemporary ProfileR
 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
-    authPlugins = [authOpenId]
+    authPlugins = [ authOpenId
+                  , authFacebook "157813777573244"
+                                 "327e6242e855954b16f9395399164eec"
+                                 []
+                  ]
 
 showIntegral :: Integral a => a -> String
 showIntegral x = show (fromIntegral x :: Integer)
@@ -167,3 +184,6 @@ readIntegral s =
     case reads s of
         (i, _):_ -> Just $ fromInteger i
         [] -> Nothing
+
+login :: Widget Haskellers ()
+login = addStyle $(cassiusFile "login") >> $(hamletFile "login")
