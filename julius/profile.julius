@@ -4,4 +4,5 @@ $(function(){
             expires: 1
         }
     });
+    $("input[type=submit]").button();
 });

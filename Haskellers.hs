@@ -24,7 +24,7 @@ import Yesod.WebRoutes
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
-import StaticFiles (logo_png)
+import StaticFiles (logo_png, jquery_ui_css)
 import Yesod.Form.Jquery
 
 -- | The site argument for your application. This can be a good place to
@@ -124,7 +124,8 @@ instance YesodPersist Haskellers where
     type YesodDB Haskellers = SqlPersist
     runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
 
-instance YesodJquery Haskellers
+instance YesodJquery Haskellers where
+    urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
 
 instance YesodAuth Haskellers where
     type AuthId Haskellers = UserId
