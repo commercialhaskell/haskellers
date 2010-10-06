@@ -1,6 +1,7 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
 module Handler.User
     ( getUserR
+    , getByIdentR
     ) where
 
 import Haskellers
@@ -16,7 +17,19 @@ import OpenSSL.EVP.Base64
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 
-getUserR :: UserId -> Handler RepHtml
+getByIdentR :: Handler RepJson
+getByIdentR = do
+    identS <- runFormGet' $ stringInput "ident"
+    x <- runDB $ getBy $ UniqueIdent identS
+    render <- getUrlRender
+    case x of
+        Nothing -> notFound
+        Just (_, Ident { identUser = uid }) -> jsonToRepJson $ jsonMap
+            [ ("id", jsonScalar $ showIntegral uid)
+            , ("url", jsonScalar $ render $ UserR uid)
+            ]
+
+getUserR :: UserId -> Handler RepHtmlJson
 getUserR uid = do
     u <- runDB $ get404 uid
     skills <- runDB $ do
@@ -27,7 +40,21 @@ getUserR uid = do
             $ sortBy (comparing skillOrder) y
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
-    defaultLayout $ do
+    let json = jsonMap
+            $ ((:) ("id", jsonScalar $ showIntegral uid))
+            . ((:) ("name", jsonScalar $ userFullName u))
+            . (case userWebsite u of
+                Nothing -> id
+                Just w -> (:) ("website", jsonScalar w))
+            . (case userHaskellExp u of
+                Nothing -> id
+                Just e -> (:) ("experience", jsonScalar $ show e))
+            . (case userDesc u of
+                Nothing -> id
+                Just d -> (:) ("description", jsonScalar $ unTextarea d))
+            . ((:) ("skills", jsonList $ map jsonScalar skills))
+            $ []
+    flip defaultLayoutJson json $ do
         setTitle $ string $ "Haskellers profile for " ++ userFullName u
         addStyle $(cassiusFile "user")
         addScriptEither $ urlJqueryJs y

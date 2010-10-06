@@ -13,18 +13,25 @@ import Data.Char (toLower, isSpace)
 -- The majority of the code you will write in Yesod lives in these handler
 -- functions. You can spread them across multiple files if you are so
 -- inclined, or create a single monolithic file.
-getRootR :: Handler RepHtml
+getRootR :: Handler RepHtmlJson
 getRootR = do
     mu <- maybeAuth
     users <- runDB $ selectList [ UserVerifiedEmailEq True
                                 , UserVisibleEq True
                                 ] [UserFullNameAsc] 0 0
-    defaultLayout $ do
+    render <- getUrlRender
+    flip defaultLayoutJson (json render users) $ do
         setTitle "Haskellers"
         addStyle $(cassiusFile "homepage")
         $(hamletFile "homepage")
   where
     fakeEmail = "fake@email.com"
+    json r users = jsonMap [("users", jsonList $ map (json' r) users)]
+    json' r (uid, u) = jsonMap
+        [ ("id", jsonScalar $ showIntegral uid)
+        , ("name", jsonScalar $ userFullName u)
+        , ("url", jsonScalar $ r $ UserR uid)
+        ]
 
 gravatar :: Int -> String -> String
 gravatar s x =

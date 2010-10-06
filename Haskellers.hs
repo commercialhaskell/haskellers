@@ -84,6 +84,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /user/#UserId/real RealR POST
 /user/#UserId/unreal UnrealR POST
 
+/user ByIdentR GET
+
 /profile/reset-email ResetEmailR POST
 /profile/send-verify SendVerifyR POST
 /profile/verify/#String VerifyEmailR GET
