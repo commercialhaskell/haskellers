@@ -20,7 +20,7 @@ userForm u = fieldsToTable $ User
     <$> stringField "Full name"
             { ffsId = Just "full-name"
             } (Just $ userFullName u)
-    <*> maybeStringField "Website"
+    <*> maybeUrlField "Website"
             { ffsId = Just "website"
             } (Just $ userWebsite u)
     <*> pure (userEmail u)
