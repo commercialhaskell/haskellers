@@ -12,15 +12,16 @@ mkPersist [$persist|
 User
     fullName String Asc id=full-name
     website String null id=website
-    email String null toFormField=maybeEmailField id=email
-    verifiedEmail Bool default=false Eq
+    email String null toFormField=maybeEmailField id=email update
+    verifiedEmail Bool default=false Eq update
+    verkey String null update
     desc Textarea null id=desc
     visible Bool default=true Eq
     real Bool default=false
     admin Bool default=false
 Ident
     ident String
-    user UserId
+    user UserId Eq
     UniqueIdent ident
 |]
 

@@ -2,10 +2,14 @@
 module Handler.Profile
     ( getProfileR
     , postProfileR
+    , postDeleteAccountR
     ) where
 
 import Haskellers
 import Control.Applicative
+import Handler.Root (gravatar)
+import Yesod.Form.Jquery
+import StaticFiles (jquery_cookie_js)
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -15,17 +19,9 @@ userForm u = fieldsToTable $ User
     <*> maybeStringField "Website"
             { ffsId = Just "website"
             } (Just $ userWebsite u)
-    <*> maybeEmailField "Email"
-            { ffsTooltip = [$hamlet|
-Your email is protected via $
-%a!href="http://www.google.com/recaptcha" recaptcha
-\ and used for $
-%a!href="http://gravatar.com/" gravatar
-\ profile images.
-|]
-            , ffsId = Just "email"
-            } (Just $ userEmail u)
+    <*> pure (userEmail u)
     <*> pure (userVerifiedEmail u)
+    <*> pure (userVerkey u)
     <*> maybeTextareaField "Description"
             { ffsId = Just "desc"
             } (Just $ userDesc u)
@@ -45,9 +41,25 @@ getProfileR = do
             setMessage "Updated your profile"
             redirect RedirectTemporary ProfileR
         _ -> return ()
+    y <- getYesod
     defaultLayout $ do
+        addScriptEither $ urlJqueryJs y
+        addScript $ StaticR jquery_cookie_js
+        addScriptEither $ urlJqueryUiJs y
+        addStylesheetEither $ urlJqueryUiCss y
+        setTitle "Edit Your Profile"
         addStyle $(cassiusFile "profile")
+        addJavascript $(juliusFile "profile")
         $(hamletFile "profile")
 
 postProfileR :: Handler RepHtml
 postProfileR = getProfileR
+
+postDeleteAccountR :: Handler ()
+postDeleteAccountR = do
+    (uid, u) <- requireAuth
+    runDB $ do
+        deleteWhere [IdentUserEq uid]
+        delete uid
+    setMessage "Your account has been deleted."
+    redirect RedirectTemporary RootR

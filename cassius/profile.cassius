@@ -6,3 +6,10 @@
 .tooltip
     width: 300px
     color: #666
+#gravatar
+    float: left
+    width: 120px
+#gravatar img
+    display: block
+#reset
+    margin-left: 150px

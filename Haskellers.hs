@@ -25,6 +25,7 @@ import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
 import StaticFiles (logo_png)
+import Yesod.Form.Jquery
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -68,12 +69,17 @@ mkYesodData "Haskellers" [$parseRoutes|
 / RootR GET
 /profile ProfileR GET POST
 /user/#UserId UserR GET
+/profile/delete DeleteAccountR POST
 
 /user/#UserId/admin AdminR POST
 /user/#UserId/unadmin UnadminR POST
 
 /user/#UserId/real RealR POST
 /user/#UserId/unreal UnrealR POST
+
+/profile/reset-email ResetEmailR POST
+/profile/send-verify SendVerifyR POST
+/profile/verify/#String VerifyEmailR GET
 |]
 
 -- Please see the documentation for the Yesod typeclass. There are a number
@@ -118,6 +124,8 @@ instance YesodPersist Haskellers where
     type YesodDB Haskellers = SqlPersist
     runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
 
+instance YesodJquery Haskellers
+
 instance YesodAuth Haskellers where
     type AuthId Haskellers = UserId
 
@@ -134,6 +142,7 @@ instance YesodAuth Haskellers where
                     , userWebsite = Nothing
                     , userEmail = Nothing
                     , userVerifiedEmail = False
+                    , userVerkey = Nothing
                     , userDesc = Nothing
                     , userVisible = False
                     , userReal = False

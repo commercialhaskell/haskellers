@@ -1,8 +1,46 @@
-%form!method=post!action=@ProfileR@!enctype=$enctype$
-    %table
-        ^form^
-        %tr
-            %td!colspan=2
-                %input!type=submit!value="Update Profile"
-                \ $
-                %a!href=@RootR@ Homepage
+#tabs
+  %ul
+        %li
+            %a!href="#email-box" Email
+        %li
+            %a!href="#profile" Profile
+        %li
+            %a!href="#delete" Delete
+  #email-box
+    $if userVerifiedEmail.u
+        $maybe userEmail.u email
+            #gravatar
+                %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
+                %a!href="http://gravatar.com/" Change your Gravatar
+            %form#reset!method=post!action=@ResetEmailR@
+                Your email address is $
+                %b $email$
+                \. $
+                %input!type=submit!value="Reset Email Address"
+                %p Note: by resetting your email address, your profile will no longer appear on the homepage until you have verified a new address.
+            .ui-helper-clearfix
+        $nothing
+            There's a database error, because you don't have an email address yet your address is verified. Please report this.
+    $else
+        In order to have your profile show up on the homepage, you need to verify an email address. Your address will be protected with $
+        %a!href="http://www.google.com/recaptcha/mailhide/" Recaptcha mailhide
+        \ and will be used to show a $
+        %a!href="http://gravatar.com/" Gravatar.
+        %form!method=post!action=@SendVerifyR@
+            Email: $
+            $maybe userEmail.u email
+                %input#email!type=email!name=email!value=$email$
+            $nothing
+                %input#email!type=email!name=email
+            %input!type=submit!value="Send verification link"
+  #profile
+    %form!method=post!action=@ProfileR@!enctype=$enctype$
+        %table
+            ^form^
+            %tr
+                %td!colspan=2
+                    %input!type=submit!value="Update Profile"
+  #delete
+    %form!method=post!action=@DeleteAccountR@
+        %p Warning: deleting your account cannot be undone. Are you sure?
+        %input!type=submit!value="I'm sure, delete it!"
