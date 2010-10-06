@@ -13,8 +13,8 @@ User
     fullName String Asc id=full-name
     website String null id=website
     email String null toFormField=maybeEmailField id=email
+    verifiedEmail Bool default=false Eq
     desc Textarea null id=desc
-    human Bool default=true Eq
     visible Bool default=true Eq
     real Bool default=false
     admin Bool default=false

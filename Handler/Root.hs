@@ -2,8 +2,7 @@
 module Handler.Root where
 
 import Haskellers
-import Yesod.Helpers.Auth2 (apLogin)
-import Yesod.Helpers.Auth2.OpenId (authOpenId, forwardUrl)
+import Yesod.Helpers.Auth2.OpenId (forwardUrl)
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace)
@@ -19,7 +18,7 @@ import StaticFiles
 getRootR :: Handler RepHtml
 getRootR = do
     mu <- maybeAuth
-    users <- runDB $ selectList [ UserHumanEq True
+    users <- runDB $ selectList [ UserVerifiedEmailEq True
                                 , UserVisibleEq True
                                 ] [UserFullNameAsc] 0 0
     defaultLayout $ do

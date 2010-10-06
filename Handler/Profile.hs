@@ -25,10 +25,10 @@ Your email is protected via $
 |]
             , ffsId = Just "email"
             } (Just $ userEmail u)
+    <*> pure (userVerifiedEmail u)
     <*> maybeTextareaField "Description"
             { ffsId = Just "desc"
             } (Just $ userDesc u)
-    <*> pure (userHuman u)
     <*> boolField "Visible?"
             { ffsTooltip = "Do you want your profile to be displayed on the homepage?"
             } (Just $ userVisible u)

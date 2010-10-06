@@ -133,8 +133,8 @@ instance YesodAuth Haskellers where
                     { userFullName = credsIdent creds
                     , userWebsite = Nothing
                     , userEmail = Nothing
+                    , userVerifiedEmail = False
                     , userDesc = Nothing
-                    , userHuman = False
                     , userVisible = False
                     , userReal = False
                     , userAdmin = False
