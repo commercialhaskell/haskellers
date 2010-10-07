@@ -45,6 +45,7 @@
                 %td!colspan=2
                     %input!type=submit!value="Update Profile"
   #skills
+    %h3 Select your skills
     %form!method=post!action=@SkillsR@
         %table
             $forall skills skill
@@ -56,7 +57,18 @@
                             $skillName.snd.fst.skill$
             %tr
                 %td!colspan=2
-                    %input!type=submit!value="Update Skills"
+                    %input!type=submit!value="Update your skills"
+    %h3 Add a new skill
+    %p We want to try and keep this list of skills manageable. As such, please make sure of the following before adding something:
+    %ul
+        %li The skill doesn't already exist in the list above.
+        %li It's not too general (eg, I know how to program).
+        %li It's not too specific (eg, I know how to use the transformers package to build a 3-level-deep monad transformer stack).
+        %li It's relevant to the Haskell community (eg, don't put in your juggling talent).
+    %form!method=post!action=@AllSkillsR@
+        New skill: $
+        %input#skill!type=text!name=skill
+        %input!type=submit!value="Add skill"
   #identifiers
     %h3 Current identifiers
     %ul

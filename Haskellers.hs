@@ -77,6 +77,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/skills SkillsR POST
 /profile/ident/#IdentId/delete DeleteIdentR POST
 
+/skills AllSkillsR POST
+
 /user/#UserId UserR GET
 /user/#UserId/admin AdminR POST
 /user/#UserId/unadmin UnadminR POST

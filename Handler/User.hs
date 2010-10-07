@@ -7,7 +7,7 @@ module Handler.User
 import Haskellers
 import Handler.Root (gravatar)
 import Data.Ord (comparing)
-import Data.List (sortBy)
+import Data.List (sort)
 import Data.Maybe (fromMaybe)
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as S8
@@ -35,9 +35,7 @@ getUserR uid = do
     skills <- runDB $ do
         x <- selectList [UserSkillUserEq uid] [] 0 0
         y <- mapM (get404 . userSkillSkill . snd) x
-        return
-            $ map skillName
-            $ sortBy (comparing skillOrder) y
+        return $ sort $ map skillName y
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
     let json = jsonMap

@@ -17,6 +17,7 @@ import Handler.User
 import Handler.Admin
 import Handler.Real
 import Handler.Email
+import Handler.Skills
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Haskellers.hs. Please see

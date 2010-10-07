@@ -63,7 +63,7 @@ getProfileR = do
             redirect RedirectTemporary ProfileR
         _ -> return ()
     y <- getYesod
-    skills <- runDB $ selectList [] [SkillOrderAsc] 0 0 >>= mapM (\(sid, s) -> do
+    skills <- runDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
         x <- getBy $ UniqueUserSkill uid sid
         return $ ((sid, s), isJust x)
         )

@@ -25,8 +25,7 @@ Ident
     user UserId Eq
     UniqueIdent ident
 Skill
-    name String
-    order Int Asc
+    name String Asc
 UserSkill
     user UserId Eq
     skill SkillId
