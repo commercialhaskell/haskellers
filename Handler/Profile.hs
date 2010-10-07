@@ -14,6 +14,8 @@ import Yesod.Form.Jquery
 import StaticFiles (jquery_cookie_js)
 import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
+import Yesod.Form.Core
+import Yesod.Form.Profiles
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -26,7 +28,9 @@ userForm u = fieldsToTable $ User
     <*> pure (userEmail u)
     <*> pure (userVerifiedEmail u)
     <*> pure (userVerkey u)
-    <*> maybeIntField "Years of Haskell Experience" (Just $ userHaskellExp u)
+    <*> maybeHaskellSinceField "Using Haskell since"
+            { ffsTooltip = "Don't worry if you took breaks from Haskell, just put the year you wrote your first Haskell code"
+            } (Just $ userHaskellSince u)
     <*> maybeTextareaField "Description"
             { ffsId = Just "desc"
             } (Just $ userDesc u)
@@ -35,6 +39,18 @@ userForm u = fieldsToTable $ User
             } (Just $ userVisible u)
     <*> pure (userReal u)
     <*> pure (userAdmin u)
+  where
+    maybeHaskellSinceField = optionalFieldHelper haskellSinceFieldProfile
+    haskellSinceFieldProfile = intFieldProfile
+        { fpParse =
+            \s ->
+                case fpParse intFieldProfile s of
+                    Left e -> Left e
+                    Right i -> validSinceYear i
+        }
+    validSinceYear y
+        | y >= 1985 && y <= 2010 = Right y
+        | otherwise = Left "Unless you've got a time machine, I don't think that's possible"
 
 getProfileR :: Handler RepHtml
 getProfileR = do

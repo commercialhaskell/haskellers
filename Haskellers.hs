@@ -154,7 +154,7 @@ instance YesodAuth Haskellers where
                     , userEmail = Nothing
                     , userVerifiedEmail = False
                     , userVerkey = Nothing
-                    , userHaskellExp = Nothing
+                    , userHaskellSince = Nothing
                     , userDesc = Nothing
                     , userVisible = False
                     , userReal = False

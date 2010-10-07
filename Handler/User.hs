@@ -46,9 +46,9 @@ getUserR uid = do
             . (case userWebsite u of
                 Nothing -> id
                 Just w -> (:) ("website", jsonScalar w))
-            . (case userHaskellExp u of
+            . (case userHaskellSince u of
                 Nothing -> id
-                Just e -> (:) ("experience", jsonScalar $ show e))
+                Just e -> (:) ("haskell-since", jsonScalar $ show e))
             . (case userDesc u of
                 Nothing -> id
                 Just d -> (:) ("description", jsonScalar $ unTextarea d))

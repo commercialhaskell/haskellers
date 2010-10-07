@@ -52,7 +52,7 @@ postSendVerifyR = do
                                ]
             render <- getUrlRender
             let url = render $ VerifyEmailR verkey
-            liftIO $ sendMail $ LU.fromString $ unlines
+            liftIO $ sendmail $ LU.fromString $ unlines
                 [ "From: noreply@haskellers.com"
                 , "To: " ++ email
                 , "Subject: Verify your email address"

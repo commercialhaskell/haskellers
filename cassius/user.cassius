@@ -4,5 +4,5 @@
     padding-right: 30px
 .name
     font-weight: bold
-.experience
+.since
     font-style: italic

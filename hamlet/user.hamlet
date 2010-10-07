@@ -2,12 +2,8 @@
     %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
 #basics
     .name $userFullName.u$
-    $maybe userHaskellExp.u e
-        .experience
-            $show.e$ year
-            $if notOne.e
-                s
-            \ Haskell experience
+    $maybe userHaskellSince.u y
+        .since Using Haskell since $show.y$
     $maybe userEmail.u email
         .email
             %a!href=$emailLink.email$ Reveal email address

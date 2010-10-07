@@ -11,7 +11,7 @@ This contains detailed information on a specific user. It returns a map with the
 * id: numerical ID
 * name: user's full name
 * website (optional): the user's specified website
-* experience (optional): the user's number of years experience with Haskell
+* haskell-since (optional): first year user used Haskell
 * description (optional): the user's self description
 * skills: a JSON list of all skills the user claims
 
