@@ -16,6 +16,7 @@ import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
 import Yesod.Form.Core
 import Yesod.Form.Profiles
+import Control.Arrow ((&&&))
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -39,7 +40,11 @@ userForm u = fieldsToTable $ User
             } (Just $ userVisible u)
     <*> pure (userReal u)
     <*> pure (userAdmin u)
+    <*> maybeSelectField empOpts "Employment status"
+            { ffsTooltip = "Just remember, this information will be public, meaning your current employer will be able to see it!"
+            } (Just $ userEmployment u)
   where
+    empOpts = map (id &&& prettyEmployment) [minBound..maxBound]
     maybeHaskellSinceField = optionalFieldHelper haskellSinceFieldProfile
     haskellSinceFieldProfile = intFieldProfile
         { fpParse =

@@ -10,6 +10,8 @@
     $maybe userWebsite.u w
         .website
             %a!href=$w$ $w$
+    $maybe userEmployment.u e
+        .employment $e$
 $maybe userDesc.u d
     #desc $d$
 #skills

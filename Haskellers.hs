@@ -161,6 +161,7 @@ instance YesodAuth Haskellers where
                     , userVisible = False
                     , userReal = False
                     , userAdmin = False
+                    , userEmployment = Nothing
                     }
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid

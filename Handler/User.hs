@@ -6,7 +6,6 @@ module Handler.User
 
 import Haskellers
 import Handler.Root (gravatar)
-import Data.Ord (comparing)
 import Data.List (sort)
 import Data.Maybe (fromMaybe)
 import qualified Data.ByteString as S
