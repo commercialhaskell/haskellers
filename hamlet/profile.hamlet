@@ -1,3 +1,10 @@
+%ul#nav
+    %li
+        %a!href=@RootR@ Homepage
+    %li
+        %a!href=@UserR.uid@ View my profile
+    %li
+        %a!href=@AuthR.LogoutR@ Logout
 #tabs
   %ul
         %li
