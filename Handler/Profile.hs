@@ -11,7 +11,7 @@ import Haskellers
 import Control.Applicative
 import Handler.Root (gravatar)
 import Yesod.Form.Jquery
-import StaticFiles (jquery_cookie_js)
+import StaticFiles (jquery_cookie_js, badge_png)
 import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
 import Yesod.Form.Core
@@ -124,3 +124,5 @@ postDeleteIdentR iid = do
             setMessage "Identifier deleted"
         else setMessage "You cannot delete your last identifier"
     redirect RedirectTemporary ProfileR
+
+badge_png_plain = StaticRoute ["badge.png"] []

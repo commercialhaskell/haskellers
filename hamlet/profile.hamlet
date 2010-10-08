@@ -18,6 +18,8 @@
         %li
             %a!href="#identifiers" Identifiers
         %li
+            %a!href="#extras" Extras
+        %li
             %a!href="#delete" Delete
   #email-box
     $if userVerifiedEmail.u
@@ -107,6 +109,15 @@
                         %input!type=submit!value=Remove
     %h3 Add new identifier
     ^login^
+  #extras
+    %h3 I'm a Haskeller badge
+    %p
+        Simply copy the following code to get your $
+        %img!src=@StaticR.badge_png@!alt="I'm a Haskeller"
+        \ badge.
+    %textarea#badge-code
+        %a!href=@UserR.uid@
+            %img!src=@StaticR.badge_png_plain@!alt="I'm a Haskeller"
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?

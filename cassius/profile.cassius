@@ -30,3 +30,7 @@
     font-size: 80%
     color: #900
     min-width: 120px
+#badge-code
+    width: 400px
+    font-size: 70%
+    height: 80px
