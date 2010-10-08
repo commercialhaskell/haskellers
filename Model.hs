@@ -52,7 +52,7 @@ Skill
     name String Asc
 UserSkill
     user UserId Eq
-    skill SkillId
+    skill SkillId Eq
     UniqueUserSkill user skill
 Package
     user UserId Eq

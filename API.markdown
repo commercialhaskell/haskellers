@@ -19,6 +19,22 @@ This contains detailed information on a specific user. It returns a map with the
 
 This is for looking up a Haskell account by identifier. This is useful if you have an OpenID-enabled site and you would like to get information on a user. You must provide the user identifier as a query string parameter named "ident". If no account is associated with that identifier, this resource will return a 404. Otherwise, it will return a JSON map with two elements: id and url.
 
+## http://www.haskellers.com/skills/
+
+This returns a list of all skills available on Haskellers. It returns a map with one key: skills. The value is a list of maps with the fields:
+
+* id: The nuemrical ID of the skill
+* name: The name of the skill
+* url: The resource for this skill (see next entry).
+
+## http://www.haskellers.com/skills/*id*/
+
+Returns a list of users with a given skill. It returns a map with one key: users. The value is a list of maps with the fields:
+
+* id: The user's numerical ID
+* name: The user's full name
+* url: The resource for this user (see second entry in this file).
+
 # Sample session
 
     > curl -H "Accept: application/json" http://www.haskellers.com/
