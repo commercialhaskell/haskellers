@@ -35,6 +35,9 @@ getUserR uid = do
         x <- selectList [UserSkillUserEq uid] [] 0 0
         y <- mapM (get404 . userSkillSkill . snd) x
         return $ sort $ map skillName y
+    packages <- runDB
+              $ fmap (map $ packageName . snd)
+              $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
     let json = jsonMap

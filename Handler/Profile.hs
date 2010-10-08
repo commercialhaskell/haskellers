@@ -72,6 +72,7 @@ getProfileR = do
         x <- getBy $ UniqueUserSkill uid sid
         return $ ((sid, s), isJust x)
         )
+    packages <- runDB $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
     idents <- runDB $ selectList [IdentUserEq uid] [IdentIdentAsc] 0 0
     defaultLayout $ do
         addScriptEither $ urlJqueryJs y

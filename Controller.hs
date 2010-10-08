@@ -18,6 +18,7 @@ import Handler.Admin
 import Handler.Real
 import Handler.Email
 import Handler.Skills
+import Handler.Package
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Haskellers.hs. Please see
@@ -43,6 +44,7 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
         migrate (undefined :: Ident)
         migrate (undefined :: Skill)
         migrate (undefined :: UserSkill)
+        migrate (undefined :: Package)
     let h = Haskellers s p
     toWaiApp h >>= f
   where

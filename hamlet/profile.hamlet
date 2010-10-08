@@ -7,6 +7,8 @@
         %li
             %a!href="#skills" Skills
         %li
+            %a!href="#packages" Packages
+        %li
             %a!href="#identifiers" Identifiers
         %li
             %a!href="#delete" Delete
@@ -69,6 +71,24 @@
         New skill: $
         %input#skill!type=text!name=skill
         %input!type=submit!value="Add skill"
+  #packages
+    %h3 I've authored or contributed significantly to the following hackage packages:
+    $if null.packages
+        %p I haven't authored any packages.
+    $else
+        %table
+            $forall packages p
+                %tr
+                    %td $packageName.snd.p$
+                    %td
+                        %form!method=post!action=@DeletePackageR.fst.p@
+                            %input!type=submit!value="Remove"
+    %h3 Add a package
+    %form!method=post!action=@PackagesR@
+        Name: $
+        %input#package-name!type=text!name=name
+        %input!type=submit!value="Add package"
+
   #identifiers
     %h3 Current identifiers
     %ul

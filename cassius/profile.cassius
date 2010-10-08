@@ -1,4 +1,4 @@
-#full-name, #website, #email, #skill
+#full-name, #website, #email, #skill, #package-name
     width: 400px
 #desc
     width: 400px

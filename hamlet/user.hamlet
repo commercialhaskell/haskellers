@@ -14,11 +14,16 @@
         .employment $e$
 $maybe userDesc.u d
     #desc $d$
-#skills
-    $if null.skills
-        %p $userFullName.u$ has not entered any skills.
-    $else
+$if not.null.skills
+    #skills
         %h3 Skills
         %ul
             $forall skills s
                 %li $s$
+$if not.null.packages
+    #packages
+        %h3 Packages
+        %ul
+            $forall packages p
+                %li
+                    %a!href="http://hackage.haskell.org/package/$p$" $p$

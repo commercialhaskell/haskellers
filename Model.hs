@@ -54,6 +54,10 @@ UserSkill
     user UserId Eq
     skill SkillId
     UniqueUserSkill user skill
+Package
+    user UserId Eq
+    name String Asc
+    UniquePackage user name
 |]
 
 userFullName' :: User -> String
