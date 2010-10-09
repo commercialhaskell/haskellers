@@ -35,7 +35,7 @@ getRootR = do
 
 gravatar :: Int -> String -> String
 gravatar s x =
-    "http://www.gravatar.com/avatar/" ++ hash ++ "?d=wavatar&s=" ++ show s
+    "http://www.gravatar.com/avatar/" ++ hash ++ "?d=identicon&s=" ++ show s
   where
     hash = show $ md5 $ L.fromString $ map toLower $ trim x
     trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
