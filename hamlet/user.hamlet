@@ -1,3 +1,5 @@
+$if userBlocked.u
+    %h3 Warning: This user has been blocked.
 $if viewerIsAdmin
     #admin-bar
         Welcome glorious administrator! You may:
@@ -13,8 +15,16 @@ $if viewerIsAdmin
         $else
             %form!method=post!action=@RealR.uid@
                 %input!type=submit!value="Grant real badge"
+        $if userBlocked.u
+            %form!method=post!action=@UnblockR.uid@
+                %input!type=submit!value=Unblock
+        $else
+            %form!method=post!action=@BlockR.uid@
+                %input!type=submit!value=Block
 #gravatar
     %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
+    %form!method=post!action=@FlagR.uid@
+        %input!type=submit!value="Flag this user"
 #basics
     .name $userFullName.u$
     $maybe userHaskellSince.u y

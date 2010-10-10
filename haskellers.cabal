@@ -34,6 +34,7 @@ executable         simple-server
                    http-enumerator,
                    random,
                    HsOpenSSL,
+                   time,
                    utf8-string
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies

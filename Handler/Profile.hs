@@ -5,6 +5,8 @@ module Handler.Profile
     , postDeleteAccountR
     , postSkillsR
     , postDeleteIdentR
+    , postRequestRealR
+    , postRequestUnblockR
     ) where
 
 import Haskellers
@@ -17,6 +19,7 @@ import Control.Monad (filterM, forM_, unless)
 import Yesod.Form.Core
 import Yesod.Form.Profiles
 import Control.Arrow ((&&&))
+import Data.Time (getCurrentTime)
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -43,6 +46,7 @@ userForm u = fieldsToTable $ User
     <*> maybeSelectField empOpts "Employment status"
             { ffsTooltip = "Just remember, this information will be public, meaning your current employer will be able to see it!"
             } (Just $ userEmployment u)
+    <*> pure (userBlocked u)
   where
     empOpts = map (id &&& prettyEmployment) [minBound..maxBound]
     maybeHaskellSinceField = optionalFieldHelper haskellSinceFieldProfile
@@ -125,4 +129,39 @@ postDeleteIdentR iid = do
         else setMessage "You cannot delete your last identifier"
     redirect RedirectTemporary ProfileR
 
+badge_png_plain :: StaticRoute
 badge_png_plain = StaticRoute ["badge.png"] []
+
+postRequestRealR :: Handler ()
+postRequestRealR = do
+    (uid, u) <- requireAuth
+    if userReal u
+        then setMessage "You already have Real Haskeller status"
+        else do
+            now <- liftIO getCurrentTime
+            _ <- runDB $ insert $ Message
+                { messageClosed = False
+                , messageWhen = now
+                , messageFrom = Just uid
+                , messageRegarding = Just uid
+                , messageText = Textarea "Requesting Real Haskeller status"
+                }
+            setMessage "Your request has been logged. Good luck!"
+    redirect RedirectTemporary ProfileR
+
+postRequestUnblockR :: Handler ()
+postRequestUnblockR = do
+    (uid, u) <- requireAuth
+    if userBlocked u
+        then do
+            now <- liftIO getCurrentTime
+            _ <- runDB $ insert $ Message
+                { messageClosed = False
+                , messageWhen = now
+                , messageFrom = Just uid
+                , messageRegarding = Just uid
+                , messageText = Textarea "Requesting unblock"
+                }
+            setMessage "Your request has been logged. Good luck!"
+        else setMessage "Your account isn't blocked."
+    redirect RedirectTemporary ProfileR

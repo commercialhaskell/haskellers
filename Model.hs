@@ -6,6 +6,7 @@ module Model where
 import Yesod
 import Database.Persist.Base
 import Text.Hamlet (ToHtml (..))
+import Data.Time (UTCTime)
 
 data Employment = FullTime | PartTime | FullPartTime | NotLooking
     deriving (Show, Read, Eq, Enum, Bounded)
@@ -44,6 +45,7 @@ User
     real Bool default=false update Desc
     admin Bool default=false update
     employment Employment null
+    blocked Bool update Eq default=false
 Ident
     ident String Asc
     user UserId Eq
@@ -58,6 +60,12 @@ Package
     user UserId Eq
     name String Asc
     UniquePackage user name
+Message
+    closed Bool update Eq
+    when UTCTime Asc
+    from UserId null
+    regarding UserId null
+    text Textarea
 |]
 
 userFullName' :: User -> String

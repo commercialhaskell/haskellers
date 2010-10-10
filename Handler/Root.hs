@@ -18,9 +18,17 @@ getRootR :: Handler RepHtml
 getRootR = do
     mu <- maybeAuth
     (public, private, unver) <- runDB $ do
-        public <- count [UserVerifiedEmailEq True, UserVisibleEq True]
-        private <- count [UserVerifiedEmailEq True, UserVisibleEq False]
-        unverified <- count [UserVerifiedEmailEq False]
+        public <- count [ UserVerifiedEmailEq True
+                        , UserVisibleEq True
+                        , UserBlockedEq False
+                        ]
+        private <- count [ UserVerifiedEmailEq True
+                         , UserVisibleEq False
+                         , UserBlockedEq False
+                         ]
+        unverified <- count [ UserVerifiedEmailEq False
+                            , UserBlockedEq False
+                            ]
         return (public, private, unverified)
     mpage <- runFormGet' $ maybeIntInput "page"
     let page = fromMaybe 0 mpage
@@ -33,6 +41,7 @@ getRootR = do
     let minHaskeller = page * perPage + 1
     users <- runDB $ selectList [ UserVerifiedEmailEq True
                                 , UserVisibleEq True
+                                , UserBlockedEq False
                                 ]
                                 [ UserRealDesc
                                 , UserHaskellSinceAsc

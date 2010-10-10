@@ -15,7 +15,6 @@ import Handler.Root
 import Handler.Profile
 import Handler.User
 import Handler.Admin
-import Handler.Real
 import Handler.Email
 import Handler.Skills
 import Handler.Package
@@ -45,6 +44,7 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
         migrate (undefined :: Skill)
         migrate (undefined :: UserSkill)
         migrate (undefined :: Package)
+        migrate (undefined :: Message)
     let h = Haskellers s p
     toWaiApp h >>= f
   where

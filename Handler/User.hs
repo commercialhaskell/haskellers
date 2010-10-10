@@ -2,6 +2,7 @@
 module Handler.User
     ( getUserR
     , getByIdentR
+    , postFlagR
     ) where
 
 import Haskellers
@@ -15,6 +16,7 @@ import OpenSSL.Cipher
 import OpenSSL.EVP.Base64
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
+import Data.Time (getCurrentTime)
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
@@ -102,3 +104,20 @@ encrypt :: S.ByteString -> IO S.ByteString
 encrypt bs = do
     ctx <- newAESCtx Encrypt mailhidePrivate $ S.replicate 16 0
     aesCBC ctx bs
+
+postFlagR :: UserId -> Handler ()
+postFlagR uid = do
+    mvid <- fmap (fmap fst) maybeAuth
+    runDB $ do
+        _ <- get404 uid
+        now <- liftIO getCurrentTime
+        _ <- insert Message
+            { messageClosed = False
+            , messageWhen = now
+            , messageFrom = mvid
+            , messageRegarding = Just uid
+            , messageText = Textarea "User has been flagged"
+            }
+        return ()
+    setMessage $ string "A flag message has been sent to the admins. Thanks!"
+    redirect RedirectTemporary $ UserR uid

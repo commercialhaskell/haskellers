@@ -2,6 +2,8 @@
     display: table-cell
     vertical-align: top
     padding-right: 30px
+#basics
+    min-width: 200px
 .name
     font-weight: bold
 .since

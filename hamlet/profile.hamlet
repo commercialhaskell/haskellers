@@ -1,8 +1,14 @@
+$if userBlocked.u
+    %h3 Note: Your account has been blocked. You've probably put in some inappropriate gravatar image or content. Please clean it up.
+    %form!method=post!action=@RequestUnblockR@
+        %input!type=submit!value="I'm clean now, please unblock me!"
 %ul#nav
     %li
         %a!href=@RootR@ Homepage
     %li
         %a!href=@UserR.uid@ View my profile
+    $if userAdmin.u
+        %a!href=@MessagesR@ Admin messages
     %li
         %a!href=@AuthR.LogoutR@ Logout
 #tabs
@@ -110,7 +116,7 @@
     %h3 Add new identifier
     ^login^
   #extras
-    %h3 I'm a Haskeller badge
+    %h3 I'm a Haskeller button
     %p
         Simply copy the following code to get your $
         %img!src=@StaticR.badge_png@!alt="I'm a Haskeller"
@@ -118,6 +124,11 @@
     %textarea#badge-code
         %a!href=@UserR.uid@
             %img!src=@StaticR.badge_png_plain@!alt="I'm a Haskeller"
+    %h3 Request "Real Haskeller" status
+    %p Real Haskellers have been approved by the site administrators as real users of Haskell. For now, that means they will show up earlier in homepage user listing; in the future, we may use it for more purposes.
+    %form!method=post!action=@RequestRealR@
+        %input!type=submit!value="Request real status"
+    %p Note: only ask us once, you'll just annoy us otherwise.
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?

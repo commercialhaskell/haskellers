@@ -1,0 +1,25 @@
+%h3 Admin Messages
+$if null.messages
+    %p You're lucky, no open messages.
+$else
+    %table
+        %thead
+            %tr
+                %th When
+                %th From
+                %th Regarding
+                %th Text
+        %tbody
+            $forall messages m
+                %tr
+                    %td $show.messageWhen.snd.fst.m$
+                    %td
+                        $maybe fst.snd.m u
+                            %a!href=@UserR.fst.u@ $userFullName.snd.u$
+                    %td
+                        $maybe snd.snd.m u
+                            %a!href=@UserR.fst.u@ $userFullName.snd.u$
+                    %td $messageText.snd.fst.m$
+                    %td
+                        %form!method=post!action=@CloseMessageR.fst.fst.m@
+                            %input!type=submit!value="Close"

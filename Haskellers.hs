@@ -77,6 +77,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/delete DeleteAccountR POST
 /profile/skills SkillsR POST
 /profile/ident/#IdentId/delete DeleteIdentR POST
+/profile/request-real RequestRealR POST
+/profile/request-unblcok RequestUnblockR POST
 
 /skills AllSkillsR GET POST
 /skills/#SkillId SkillR GET
@@ -91,11 +93,19 @@ mkYesodData "Haskellers" [$parseRoutes|
 /user/#UserId/real RealR POST
 /user/#UserId/unreal UnrealR POST
 
+/user/#UserId/block BlockR POST
+/user/#UserId/unblock UnblockR POST
+
+/user/#UserId/flag FlagR POST
+
 /user ByIdentR GET
 
 /profile/reset-email ResetEmailR POST
 /profile/send-verify SendVerifyR POST
 /profile/verify/#String VerifyEmailR GET
+
+/admin/messages MessagesR GET
+/admin/messages/#MessageId/close CloseMessageR POST
 |]
 
 -- Please see the documentation for the Yesod typeclass. There are a number
@@ -167,6 +177,7 @@ instance YesodAuth Haskellers where
                     , userReal = False
                     , userAdmin = False
                     , userEmployment = Nothing
+                    , userBlocked = False
                     }
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
