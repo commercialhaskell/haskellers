@@ -127,6 +127,7 @@ $if userBlocked.u
     $if not.userReal.u
         %h3 Request "Real Haskeller" status
         %p Real Haskellers have been approved by the site administrators as real users of Haskell. For now, that means they will show up earlier in homepage user listing; in the future, we may use it for more purposes.
+        %p Please note that there is nothing magical about this status! It is simply a way to ensure only actual members of the community show up high in the search rankings of the site. Anyone even marginally involved in Haskell should feel free to request this status.
         %form!method=post!action=@RequestRealR@
             %input!type=submit!value="Request real status"
         %p Note: only ask us once, you'll just annoy us otherwise.
