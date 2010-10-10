@@ -124,11 +124,12 @@ $if userBlocked.u
     %textarea#badge-code
         %a!href=@UserR.uid@
             %img!src=@StaticR.badge_png_plain@!alt="I'm a Haskeller"
-    %h3 Request "Real Haskeller" status
-    %p Real Haskellers have been approved by the site administrators as real users of Haskell. For now, that means they will show up earlier in homepage user listing; in the future, we may use it for more purposes.
-    %form!method=post!action=@RequestRealR@
-        %input!type=submit!value="Request real status"
-    %p Note: only ask us once, you'll just annoy us otherwise.
+    $if not.userReal.u
+        %h3 Request "Real Haskeller" status
+        %p Real Haskellers have been approved by the site administrators as real users of Haskell. For now, that means they will show up earlier in homepage user listing; in the future, we may use it for more purposes.
+        %form!method=post!action=@RequestRealR@
+            %input!type=submit!value="Request real status"
+        %p Note: only ask us once, you'll just annoy us otherwise.
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?
