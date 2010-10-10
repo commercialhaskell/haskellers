@@ -1,6 +1,6 @@
 This site runs on a RESTful API. Content is available as JSON. In order to access this, you **must** set an HTTP request header of "Accept: application/json". The following resource patterns are available:
 
-## http://www.haskellers.com/
+## http://www.haskellers.com/users/
 
 This returns a list of all publicly-viewable user accounts. The response is a JSON map with one attribute: users. users is a JSON list, each element an array with three elements: id is the numerical ID of the account, name is the user's full name and url is the user's Haskeller URL (the next resource pattern).
 

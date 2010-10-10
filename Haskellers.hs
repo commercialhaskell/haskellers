@@ -71,6 +71,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 /robots.txt RobotsR GET
 
 / RootR GET
+/users UsersR GET
 
 /profile ProfileR GET POST
 /profile/delete DeleteAccountR POST

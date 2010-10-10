@@ -21,7 +21,7 @@ executable         simple-server
         Buildable: False
     main-is:       simple-server.hs
     build-depends: base >= 4 && < 5,
-                   yesod >= 0.5.1 && < 0.6,
+                   yesod >= 0.5.3 && < 0.6,
                    yesod-auth,
                    wai-extra,
                    directory,
