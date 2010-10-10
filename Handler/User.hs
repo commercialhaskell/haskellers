@@ -116,8 +116,8 @@ postFlagR uid = do
             , messageWhen = now
             , messageFrom = mvid
             , messageRegarding = Just uid
-            , messageText = Textarea "User has been flagged"
+            , messageText = Textarea "User has been reported"
             }
         return ()
-    setMessage $ string "A flag message has been sent to the admins. Thanks!"
+    setMessage $ string "The user has been reported to the admins. Thanks!"
     redirect RedirectTemporary $ UserR uid
