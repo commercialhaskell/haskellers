@@ -33,7 +33,11 @@ getRootR = do
     let minHaskeller = page * perPage + 1
     users <- runDB $ selectList [ UserVerifiedEmailEq True
                                 , UserVisibleEq True
-                                ] [UserFullNameAsc] perPage (perPage * page)
+                                ]
+                                [ UserRealDesc
+                                , UserHaskellSinceAsc
+                                , UserFullNameAsc
+                                ] perPage (perPage * page)
     let maxHaskeller = minHaskeller + length users - 1
     defaultLayout $ do
         setTitle "Haskellers"

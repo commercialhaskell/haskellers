@@ -38,11 +38,11 @@ User
     email String null toFormField=maybeEmailField id=email update
     verifiedEmail Bool default=false Eq update
     verkey String null update
-    haskellSince Int null
+    haskellSince Int null Asc
     desc Textarea null id=desc
     visible Bool default=true Eq
-    real Bool default=false
-    admin Bool default=false
+    real Bool default=false update Desc
+    admin Bool default=false update
     employment Employment null
 Ident
     ident String Asc

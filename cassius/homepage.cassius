@@ -35,3 +35,5 @@
 .user img
     border: 0
     padding-right: 10px
+.note
+    font-style: italic

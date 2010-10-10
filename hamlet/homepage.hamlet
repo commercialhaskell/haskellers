@@ -38,6 +38,4 @@ $if not.hasPrev
                     %img!src=$(gravatar.80).fakeEmail$!alt="Gravatar Profile Picture"
                 %span.name
                   $userFullName'.snd.user$
-                  $if userReal.snd.user
-                    \ $
-                    %span.real-badge Real Haskeller
+    .note Note: Haskellers are sorted by years of experience with Haskell. Also, approved accounts are shown first.

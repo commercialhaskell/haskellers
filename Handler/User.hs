@@ -31,6 +31,8 @@ getByIdentR = do
 getUserR :: UserId -> Handler RepHtmlJson
 getUserR uid = do
     u <- runDB $ get404 uid
+    mv <- maybeAuth
+    let viewerIsAdmin = maybe False (userAdmin . snd) mv
     skills <- runDB $ do
         x <- selectList [UserSkillUserEq uid] [] 0 0
         y <- mapM (get404 . userSkillSkill . snd) x
