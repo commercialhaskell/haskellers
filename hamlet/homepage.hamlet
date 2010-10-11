@@ -16,7 +16,7 @@
             ^login^
 #users
     .counts
-        Total accounts: $show.public$ public, $show.private$ private, $show.unver$ unverified.
+        Total accounts: $show.public$ public, $show.private$ private
     $forall profs prof
         .user
             %a!href=@UserR.profileUserId.prof@

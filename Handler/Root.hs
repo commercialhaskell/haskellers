@@ -32,7 +32,7 @@ getRootR = do
     gen <- liftIO newStdGen
     let profs = take 10 $ shuffle' allProfs len gen
     mu <- maybeAuth
-    (public, private, unver) <- runDB $ do
+    (public, private) <- runDB $ do
         public <- count [ UserVerifiedEmailEq True
                         , UserVisibleEq True
                         , UserBlockedEq False
@@ -41,10 +41,7 @@ getRootR = do
                          , UserVisibleEq False
                          , UserBlockedEq False
                          ]
-        unverified <- count [ UserVerifiedEmailEq False
-                            , UserBlockedEq False
-                            ]
-        return (public, private, unverified)
+        return (public, private)
     defaultLayout $ do
         setTitle "Haskellers"
         addStyle $(cassiusFile "homepage")
