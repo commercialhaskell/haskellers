@@ -32,6 +32,7 @@ import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
                     openid_icon_small_gif, facebook_png)
 import Yesod.Form.Jquery
 import Data.IORef (IORef)
+import qualified Data.Set as Set
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -40,13 +41,16 @@ import Data.IORef (IORef)
 data Haskellers = Haskellers
     { getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
-    , homepageProfiles :: IORef [Profile]
+    , homepageProfiles :: IORef ([Profile], Int)
+    , publicProfiles :: IORef [Profile]
     }
 
 data Profile = Profile
     { profileUserId :: UserId
     , profileName :: String
     , profileEmail :: String
+    , profileUser :: User
+    , profileSkills :: Set.Set SkillId
     }
 
 -- | A useful synonym; most of the handler functions in your application

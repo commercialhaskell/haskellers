@@ -13,6 +13,7 @@ import Data.IORef
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad (forever)
 import Data.Maybe (mapMaybe)
+import qualified Data.Set as Set
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -49,9 +50,10 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
         migrate (undefined :: UserSkill)
         migrate (undefined :: Package)
         migrate (undefined :: Message)
-    iprofs <- newIORef []
-    _ <- forkIO $ fillProfs p iprofs
-    let h = Haskellers s p iprofs
+    hprofs <- newIORef ([], 0)
+    pprofs <- newIORef []
+    _ <- forkIO $ fillProfs p hprofs pprofs
+    let h = Haskellers s p hprofs pprofs
     toWaiApp h >>= f
   where
     s = fileLookupDir Settings.staticdir typeByExt
@@ -64,16 +66,34 @@ getHomepageProfs pool = flip runConnectionPool pool $ do
                    , UserBlockedEq False
                    -- FIXME , UserRealPicEq True
                    ] [] 0 0
-    return $ flip mapMaybe users $ \(uid, u) ->
-        case userEmail u of
-            Nothing -> Nothing
-            Just e -> Just Profile
-                { profileUserId = uid
-                , profileName = userFullName u
-                , profileEmail = e
-                }
+    return $ mapMaybe userToProfile users
 
-fillProfs pool iprofs = forever $ do
-    profs <- getHomepageProfs pool
-    writeIORef iprofs profs
+getPublicProfs pool = flip runConnectionPool pool $ do
+    users <-
+        selectList [ UserVerifiedEmailEq True
+                   , UserVisibleEq True
+                   , UserBlockedEq False
+                   ]
+                   [ UserRealDesc
+                   , UserHaskellSinceAsc
+                   , UserFullNameAsc
+                   ] 0 0
+    return $ mapMaybe userToProfile users
+
+fillProfs pool hprofs pprofs = forever $ do
+    hprofs' <- getHomepageProfs pool
+    pprofs' <- getPublicProfs pool
+    writeIORef hprofs (hprofs', length hprofs')
+    writeIORef pprofs pprofs'
     threadDelay $ 1000 * 1000 * 60 * 5
+
+userToProfile (uid, u) =
+    case userEmail u of
+        Nothing -> Nothing
+        Just e -> Just Profile
+            { profileUserId = uid
+            , profileName = userFullName u
+            , profileEmail = e
+            , profileUser = u
+            , profileSkills = Set.fromList [] -- FIXME
+            }

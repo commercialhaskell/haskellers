@@ -5,7 +5,7 @@ module Handler.Root
     , gravatar
     ) where
 
-import Haskellers
+import Haskellers hiding (Filter)
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace)
@@ -13,6 +13,8 @@ import Data.Maybe (fromMaybe)
 import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
 import Data.IORef (readIORef)
+import Control.Applicative
+import Data.List (isInfixOf)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -24,9 +26,9 @@ import Data.IORef (readIORef)
 getRootR :: Handler RepHtml
 getRootR = do
     y <- getYesod
-    allProfs <- liftIO $ readIORef $ homepageProfiles y
+    (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
-    let profs = take 10 $ shuffle' allProfs (length allProfs) gen
+    let profs = take 10 $ shuffle' allProfs len gen
     mu <- maybeAuth
     (public, private, unver) <- runDB $ do
         public <- count [ UserVerifiedEmailEq True
@@ -47,43 +49,93 @@ getRootR = do
         addStyle $(cassiusFile "users")
         $(hamletFile "homepage")
 
+data Filter = Filter
+    { filterName :: Maybe String
+    , filterMinSince :: Maybe Int
+    , filterMaxSince :: Maybe Int
+    , filterFullTime :: Bool
+    , filterPartTime :: Bool
+    }
+
+applyFilter :: Filter -> Profile -> Bool
+applyFilter f p = and
+    [ go name filterName
+    , go minsince filterMinSince
+    , go maxsince filterMaxSince
+    , go fulltime (Just . filterFullTime)
+    , go parttime (Just . filterPartTime)
+    ]
+  where
+    go x y =
+        case y f of
+            Nothing -> True
+            Just z -> x z
+    name x = map toLower x `isInfixOf` map toLower (profileName p)
+    minsince x =
+        case userHaskellSince $ profileUser p of
+            Nothing -> False
+            Just y -> x <= y
+    maxsince x =
+        case userHaskellSince $ profileUser p of
+            Nothing -> False
+            Just y -> x >= y
+    fulltime False = True
+    fulltime True =
+        case userEmployment $ profileUser p of
+            Just FullTime -> True
+            Just FullPartTime -> True
+            _ -> False
+    parttime False = True
+    parttime True =
+        case userEmployment $ profileUser p of
+            Just PartTime -> True
+            Just FullPartTime -> True
+            _ -> False
+
+filterForm :: Form s y Filter
+filterForm = fieldsToTable $ Filter
+    <$> maybeStringField "Name" Nothing
+    <*> maybeIntField "Using Haskell since (minimum)" Nothing
+    <*> maybeIntField "Using Haskell since (maximum)" Nothing
+    <*> boolField "Interested in full-time positions" Nothing
+    <*> boolField "Interested in part-time positions" Nothing
+
 getUsersR :: Handler RepHtmlJson
 getUsersR = do
+    y <- getYesod
+    allProfs <- liftIO $ readIORef $ publicProfiles y
+    (res, form, enctype) <- runFormGet filterForm
+    let filteredProfs =
+            case res of
+                FormSuccess filt -> filter (applyFilter filt) allProfs
+                _ -> allProfs
+    let public = length filteredProfs
     mpage <- runFormGet' $ maybeIntInput "page"
     let page = fromMaybe 0 mpage
     let perPage = 10
     let hasPrev = page > 0
-    public <- runDB $ count
-        [ UserVerifiedEmailEq True
-        , UserVisibleEq True
-        , UserBlockedEq False
-        ]
     let maxPage = (public - 1) `div` perPage
     let hasNext = page < maxPage
-    let next = (UsersR, [("page", show $ page + 1)])
-    let prev = (UsersR, [("page", show $ page - 1)])
+    allGets <- fmap reqGetParams getRequest
+    let params p = ("page", show p) : filter (\(x, _) -> x /= "page") allGets
+    let next = (UsersR, params $ page + 1)
+    let prev = (UsersR, params $ page - 1)
     let minHaskeller = page * perPage + 1
-    users <- runDB $ selectList [ UserVerifiedEmailEq True
-                                , UserVisibleEq True
-                                , UserBlockedEq False
-                                ]
-                                [ UserRealDesc
-                                , UserHaskellSinceAsc
-                                , UserFullNameAsc
-                                ] perPage (perPage * page)
-    let maxHaskeller = minHaskeller + length users - 1
+    let profs = take perPage $ drop (page * perPage) filteredProfs
+    let maxHaskeller = minHaskeller + length profs - 1
+    let noFilter = (UsersR, [("page", show page)])
     render <- getUrlRender
-    flip defaultLayoutJson (json render users) $ do
+    flip defaultLayoutJson (json render profs) $ do
+        setTitle "Browsing Haskellers"
         addStyle $(cassiusFile "users")
         $(hamletFile "users")
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]
-    json' r (uid, u) = jsonMap
-        [ ("id", jsonScalar $ showIntegral uid)
-        , ("name", jsonScalar $ userFullName u)
-        , ("url", jsonScalar $ r $ UserR uid)
+    json' r prof = jsonMap
+        [ ("id", jsonScalar $ showIntegral $ profileUserId prof)
+        , ("name", jsonScalar $ userFullName $ profileUser prof)
+        , ("url", jsonScalar $ r $ UserR $ profileUserId prof)
         ]
-    fakeEmail = "fake@email.com"
 
 gravatar :: Int -> String -> String
 gravatar s x =

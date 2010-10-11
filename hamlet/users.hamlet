@@ -1,21 +1,27 @@
+%form
+    %table
+        %caption Filter Users
+        ^form^
+        %tr
+            %td!colspan=2
+                %input!type=submit!value="Apply Filters"
+                \ $
+                %a!href=@?noFilter@ Clear Filters
 .controls
     $if hasPrev
         %a!href=@?prev@ Previous
     $else
         Previous
     %b
-        \ Viewing Haskellers $show.minHaskeller$-$show.maxHaskeller$ $
+        \ Viewing $show.minHaskeller$-$show.maxHaskeller$ of $show.public$ $
     $if hasNext
         %a!href=@?next@ Next
     $else
         Next
-$forall users user
+$forall profs prof
     .user
-        %a!href=@UserR.fst.user@
-            $maybe userEmail.snd.user email
-                %img!src=$(gravatar.80).email$!alt="Gravatar Profile Picture"
-            $nothing
-                %img!src=$(gravatar.80).fakeEmail$!alt="Gravatar Profile Picture"
+        %a!href=@UserR.profileUserId.prof@
+            %img!src=$(gravatar.80).profileEmail.prof$!alt="Gravatar Profile Picture"
             %span.name
-              $userFullName'.snd.user$
+              $userFullName'.profileUser.prof$
 .note Note: Haskellers are sorted by years of experience with Haskell. Also, verified users are shown first.
