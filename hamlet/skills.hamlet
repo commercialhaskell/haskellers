@@ -1,4 +1,10 @@
 %h3 Skills
+$if areHidden
+    %p
+        %i
+            Note: hiding $show.hidden$ less common skills. $
+            %a!href=@?showAllUrl@ Show all skills
+            \.
 %table
     %thead
         %tr
