@@ -86,6 +86,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 / RootR GET
 /users UsersR GET
 /locations LocationsR GET
+/page/faq FaqR GET
 
 /profile ProfileR GET POST
 /profile/delete DeleteAccountR POST

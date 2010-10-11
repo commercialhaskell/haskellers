@@ -9,6 +9,7 @@
                 %a!href=@RootR@
                     %img!src=@StaticR.logo_png@!alt=Haskellers
             %h2 The meeting place for professional Haskell programmers
+            %a!href=@FaqR@ FAQ
             $maybe mmsg msg
                 #message $msg$
             ^pageBody.pc^

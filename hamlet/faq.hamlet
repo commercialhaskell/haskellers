@@ -1,0 +1,9 @@
+%h3 Frequently Asked Questions
+%ol
+    $forall faqs faq
+        %li
+            %a!href="#$hash.faq$" $question.faq$
+$forall faqs faq
+    .faq
+        %h4#$hash.faq$ $question.faq$
+        $answer.faq$
