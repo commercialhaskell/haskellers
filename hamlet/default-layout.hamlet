@@ -13,6 +13,10 @@
                 #message $msg$
             ^pageBody.pc^
             #footer
+                %div
+                    I know that the functionality of this site has outgrown its current design. Once we decide to take a break from new features, we can start working on a better design. If you're interested in assisting, please $
+                    %a!href="http://www.haskellers.com/user/16/" contact me
+                    \.
                 Developed by $
                 %a!href="http://www.yesodweb.com/" Yesod Web Development
                 \ and powered by the $

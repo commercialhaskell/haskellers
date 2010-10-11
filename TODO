@@ -1,2 +1,13 @@
-Search
-Geolocation + map
+Better initial full name, warn people it's empty
+Skills: only show popular by default
+FAQ:
+    Purpose?
+    Just professionals?
+    What's OpenID?
+    When should I report a user?
+    Add feature XYZ?
+Default login page fix (yesod-auth)
+User bar: homepage, edit, view, logout
+Breadcrumbs where appropriate
+Fans
+Various RSS feeds (skill added, new user, message from site admin, etc)
