@@ -1,20 +1,23 @@
-#blurb, #login
-    display: table-cell
+#blurb, #users
+    display: inline-block
     vertical-align: top
+    margin-left: 10px
 #blurb
-    width: 60%
-    padding: 15px 25px 0 15px
     text-align: justify
     font-size: 120%
-    border-right: 2px solid #0e485a
-#login
-    width: 40%
-    padding-left: 25px
-#login h3
-    text-align: center
-    margin: 0
+    width: 500px
+#blurb form
+    display: inline
 #users
-    margin-top: 15px
-    padding-top: 15px
-    border-top: 1px dashed #0e485a
+    text-align: center
+    width: 450px
+#map_canvas
+    height: 300px
+    width: 500px
+    margin-top: 20px
+.counts
+    font-weight: bold
+#login
+    text-align: center
+.buttons
     text-align: center

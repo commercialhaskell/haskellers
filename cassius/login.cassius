@@ -6,6 +6,6 @@ form.button
     width: 120px
     padding: 0 10px
 #openid_identifier
-    width: 100%
+    width: 95%
     background: #fff url(@StaticR.openid_icon_small_gif@) no-repeat scroll 0pt 50%;
     padding-left: 18px;

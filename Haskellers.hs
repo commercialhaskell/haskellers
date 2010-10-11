@@ -216,8 +216,10 @@ instance YesodAuth Haskellers where
                                  []
                   ]
 
-    loginHandler = defaultLayout [$hamlet|
-%h3!style=text-align:center Login to Haskellers via:
+    loginHandler = defaultLayout $ do
+        setTitle $ string "Log in to Haskellers"
+        [$hamlet|
+%h3!style=text-align:center Log in to Haskellers via:
 !style="width:500px;margin:0 auto" ^login^
 |]
 

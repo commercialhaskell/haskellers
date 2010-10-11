@@ -1,5 +1,10 @@
 table
     border-collapse: collapse
+#filter-users
+    float: left
+    width: 350px
+#results
+    margin-left: 400px
 th, td
     border: 1px solid #666
     padding: 5px
@@ -24,3 +29,5 @@ caption
     padding-right: 10px
 .note
     font-style: italic
+    clear: both
+    text-align: center

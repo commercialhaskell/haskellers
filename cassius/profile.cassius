@@ -1,12 +1,5 @@
-#nav
-    list-style: none
-    padding: 0
-    margin: 10px 0
-    background: #eee
-    border: 1px solid #aaa
-#nav li
-    display: inline
-    padding: 0 10px
+#tabs
+    margin: 0 30px
 #full-name, #website, #email, #skill, #package-name, #location
     width: 400px
 #desc

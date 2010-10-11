@@ -16,7 +16,7 @@ import System.Random.Shuffle (shuffle')
 import Data.IORef (readIORef)
 import Control.Applicative
 import Data.List (isInfixOf)
-import Yesod.Form.Jquery (urlJqueryJs)
+import Yesod.Form.Jquery
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -30,7 +30,7 @@ getRootR = do
     y <- getYesod
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
-    let profs = take 10 $ shuffle' allProfs len gen
+    let profs = take 9 $ shuffle' allProfs len gen
     mu <- maybeAuth
     (public, private) <- runDB $ do
         public <- count [ UserVerifiedEmailEq True
@@ -47,6 +47,8 @@ getRootR = do
         addStyle $(cassiusFile "homepage")
         addStyle $(cassiusFile "users")
         addScriptEither $ urlJqueryJs y
+        addScriptEither $ urlJqueryUiJs y
+        addStylesheetEither $ urlJqueryUiCss y
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         addJavascript $(juliusFile "homepage")
         $(hamletFile "homepage")

@@ -9,6 +9,10 @@
                 %a!href=@RootR@ Homepage
             %li
                 %a!href=@FaqR@ FAQ
+            %li
+                %a!href=@UsersR@ Browse Haskellers
+            %li
+                %a!href=@AllSkillsR@ Browse Skills
             $maybe ma u
                 %li
                     %a!href=@ProfileR@ Edit profile

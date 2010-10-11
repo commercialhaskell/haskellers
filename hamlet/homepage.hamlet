@@ -1,19 +1,16 @@
-#topbar
-    #blurb
-        Haskellers is a centralized place for professional Haskell programmers to publish themselves. If you'd like to create a profile, simply log in on the right. If you are looking for a Haskeller, just continue down the page.
+#blurb
+    Haskellers is a centralized place for professional Haskell programmers to publish themselves.
+    $maybe mu _
+    $nothing
+      .buttons
+        %form!action=@AuthR.LoginR@
+            %input#login-button!type=submit!value="I'm a Haskeller"
+        %form!action=@UsersR@
+            %input!type=submit!value="Find a Haskeller"
     #login
-        $maybe mu u
-            %p
-                You are logged in as
-                %br
-                %b $userFullName'.snd.u$
-                %br
-                %a!href=@ProfileR@ Edit my Profile
-                %br
-                %a!href=@AuthR.LogoutR@ Logout
-        $nothing
-            %h3 Login with
-            ^login^
+        %h3 Login with
+        ^login^
+    #map_canvas
 #users
     .counts
         Total accounts: $show.public$ public, $show.private$ private
@@ -23,7 +20,3 @@
                 %img!src=$(gravatar.80).profileEmail.prof$!alt="Gravatar Profile Picture"
                 %span.name
                   $profileName.prof$
-    %p
-        %a!href=@UsersR@ Browse all public Haskellers
-        \ | $
-        %a!href=@AllSkillsR@ Browse all skills
