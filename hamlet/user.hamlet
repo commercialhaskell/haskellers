@@ -32,6 +32,10 @@ $if viewerIsAdmin
     $maybe userEmail.u email
         .email
             %a!href=$emailLink.email$ Reveal email address
+            $if viewerIsAdmin   
+                %br
+                Special admin bonus: $
+                %a!href="mailto:$email$" $email$
     $maybe userWebsite.u w
         .website
             %a!href=$w$ $w$
