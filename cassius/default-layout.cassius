@@ -33,7 +33,7 @@ h2
 #user-bar
     margin: 0 0 10px 0
     padding: 0 0 0 10px
-    border-bottom: 1px solid #000
+    border-bottom: 1px solid #470e5a
     background: #f2cb59
 #user-bar li
     display: inline
