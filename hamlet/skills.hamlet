@@ -1,0 +1,13 @@
+%h3 Skills
+%table
+    %thead
+        %tr
+            %th Skill
+            %th Users
+    %tbody
+        $forall skills skill
+            %tr
+                %td
+                    %a!href=@SkillR.fst.fst.skill@
+                        $skillName.snd.fst.skill$
+                %td $show.snd.skill$

@@ -25,3 +25,5 @@
                   $profileName.prof$
     %p
         %a!href=@UsersR@ Browse all public Haskellers
+        \ | $
+        %a!href=@AllSkillsR@ Browse all skills

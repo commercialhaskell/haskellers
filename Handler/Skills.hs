@@ -18,30 +18,46 @@ postAllSkillsR = do
         _ -> setMessage "Invalid skill entered"
     redirect RedirectTemporary ProfileR
 
-getAllSkillsR :: Handler RepJson
+getAllSkillsR :: Handler RepHtmlJson
 getAllSkillsR = do
-    skills <- runDB $ selectList [] [] 0 0
+    skills <- runDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
+        users <- count [UserSkillSkillEq sid]
+        return ((sid, s), users)
+        )
     render <- getUrlRender
-    jsonToRepJson $ jsonMap
-        [ ("skills", jsonList $ flip map skills $ \(sid, Skill name) ->
+    defaultLayoutJson (do
+        setTitle "Browse all skills"
+        addStyle $(cassiusFile "skills")
+        $(hamletFile "skills")
+        ) $ jsonMap
+        [ ("skills", jsonList $ flip map skills $ \((sid, Skill name), users) ->
             jsonMap
                 [ ("id", jsonScalar $ showIntegral sid)
                 , ("name", jsonScalar name)
                 , ("url", jsonScalar $ render $ SkillR sid)
+                , ("users", jsonScalar $ show users)
                 ])
         ]
 
-getSkillR :: SkillId -> Handler RepJson
+getSkillR :: SkillId -> Handler RepHtmlJson
 getSkillR sid = do
+    skill <- runDB $ get404 sid
     users <- runDB $ do
-        uids <- fmap (map $ userSkillUser . snd) $ selectList [UserSkillSkillEq sid] [] 0 0
+        uids <- fmap (map $ userSkillUser . snd)
+              $ selectList [ UserSkillSkillEq sid
+                           ] [] 0 0
         us <- mapM get404 uids
-        return $ zip uids us
+        return $ filter go $ zip uids us
     render <- getUrlRender
-    jsonToRepJson $ jsonMap
+    defaultLayoutJson (do
+        setTitle $ string $ skillName skill
+        $(hamletFile "skill")
+        ) $ jsonMap
         [ ("users", jsonList $ flip map users $ \(uid, u) -> jsonMap
             [ ("id", jsonScalar $ showIntegral uid)
             , ("url", jsonScalar $ render $ UserR uid)
             , ("name", jsonScalar $ userFullName u)
             ])
         ]
+  where
+    go (_, u) = userVerifiedEmail u && userVisible u && not (userBlocked u)
