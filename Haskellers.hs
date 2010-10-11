@@ -214,6 +214,11 @@ instance YesodAuth Haskellers where
                                  []
                   ]
 
+    loginHandler = defaultLayout [$hamlet|
+%h3!style=text-align:center Login to Haskellers via:
+!style="width:500px;margin:0 auto" ^login^
+|]
+
 showIntegral :: Integral a => a -> String
 showIntegral x = show (fromIntegral x :: Integer)
 
@@ -223,5 +228,5 @@ readIntegral s =
         (i, _):_ -> Just $ fromInteger i
         [] -> Nothing
 
-login :: Widget Haskellers ()
+login :: GWidget s Haskellers ()
 login = addStyle $(cassiusFile "login") >> $(hamletFile "login")
