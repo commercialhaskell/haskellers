@@ -1,3 +1,5 @@
+body
+    margin: 0
 a, a:visited
     text-decoration: none
     color: #00f
@@ -29,3 +31,10 @@ h2
 .addthis_toolbox
     margin: 5px auto
     width: 180px
+#user-bar
+    margin: 0 0 10px 0
+    padding: 0 0 0 10px
+    border-bottom: 1px solid #000
+#user-bar li
+    display: inline
+    padding-right: 10px

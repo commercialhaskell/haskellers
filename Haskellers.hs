@@ -130,6 +130,7 @@ instance Yesod Haskellers where
 
     defaultLayout widget = do
         mmsg <- getMessage
+        ma <- maybeAuth
         pc <- widgetToPageContent $ do
             widget
             addStyle $(Settings.cassiusFile "default-layout")

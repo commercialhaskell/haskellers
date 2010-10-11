@@ -2,15 +2,6 @@ $if userBlocked.u
     %h3 Note: Your account has been blocked. You've probably put in some inappropriate gravatar image or content. Please clean it up.
     %form!method=post!action=@RequestUnblockR@
         %input!type=submit!value="I'm clean now, please unblock me!"
-%ul#nav
-    %li
-        %a!href=@RootR@ Homepage
-    %li
-        %a!href=@UserR.uid@ View my profile
-    $if userAdmin.u
-        %a!href=@MessagesR@ Admin messages
-    %li
-        %a!href=@AuthR.LogoutR@ Logout
 #tabs
   %ul
         %li

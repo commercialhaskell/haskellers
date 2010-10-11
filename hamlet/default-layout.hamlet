@@ -4,12 +4,29 @@
         %title $pageTitle.pc$
         ^pageHead.pc^
     %body
+        %ul#user-bar
+            %li
+                %a!href=@RootR@ Homepage
+            %li
+                %a!href=@FaqR@ FAQ
+            $maybe ma u
+                %li
+                    %a!href=@ProfileR@ Edit profile
+                %li
+                    %a!href=@UserR.fst.u@ View my user page
+                $if userAdmin.snd.u
+                    %li
+                        %a!href=@MessagesR@ Admin messages
+                %li
+                    %a!href=@AuthR.LogoutR@ Logout
+            $nothing
+                %li
+                    %a!href=@AuthR.LoginR@ Login
         #wrapper
             %h1
                 %a!href=@RootR@
                     %img!src=@StaticR.logo_png@!alt=Haskellers
             %h2 The meeting place for professional Haskell programmers
-            %a!href=@FaqR@ FAQ
             $maybe mmsg msg
                 #message $msg$
             ^pageBody.pc^
