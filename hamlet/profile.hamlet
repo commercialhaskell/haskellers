@@ -125,11 +125,10 @@ $if userBlocked.u
         %a!href=@UserR.uid@
             %img!src=@StaticR.badge_png_plain@!alt="I'm a Haskeller"
     $if not.userReal.u
-        %h3 Request "Real Haskeller" status
-        %p Real Haskellers have been approved by the site administrators as real users of Haskell. For now, that means they will show up earlier in homepage user listing; in the future, we may use it for more purposes.
-        %p Please note that there is nothing magical about this status! It is simply a way to ensure only actual members of the community show up high in the search rankings of the site. Anyone even marginally involved in Haskell should feel free to request this status.
+        %h3 Request verified user status
+        %p Verified users (formerly: real Haskellers) have been approved by the site administrators as real users, not spammers. This is simply an anti-spam measure. For the moment, verified status will give you higher ranking in searches. In the future, it may be that only verified users are displayed publicly. All users are encouraged to request this status.
         %form!method=post!action=@RequestRealR@
-            %input!type=submit!value="Request real status"
+            %input!type=submit!value="Request verified user status"
         %p Note: only ask us once, you'll just annoy us otherwise.
   #delete
     %form!method=post!action=@DeleteAccountR@

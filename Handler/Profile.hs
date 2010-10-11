@@ -136,18 +136,24 @@ postRequestRealR :: Handler ()
 postRequestRealR = do
     (uid, u) <- requireAuth
     if userReal u
-        then setMessage "You already have Real Haskeller status"
-        else do
-            now <- liftIO getCurrentTime
-            _ <- runDB $ insert $ Message
-                { messageClosed = False
-                , messageWhen = now
-                , messageFrom = Just uid
-                , messageRegarding = Just uid
-                , messageText = Textarea "Requesting Real Haskeller status"
-                }
-            setMessage "Your request has been logged. Good luck!"
+        then setMessage "You already have verified user status"
+        else if userVerifiedEmail u && hasGoodName (userFullName u)
+            then do
+                now <- liftIO getCurrentTime
+                _ <- runDB $ insert $ Message
+                    { messageClosed = False
+                    , messageWhen = now
+                    , messageFrom = Just uid
+                    , messageRegarding = Just uid
+                    , messageText = Textarea "Requesting verified user status"
+                    }
+                setMessage "Your request has been logged. Good luck!"
+            else setMessage "Before requesting verified user status, please enter your name and verify your email address."
     redirect RedirectTemporary ProfileR
+  where
+    hasGoodName "" = False
+    hasGoodName ('h':'t':'t':'p':_) = False
+    hasGoodName _ = True
 
 postRequestUnblockR :: Handler ()
 postRequestUnblockR = do
