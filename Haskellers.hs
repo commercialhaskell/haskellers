@@ -180,7 +180,7 @@ instance YesodAuth Haskellers where
             (Just (_, i), Nothing) -> return $ Just $ identUser i
             (Nothing, Nothing) -> runDB $ do
                 uid <- insert $ User
-                    { userFullName = credsIdent creds
+                    { userFullName = ""
                     , userWebsite = Nothing
                     , userEmail = Nothing
                     , userVerifiedEmail = False
