@@ -112,7 +112,7 @@ getUsersR = do
     let public = length filteredProfs
     mpage <- runFormGet' $ maybeIntInput "page"
     let page = fromMaybe 0 mpage
-    let perPage = 10
+    let perPage = 20
     let hasPrev = page > 0
     let maxPage = (public - 1) `div` perPage
     let hasNext = page < maxPage
