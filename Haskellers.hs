@@ -85,6 +85,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 
 / RootR GET
 /users UsersR GET
+/locations LocationsR GET
 
 /profile ProfileR GET POST
 /profile/delete DeleteAccountR POST
@@ -191,6 +192,9 @@ instance YesodAuth Haskellers where
                     , userAdmin = False
                     , userEmployment = Nothing
                     , userBlocked = False
+                    , userLocation = Nothing
+                    , userLongitude = Nothing
+                    , userLatitude = Nothing
                     }
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid

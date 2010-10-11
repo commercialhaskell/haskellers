@@ -3,6 +3,7 @@ module Handler.Root
     ( getRootR
     , getUsersR
     , gravatar
+    , getLocationsR
     ) where
 
 import Haskellers hiding (Filter)
@@ -15,6 +16,7 @@ import System.Random.Shuffle (shuffle')
 import Data.IORef (readIORef)
 import Control.Applicative
 import Data.List (isInfixOf)
+import Yesod.Form.Jquery (urlJqueryJs)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -47,6 +49,9 @@ getRootR = do
         setTitle "Haskellers"
         addStyle $(cassiusFile "homepage")
         addStyle $(cassiusFile "users")
+        addScriptEither $ urlJqueryJs y
+        addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
+        addJavascript $(juliusFile "homepage")
         $(hamletFile "homepage")
 
 data Filter = Filter
@@ -55,6 +60,7 @@ data Filter = Filter
     , filterMaxSince :: Maybe Int
     , filterFullTime :: Bool
     , filterPartTime :: Bool
+    -- filter for skills
     }
 
 applyFilter :: Filter -> Profile -> Bool
@@ -143,3 +149,15 @@ gravatar s x =
   where
     hash = show $ md5 $ L.fromString $ map toLower $ trim x
     trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+
+getLocationsR :: Handler RepJson
+getLocationsR = do
+    users <- runDB $ selectList [UserLongitudeNe Nothing, UserLatitudeNe Nothing] [] 0 0
+    -- FIXME cache
+    jsonToRepJson $ jsonMap [("locations", jsonList $ map go users)]
+  where
+    go (_, User { userLongitude = Just lng, userLatitude = Just lat, userFullName = n }) = jsonMap
+        [ ("lng", jsonScalar $ show lng)
+        , ("lat", jsonScalar $ show lat)
+        , ("name", jsonScalar n)
+        ]

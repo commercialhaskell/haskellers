@@ -47,6 +47,16 @@ userForm u = fieldsToTable $ User
             { ffsTooltip = "Just remember, this information will be public, meaning your current employer will be able to see it!"
             } (Just $ userEmployment u)
     <*> pure (userBlocked u)
+    <*> maybeStringField "Location"
+            { ffsTooltip = "This should be a human-readable string"
+            , ffsId = Just "location"
+            } (Just $ userLocation u)
+    <*> maybeDoubleField "Longitude"
+            { ffsId = Just "longitude"
+            } (Just $ userLongitude u)
+    <*> maybeDoubleField "Latitude"
+            { ffsId = Just "latitude"
+            } (Just $ userLatitude u)
   where
     empOpts = map (id &&& prettyEmployment) [minBound..maxBound]
     maybeHaskellSinceField = optionalFieldHelper haskellSinceFieldProfile
@@ -85,6 +95,7 @@ getProfileR = do
         addStylesheetEither $ urlJqueryUiCss y
         setTitle "Edit Your Profile"
         addStyle $(cassiusFile "profile")
+        addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         addJavascript $(juliusFile "profile")
         $(hamletFile "profile")
   where

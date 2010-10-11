@@ -7,7 +7,7 @@
 #nav li
     display: inline
     padding: 0 10px
-#full-name, #website, #email, #skill, #package-name
+#full-name, #website, #email, #skill, #package-name, #location
     width: 400px
 #desc
     width: 400px

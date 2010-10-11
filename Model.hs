@@ -46,6 +46,9 @@ User
     admin Bool default=false update
     employment Employment null
     blocked Bool update Eq default=false
+    location String null
+    longitude Double null Ne
+    latitude Double null Ne
 Ident
     ident String Asc
     user UserId Eq
