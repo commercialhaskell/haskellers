@@ -1,11 +1,18 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-module Handler.Root where
+module Handler.Root
+    ( getRootR
+    , getUsersR
+    , gravatar
+    ) where
 
 import Haskellers
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace)
 import Data.Maybe (fromMaybe)
+import System.Random (newStdGen)
+import System.Random.Shuffle (shuffle')
+import Data.IORef (readIORef)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -16,6 +23,10 @@ import Data.Maybe (fromMaybe)
 -- inclined, or create a single monolithic file.
 getRootR :: Handler RepHtml
 getRootR = do
+    y <- getYesod
+    allProfs <- liftIO $ readIORef $ homepageProfiles y
+    gen <- liftIO newStdGen
+    let profs = take 10 $ shuffle' allProfs (length allProfs) gen
     mu <- maybeAuth
     (public, private, unver) <- runDB $ do
         public <- count [ UserVerifiedEmailEq True
@@ -30,14 +41,27 @@ getRootR = do
                             , UserBlockedEq False
                             ]
         return (public, private, unverified)
+    defaultLayout $ do
+        setTitle "Haskellers"
+        addStyle $(cassiusFile "homepage")
+        addStyle $(cassiusFile "users")
+        $(hamletFile "homepage")
+
+getUsersR :: Handler RepHtmlJson
+getUsersR = do
     mpage <- runFormGet' $ maybeIntInput "page"
     let page = fromMaybe 0 mpage
     let perPage = 10
     let hasPrev = page > 0
+    public <- runDB $ count
+        [ UserVerifiedEmailEq True
+        , UserVisibleEq True
+        , UserBlockedEq False
+        ]
     let maxPage = (public - 1) `div` perPage
     let hasNext = page < maxPage
-    let next = (RootR, [("page", show $ page + 1)])
-    let prev = (RootR, [("page", show $ page - 1)])
+    let next = (UsersR, [("page", show $ page + 1)])
+    let prev = (UsersR, [("page", show $ page - 1)])
     let minHaskeller = page * perPage + 1
     users <- runDB $ selectList [ UserVerifiedEmailEq True
                                 , UserVisibleEq True
@@ -48,20 +72,10 @@ getRootR = do
                                 , UserFullNameAsc
                                 ] perPage (perPage * page)
     let maxHaskeller = minHaskeller + length users - 1
-    defaultLayout $ do
-        setTitle "Haskellers"
-        addStyle $(cassiusFile "homepage")
-        $(hamletFile "homepage")
-  where
-    fakeEmail = "fake@email.com"
-
-getUsersR :: Handler RepJson
-getUsersR = do
-    users <- runDB $ selectList [ UserVerifiedEmailEq True
-                                , UserVisibleEq True
-                                ] [UserFullNameAsc] 0 0
     render <- getUrlRender
-    jsonToRepJson $ json render users
+    flip defaultLayoutJson (json render users) $ do
+        addStyle $(cassiusFile "users")
+        $(hamletFile "users")
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]
     json' r (uid, u) = jsonMap
@@ -69,6 +83,7 @@ getUsersR = do
         , ("name", jsonScalar $ userFullName u)
         , ("url", jsonScalar $ r $ UserR uid)
         ]
+    fakeEmail = "fake@email.com"
 
 gravatar :: Int -> String -> String
 gravatar s x =

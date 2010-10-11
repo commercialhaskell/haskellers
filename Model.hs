@@ -42,7 +42,7 @@ User
     haskellSince Int null Asc
     desc Textarea null id=desc
     visible Bool default=true Eq
-    real Bool default=false update Desc
+    real Bool default=false update Desc Eq
     admin Bool default=false update
     employment Employment null
     blocked Bool update Eq default=false

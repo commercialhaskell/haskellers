@@ -1,0 +1,21 @@
+.controls
+    $if hasPrev
+        %a!href=@?prev@ Previous
+    $else
+        Previous
+    %b
+        \ Viewing Haskellers $show.minHaskeller$-$show.maxHaskeller$ $
+    $if hasNext
+        %a!href=@?next@ Next
+    $else
+        Next
+$forall users user
+    .user
+        %a!href=@UserR.fst.user@
+            $maybe userEmail.snd.user email
+                %img!src=$(gravatar.80).email$!alt="Gravatar Profile Picture"
+            $nothing
+                %img!src=$(gravatar.80).fakeEmail$!alt="Gravatar Profile Picture"
+            %span.name
+              $userFullName'.snd.user$
+.note Note: Haskellers are sorted by years of experience with Haskell. Also, verified users are shown first.

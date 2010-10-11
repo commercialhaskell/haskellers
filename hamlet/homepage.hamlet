@@ -1,41 +1,27 @@
-$if not.hasPrev
-    #topbar
-        #blurb
-            Haskellers is a centralized place for professional Haskell programmers to publish themselves. If you'd like to create a profile, simply log in on the right. If you are looking for a Haskeller, just continue down the page.
-        #login
-            $maybe mu u
-                %p
-                    You are logged in as
-                    %br
-                    %b $userFullName'.snd.u$
-                    %br
-                    %a!href=@ProfileR@ Edit my Profile
-                    %br
-                    %a!href=@AuthR.LogoutR@ Logout
-            $nothing
-                %h3 Login with
-                ^login^
+#topbar
+    #blurb
+        Haskellers is a centralized place for professional Haskell programmers to publish themselves. If you'd like to create a profile, simply log in on the right. If you are looking for a Haskeller, just continue down the page.
+    #login
+        $maybe mu u
+            %p
+                You are logged in as
+                %br
+                %b $userFullName'.snd.u$
+                %br
+                %a!href=@ProfileR@ Edit my Profile
+                %br
+                %a!href=@AuthR.LogoutR@ Logout
+        $nothing
+            %h3 Login with
+            ^login^
 #users
     .counts
         Total accounts: $show.public$ public, $show.private$ private, $show.unver$ unverified.
-    .controls
-        $if hasPrev
-            %a!href=@?prev@ Previous
-        $else
-            Previous
-        %b
-            \ Viewing Haskellers $show.minHaskeller$-$show.maxHaskeller$ $
-        $if hasNext
-            %a!href=@?next@ Next
-        $else
-            Next
-    $forall users user
+    $forall profs prof
         .user
-            %a!href=@UserR.fst.user@
-                $maybe userEmail.snd.user email
-                    %img!src=$(gravatar.80).email$!alt="Gravatar Profile Picture"
-                $nothing
-                    %img!src=$(gravatar.80).fakeEmail$!alt="Gravatar Profile Picture"
+            %a!href=@UserR.profileUserId.prof@
+                %img!src=$(gravatar.80).profileEmail.prof$!alt="Gravatar Profile Picture"
                 %span.name
-                  $userFullName'.snd.user$
-    .note Note: Haskellers are sorted by years of experience with Haskell. Also, approved accounts are shown first.
+                  $profileName.prof$
+    %p
+        %a!href=@UsersR@ Browse all public Haskellers

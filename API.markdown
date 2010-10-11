@@ -2,6 +2,8 @@ This site runs on a RESTful API. Content is available as JSON. In order to acces
 
 ## http://www.haskellers.com/users/
 
+FIXME: This API is in flux right now, my appologies
+
 This returns a list of all publicly-viewable user accounts. The response is a JSON map with one attribute: users. users is a JSON list, each element an array with three elements: id is the numerical ID of the account, name is the user's full name and url is the user's Haskeller URL (the next resource pattern).
 
 ## http://www.haskellers.com/user/*id*

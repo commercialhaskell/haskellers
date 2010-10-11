@@ -9,6 +9,10 @@ import Settings
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth2
 import Database.Persist.GenericSql
+import Data.IORef
+import Control.Concurrent (forkIO, threadDelay)
+import Control.Monad (forever)
+import Data.Maybe (mapMaybe)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -45,7 +49,31 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
         migrate (undefined :: UserSkill)
         migrate (undefined :: Package)
         migrate (undefined :: Message)
-    let h = Haskellers s p
+    iprofs <- newIORef []
+    _ <- forkIO $ fillProfs p iprofs
+    let h = Haskellers s p iprofs
     toWaiApp h >>= f
   where
     s = fileLookupDir Settings.staticdir typeByExt
+
+getHomepageProfs pool = flip runConnectionPool pool $ do
+    users <-
+        selectList [ UserVerifiedEmailEq True
+                   , UserVisibleEq True
+                   , UserRealEq True
+                   , UserBlockedEq False
+                   -- FIXME , UserRealPicEq True
+                   ] [] 0 0
+    return $ flip mapMaybe users $ \(uid, u) ->
+        case userEmail u of
+            Nothing -> Nothing
+            Just e -> Just Profile
+                { profileUserId = uid
+                , profileName = userFullName u
+                , profileEmail = e
+                }
+
+fillProfs pool iprofs = forever $ do
+    profs <- getHomepageProfs pool
+    writeIORef iprofs profs
+    threadDelay $ 1000 * 1000 * 60 * 5

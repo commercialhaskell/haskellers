@@ -35,6 +35,7 @@ executable         simple-server
                    random,
                    HsOpenSSL,
                    time,
+                   random-shuffle,
                    utf8-string
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
