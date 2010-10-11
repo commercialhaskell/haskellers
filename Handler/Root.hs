@@ -149,7 +149,12 @@ gravatar s x =
 
 getLocationsR :: Handler RepJson
 getLocationsR = do
-    users <- runDB $ selectList [UserLongitudeNe Nothing, UserLatitudeNe Nothing] [] 0 0
+    users <- runDB $ selectList [ UserLongitudeNe Nothing
+                                , UserLatitudeNe Nothing
+                                , UserVerifiedEmailEq True
+                                , UserVisibleEq True
+                                , UserBlockedEq False
+                                ] [] 0 0
     -- FIXME cache
     jsonToRepJson $ jsonMap [("locations", jsonList $ map go users)]
   where
