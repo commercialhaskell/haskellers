@@ -11,6 +11,7 @@ data Faq = Faq
     , answer :: Html
     }
 
+faqs :: [Faq]
 faqs =
     [ Faq "purpose" "What's the purpose of this site?" [$hamlet|
 %p Haskell has a vibrant, talented community of very capable programmers. This site aims to be the meeting point for these developers. By centralizing, we hope to make it easier for employers to find people to fill positions, and thus give Haskell a lower entrance cost into industry.

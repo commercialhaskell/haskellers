@@ -165,3 +165,4 @@ getLocationsR = do
         , ("lat", jsonScalar $ show lat)
         , ("name", jsonScalar n)
         ]
+    go _ = error "getLocationsR"

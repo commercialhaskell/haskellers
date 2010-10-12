@@ -59,6 +59,7 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
   where
     s = fileLookupDir Settings.staticdir typeByExt
 
+getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do
     users <-
         selectList [ UserVerifiedEmailEq True
@@ -69,6 +70,7 @@ getHomepageProfs pool = flip runConnectionPool pool $ do
                    ] [] 0 0
     return $ mapMaybe userToProfile users
 
+getPublicProfs :: ConnectionPool -> IO [Profile]
 getPublicProfs pool = flip runConnectionPool pool $ do
     users <-
         selectList [ UserVerifiedEmailEq True
@@ -81,6 +83,8 @@ getPublicProfs pool = flip runConnectionPool pool $ do
                    ] 0 0
     return $ mapMaybe userToProfile users
 
+fillProfs :: ConnectionPool -> IORef ([Profile], Int) -> IORef [Profile]
+          -> IO a
 fillProfs pool hprofs pprofs = forever $ do
     hprofs' <- getHomepageProfs pool
     pprofs' <- getPublicProfs pool
@@ -88,6 +92,7 @@ fillProfs pool hprofs pprofs = forever $ do
     writeIORef pprofs pprofs'
     threadDelay $ 1000 * 1000 * 60 * 5
 
+userToProfile :: (UserId, User) -> Maybe Profile
 userToProfile (uid, u) =
     case userEmail u of
         Nothing -> Nothing

@@ -38,7 +38,7 @@ executable         simple-server
                    random-shuffle,
                    containers,
                    utf8-string
-    ghc-options:   -Wall
+    ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
 
 executable         fastcgi
