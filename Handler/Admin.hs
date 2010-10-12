@@ -4,6 +4,8 @@ module Handler.Admin
     , postUnadminR
     , postRealR
     , postUnrealR
+    , postRealPicR
+    , postUnrealPicR
     , postBlockR
     , postUnblockR
     , getMessagesR
@@ -36,14 +38,28 @@ postRealR :: UserId -> Handler ()
 postRealR uid = do
     requireAdmin
     runDB $ update uid [UserReal True]
-    setMessage "User now has the Real Haskeller badge"
+    setMessage "User now has verified user status"
     redirect RedirectTemporary $ UserR uid
 
 postUnrealR :: UserId -> Handler ()
 postUnrealR uid = do
     requireAdmin
     runDB $ update uid [UserReal False]
-    setMessage "User no longer has the Real Haskeller badge"
+    setMessage "User no longer has verified user status"
+    redirect RedirectTemporary $ UserR uid
+
+postRealPicR :: UserId -> Handler ()
+postRealPicR uid = do
+    requireAdmin
+    runDB $ update uid [UserRealPic True]
+    setMessage "User now has real picture status"
+    redirect RedirectTemporary $ UserR uid
+
+postUnrealPicR :: UserId -> Handler ()
+postUnrealPicR uid = do
+    requireAdmin
+    runDB $ update uid [UserReal False]
+    setMessage "User no longer has real picture status"
     redirect RedirectTemporary $ UserR uid
 
 postBlockR :: UserId -> Handler ()

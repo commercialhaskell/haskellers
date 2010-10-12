@@ -3,24 +3,7 @@ $if userBlocked.u
 $if viewerIsAdmin
     #admin-bar
         Welcome glorious administrator! You may:
-        $if userAdmin.u
-            %form!method=post!action=@UnadminR.uid@
-                %input!type=submit!value="Remove admin rights"
-        $else
-            %form!method=post!action=@AdminR.uid@
-                %input!type=submit!value="Grant admin rights"
-        $if userReal.u
-            %form!method=post!action=@UnrealR.uid@
-                %input!type=submit!value="Remove real badge"
-        $else
-            %form!method=post!action=@RealR.uid@
-                %input!type=submit!value="Grant real badge"
-        $if userBlocked.u
-            %form!method=post!action=@UnblockR.uid@
-                %input!type=submit!value=Unblock
-        $else
-            %form!method=post!action=@BlockR.uid@
-                %input!type=submit!value=Block
+        ^(adminControls.uid).u^
 #gravatar
     %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
     %form!method=post!action=@FlagR.uid@

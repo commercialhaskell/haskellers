@@ -121,6 +121,12 @@ $if userBlocked.u
         %form!method=post!action=@RequestRealR@
             %input!type=submit!value="Request verified user status"
         %p Note: only ask us once, you'll just annoy us otherwise.
+    $if not.userRealPic.u
+        %h3 Request real picture status
+        %p The homepage shows a random selection of Haskellers. In order to give the site a more professional look, we only show Haskellers on the homepage who have real pictures: this means an actual photo of themselves. Also, the photo needs to be minimally professional; it should not be a picture at a frat party or picking your nose.
+        %p This status <i>only affects homepage display</i>: if you'd rather not put a real picture up, you can still create a public account, it will just never be featured on the homepage.
+        %form!method=post!action=@RequestRealPicR@
+            %input!type=submit!value="Request real picture status"
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?

@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Controller
     ( withHaskellers
@@ -10,8 +11,10 @@ import Yesod.Helpers.Static
 import Yesod.Helpers.Auth2
 import Database.Persist.GenericSql
 import Data.IORef
+#if PRODUCTION
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad (forever)
+#endif
 import Data.Maybe (mapMaybe)
 import qualified Data.Set as Set
 
@@ -53,7 +56,12 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
         migrate (undefined :: Message)
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
-    _ <- forkIO $ fillProfs p hprofs pprofs
+#if PRODUCTION
+    _ <- forkIO $ forever $ fillProfs p hprofs pprofs
+                         >> threadDelay (1000 * 1000 * 60 * 5)
+#else
+    fillProfs p hprofs pprofs
+#endif
     let h = Haskellers s p hprofs pprofs
     toWaiApp h >>= f
   where
@@ -83,14 +91,12 @@ getPublicProfs pool = flip runConnectionPool pool $ do
                    ] 0 0
     return $ mapMaybe userToProfile users
 
-fillProfs :: ConnectionPool -> IORef ([Profile], Int) -> IORef [Profile]
-          -> IO a
-fillProfs pool hprofs pprofs = forever $ do
+fillProfs :: ConnectionPool -> IORef ([Profile], Int) -> IORef [Profile] -> IO ()
+fillProfs pool hprofs pprofs = do
     hprofs' <- getHomepageProfs pool
     pprofs' <- getPublicProfs pool
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
-    threadDelay $ 1000 * 1000 * 60 * 5
 
 userToProfile :: (UserId, User) -> Maybe Profile
 userToProfile (uid, u) =

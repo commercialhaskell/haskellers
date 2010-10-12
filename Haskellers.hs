@@ -93,6 +93,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/skills SkillsR POST
 /profile/ident/#IdentId/delete DeleteIdentR POST
 /profile/request-real RequestRealR POST
+/profile/request-realpic RequestRealPicR POST
 /profile/request-unblcok RequestUnblockR POST
 
 /skills AllSkillsR GET POST
@@ -107,6 +108,9 @@ mkYesodData "Haskellers" [$parseRoutes|
 
 /user/#UserId/real RealR POST
 /user/#UserId/unreal UnrealR POST
+
+/user/#UserId/realpic RealPicR POST
+/user/#UserId/unrealpic UnrealPicR POST
 
 /user/#UserId/block BlockR POST
 /user/#UserId/unblock UnblockR POST
@@ -191,6 +195,7 @@ instance YesodAuth Haskellers where
                     , userDesc = Nothing
                     , userVisible = False
                     , userReal = False
+                    , userRealPic = False
                     , userAdmin = False
                     , userEmployment = Nothing
                     , userBlocked = False

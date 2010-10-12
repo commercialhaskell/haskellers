@@ -6,6 +6,7 @@ module Handler.Profile
     , postSkillsR
     , postDeleteIdentR
     , postRequestRealR
+    , postRequestRealPicR
     , postRequestUnblockR
     ) where
 
@@ -42,6 +43,7 @@ userForm u = fieldsToTable $ User
             { ffsTooltip = "Do you want your profile to be displayed on the homepage?"
             } (Just $ userVisible u)
     <*> pure (userReal u)
+    <*> pure (userRealPic u)
     <*> pure (userAdmin u)
     <*> maybeSelectField empOpts "Employment status"
             { ffsTooltip = "Just remember, this information will be public, meaning your current employer will be able to see it!"
@@ -161,10 +163,30 @@ postRequestRealR = do
                 setMessage "Your request has been logged. Good luck!"
             else setMessage "Before requesting verified user status, please enter your name and verify your email address."
     redirect RedirectTemporary ProfileR
-  where
-    hasGoodName "" = False
-    hasGoodName ('h':'t':'t':'p':_) = False
-    hasGoodName _ = True
+
+hasGoodName :: String -> Bool
+hasGoodName "" = False
+hasGoodName ('h':'t':'t':'p':_) = False
+hasGoodName _ = True
+
+postRequestRealPicR :: Handler ()
+postRequestRealPicR = do
+    (uid, u) <- requireAuth
+    if userRealPic u
+        then setMessage "You already have real picture status"
+        else if userVerifiedEmail u && hasGoodName (userFullName u)
+            then do
+                now <- liftIO getCurrentTime
+                _ <- runDB $ insert $ Message
+                    { messageClosed = False
+                    , messageWhen = now
+                    , messageFrom = Just uid
+                    , messageRegarding = Just uid
+                    , messageText = Textarea "Requesting real picture status"
+                    }
+                setMessage "Your request has been logged. Good luck!"
+            else setMessage "Before requesting real picture status, please enter your name and verify your email address."
+    redirect RedirectTemporary ProfileR
 
 postRequestUnblockR :: Handler ()
 postRequestUnblockR = do

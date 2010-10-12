@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 module Handler.Faq
     ( getFaqR
     ) where

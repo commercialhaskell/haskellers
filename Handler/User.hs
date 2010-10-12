@@ -121,3 +121,8 @@ postFlagR uid = do
         return ()
     setMessage $ string "The user has been reported to the admins. Thanks!"
     redirect RedirectTemporary $ UserR uid
+
+adminControls :: UserId -> User -> Widget Haskellers ()
+adminControls uid u = do
+    addStyle $(cassiusFile "admin-controls")
+    $(hamletFile "admin-controls")

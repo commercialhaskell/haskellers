@@ -43,6 +43,7 @@ User
     desc Textarea null id=desc
     visible Bool default=true Eq
     real Bool default=false update Desc Eq
+    realPic Bool default=false update Eq
     admin Bool default=false update
     employment Employment null
     blocked Bool update Eq default=false
