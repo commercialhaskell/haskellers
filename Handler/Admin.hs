@@ -10,10 +10,14 @@ module Handler.Admin
     , postUnblockR
     , getMessagesR
     , postCloseMessageR
+    , getAdminUsersR
     ) where
 
 import Haskellers
 import Control.Monad (unless)
+import Handler.User (adminControls) -- FIXME includes style too many times
+import Handler.Root (gravatar)
+import Yesod.Form.Jquery (urlJqueryJs)
 
 requireAdmin :: Handler ()
 requireAdmin = do
@@ -98,3 +102,14 @@ postCloseMessageR mid = do
     runDB $ update mid [MessageClosed True]
     setMessage $ string "Message has been closed"
     redirect RedirectTemporary MessagesR
+
+getAdminUsersR :: Handler RepHtml
+getAdminUsersR = do
+    users <- runDB $ selectList [UserVerifiedEmailEq True] [UserFullNameAsc] 0 0
+    y <- getYesod
+    defaultLayout $ do
+        setTitle $ string "Admin list of users"
+        addStyle $(cassiusFile "admin-users")
+        addScriptEither $ urlJqueryJs y
+        addJavascript $(juliusFile "admin-users")
+        $(hamletFile "admin-users")

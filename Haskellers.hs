@@ -123,6 +123,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/send-verify SendVerifyR POST
 /profile/verify/#String VerifyEmailR GET
 
+/admin AdminUsersR GET
 /admin/messages MessagesR GET
 /admin/messages/#MessageId/close CloseMessageR POST
 |]

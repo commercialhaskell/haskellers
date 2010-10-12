@@ -21,6 +21,8 @@
                 $if userAdmin.snd.u
                     %li
                         %a!href=@MessagesR@ Admin messages
+                    %li
+                        %a!href=@AdminUsersR@ Admin users
                 %li
                     %a!href=@AuthR.LogoutR@ Logout
             $nothing

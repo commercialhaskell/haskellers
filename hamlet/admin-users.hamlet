@@ -1,0 +1,26 @@
+%h3 Admin user list
+%p This lists all users with a verified email address. And I'm lazy, so it uses evil tables.
+%table
+    %thead
+        %tr
+            %th Picture
+            %th Info
+            %th Controls
+    %tbody
+        $forall users u
+            %tr
+                %td
+                    $maybe userEmail.snd.u e
+                        %img!src=$(gravatar.100).e$
+                    $nothing
+                        Bug in the system...
+                %td.info
+                    $userFullName.snd.u$
+                    %br
+                    $maybe userEmail.snd.u e
+                        $e$
+                    %br
+                    $maybe userWebsite.snd.u w
+                        %a!href=$w$ $w$
+                %td
+                    ^(adminControls.(fst.u)).(snd.u)^

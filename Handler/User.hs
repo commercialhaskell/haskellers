@@ -3,6 +3,7 @@ module Handler.User
     ( getUserR
     , getByIdentR
     , postFlagR
+    , adminControls
     ) where
 
 import Haskellers
