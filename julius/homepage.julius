@@ -11,10 +11,7 @@ $(function(){
                 position: new google.maps.LatLng(data.locations[i].lat, data.locations[i].lng),
                 title: data.locations[i].name
             });
-            var url = data.locations[i].url;
-            google.maps.event.addListener(marker, "click", function(){
-                document.location = url;
-            });
+            addMarkerLink(marker, data.locations[i].url);
         }
     });
     $("#login").hide().attr("title", "Log in to Haskellers").dialog({
@@ -28,3 +25,8 @@ $(function(){
         return false;
     });
 });
+function addMarkerLink(marker, url) {
+    google.maps.event.addListener(marker, "click", function(){
+        document.location = url;
+    });
+}
