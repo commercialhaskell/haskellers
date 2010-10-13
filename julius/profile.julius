@@ -7,7 +7,7 @@ $(function(){
     $("#tabs > ul > li > a").css("font-size", "80%%");
     $("input[type=submit]").css("font-size", "80%%").button();
 
-    $("#location").after("<div id='map_canvas' style='height:300px'></div>");
+    $("#location").after("<div id='map_canvas''></div>");
     geocoder = new google.maps.Geocoder();
     var lat = $("#latitude").val() || 0;
     var lng = $("#longitude").val() || 0;

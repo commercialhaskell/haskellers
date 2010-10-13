@@ -27,3 +27,6 @@
     width: 400px
     font-size: 70%
     height: 80px
+#map_canvas
+    height: 150px
+    width: 200px

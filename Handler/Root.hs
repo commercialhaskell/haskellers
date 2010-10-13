@@ -151,6 +151,7 @@ gravatar s x =
 
 getLocationsR :: Handler RepJson
 getLocationsR = do
+    render <- getUrlRender
     users <- runDB $ selectList [ UserLongitudeNe Nothing
                                 , UserLatitudeNe Nothing
                                 , UserVerifiedEmailEq True
@@ -158,11 +159,12 @@ getLocationsR = do
                                 , UserBlockedEq False
                                 ] [] 0 0
     -- FIXME cache
-    jsonToRepJson $ jsonMap [("locations", jsonList $ map go users)]
+    jsonToRepJson $ jsonMap [("locations", jsonList $ map (go render) users)]
   where
-    go (_, User { userLongitude = Just lng, userLatitude = Just lat, userFullName = n }) = jsonMap
+    go r (uid, User { userLongitude = Just lng, userLatitude = Just lat, userFullName = n }) = jsonMap
         [ ("lng", jsonScalar $ show lng)
         , ("lat", jsonScalar $ show lat)
         , ("name", jsonScalar n)
+        , ("url", jsonScalar $ r $ UserR uid)
         ]
-    go _ = error "getLocationsR"
+    go _ _ = error "getLocationsR"
