@@ -15,7 +15,7 @@ import Data.IORef
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad (forever)
 #endif
-import Data.Maybe (mapMaybe)
+import Data.Maybe (catMaybes)
 import qualified Data.Set as Set
 
 -- Import all relevant handler modules here.
@@ -49,6 +49,7 @@ withHaskellers :: (Application -> IO a) -> IO a
 withHaskellers f = Settings.withConnectionPool $ \p -> do
     flip runConnectionPool p $ runMigration $ do
         migrate (undefined :: User)
+        migrate (undefined :: Username)
         migrate (undefined :: Ident)
         migrate (undefined :: Skill)
         migrate (undefined :: UserSkill)
@@ -76,7 +77,7 @@ getHomepageProfs pool = flip runConnectionPool pool $ do
                    , UserBlockedEq False
                    -- FIXME , UserRealPicEq True
                    ] [] 0 0
-    return $ mapMaybe userToProfile users
+    fmap catMaybes $ mapM userToProfile users
 
 getPublicProfs :: ConnectionPool -> IO [Profile]
 getPublicProfs pool = flip runConnectionPool pool $ do
@@ -89,7 +90,7 @@ getPublicProfs pool = flip runConnectionPool pool $ do
                    , UserHaskellSinceAsc
                    , UserFullNameAsc
                    ] 0 0
-    return $ mapMaybe userToProfile users
+    fmap catMaybes $ mapM userToProfile users
 
 fillProfs :: ConnectionPool -> IORef ([Profile], Int) -> IORef [Profile] -> IO ()
 fillProfs pool hprofs pprofs = do
@@ -98,14 +99,17 @@ fillProfs pool hprofs pprofs = do
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
 
-userToProfile :: (UserId, User) -> Maybe Profile
+userToProfile :: (Functor m, PersistBackend m) => (UserId, User) -> m (Maybe Profile)
 userToProfile (uid, u) =
     case userEmail u of
-        Nothing -> Nothing
-        Just e -> Just Profile
-            { profileUserId = uid
-            , profileName = userFullName u
-            , profileEmail = e
-            , profileUser = u
-            , profileSkills = Set.fromList [] -- FIXME
-            }
+        Nothing -> return Nothing
+        Just e -> do
+            mun <- fmap (fmap snd) $ getBy $ UniqueUsernameUser uid
+            return $ Just Profile
+                { profileUserId = uid
+                , profileName = userFullName u
+                , profileEmail = e
+                , profileUser = u
+                , profileSkills = Set.fromList [] -- FIXME
+                , profileUsername = mun
+                }

@@ -30,7 +30,7 @@ adminHelper constr bool msg uid = do
     u <- runDB $ get404 uid
     runDB $ update uid [constr bool]
     setMessage msg
-    redirect RedirectTemporary $ userR (uid, u)
+    redirect RedirectTemporary $ userR ((uid, u), Nothing)
 
 postAdminR :: UserId -> Handler ()
 postAdminR = adminHelper UserAdmin True "User is now an admin"

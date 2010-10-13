@@ -50,6 +50,11 @@ User
     location String null
     longitude Double null Ne
     latitude Double null Ne
+Username
+    user UserId
+    username String
+    UniqueUsernameUser user
+    UniqueUsername username
 Ident
     ident String Asc
     user UserId Eq

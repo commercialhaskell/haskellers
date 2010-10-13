@@ -113,6 +113,32 @@ $elseif not.userVisible.u
     %h3 Add new identifier
     ^login^
   #extras
+    $if not.userReal.u
+        %h3 Request verified user status
+        %p Verified users (formerly: real Haskellers) have been approved by the site administrators as real users, not spammers. This is simply an anti-spam measure. For the moment, verified status will give you higher ranking in searches. In the future, it may be that only verified users are displayed publicly. All users are encouraged to request this status.
+        %form!method=post!action=@RequestRealR@
+            %input!type=submit!value="Request verified user status"
+        %p Note: only ask us once, you'll just annoy us otherwise.
+    %h3 Haskellers username
+    $maybe musername username
+        %div
+            Your username is $
+            %b $usernameUsername.username$
+            \.
+            %form!style=display:inline!method=post!action=@ClearUsernameR@
+                %input!type=submit!value="Clear my username"
+    $nothing
+        %p Your username makes your profile URL prettier. Instead of "/user/48292/", you can have "/user/my-user-name/". Usernames can contain letters, numbers, underscores and dashes, and must contain at least one letter.
+        %form!method=post!action=@SetUsernameR@
+            I want my username to be $
+            %input!type=text!name=username
+            %input!type=submit!value="Set my username"
+    $if not.userRealPic.u
+        %h3 Request real picture status
+        %p The homepage shows a random selection of Haskellers. In order to give the site a more professional look, we only show Haskellers on the homepage who have real pictures: this means an actual photo of themselves. Also, the photo needs to be minimally professional; it should not be a picture at a frat party or picking your nose.
+        %p This status <i>only affects homepage display</i>: if you'd rather not put a real picture up, you can still create a public account, it will just never be featured on the homepage.
+        %form!method=post!action=@RequestRealPicR@
+            %input!type=submit!value="Request real picture status"
     %h3 I'm a Haskeller button
     %p
         Simply copy the following code to get your $
@@ -122,18 +148,6 @@ $elseif not.userVisible.u
         $# In case they change their username in the future
         %a!href=@UserR.showIntegral.uid@
             %img!src=@StaticR.badge_png_plain@!alt="I'm a Haskeller"
-    $if not.userReal.u
-        %h3 Request verified user status
-        %p Verified users (formerly: real Haskellers) have been approved by the site administrators as real users, not spammers. This is simply an anti-spam measure. For the moment, verified status will give you higher ranking in searches. In the future, it may be that only verified users are displayed publicly. All users are encouraged to request this status.
-        %form!method=post!action=@RequestRealR@
-            %input!type=submit!value="Request verified user status"
-        %p Note: only ask us once, you'll just annoy us otherwise.
-    $if not.userRealPic.u
-        %h3 Request real picture status
-        %p The homepage shows a random selection of Haskellers. In order to give the site a more professional look, we only show Haskellers on the homepage who have real pictures: this means an actual photo of themselves. Also, the photo needs to be minimally professional; it should not be a picture at a frat party or picking your nose.
-        %p This status <i>only affects homepage display</i>: if you'd rather not put a real picture up, you can still create a public account, it will just never be featured on the homepage.
-        %form!method=post!action=@RequestRealPicR@
-            %input!type=submit!value="Request real picture status"
   #delete
     %form!method=post!action=@DeleteAccountR@
         %p Warning: deleting your account cannot be undone. Are you sure?

@@ -165,9 +165,9 @@ getLocationsR = do
         [ ("lng", jsonScalar $ show lng)
         , ("lat", jsonScalar $ show lat)
         , ("name", jsonScalar n)
-        , ("url", jsonScalar $ r $ userR (uid, u))
+        , ("url", jsonScalar $ r $ userR ((uid, u), Nothing))
         ]
     go _ _ = error "getLocationsR"
 
 profileUserR :: Profile -> HaskellersRoute
-profileUserR p = userR (profileUserId p, profileUser p)
+profileUserR p = userR ((profileUserId p, profileUser p), profileUsername p)

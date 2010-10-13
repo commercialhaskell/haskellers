@@ -18,7 +18,7 @@
                     %a!href=@ProfileR@ Edit profile
                 %li
                     %a!href=@userR.u@ View my user page
-                $if userAdmin.snd.u
+                $if userAdmin.snd.fst.u
                     %li
                         %a!href=@MessagesR@ Admin messages
                     %li

@@ -8,6 +8,8 @@ module Handler.Profile
     , postRequestRealR
     , postRequestRealPicR
     , postRequestUnblockR
+    , postSetUsernameR
+    , postClearUsernameR
     ) where
 
 import Haskellers
@@ -77,6 +79,7 @@ getProfileR :: Handler RepHtml
 getProfileR = do
     (uid, u) <- requireAuth
     (res, form, enctype) <- runFormPost $ userForm u
+    musername <- fmap (fmap snd) $ runDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
             runDB $ replace uid u'
@@ -204,3 +207,38 @@ postRequestUnblockR = do
             setMessage "Your request has been logged. Good luck!"
         else setMessage "Your account isn't blocked."
     redirect RedirectTemporary ProfileR
+
+postClearUsernameR :: Handler ()
+postClearUsernameR = do
+    (uid, _) <- requireAuth
+    runDB $ deleteBy $ UniqueUsernameUser uid
+    setMessage "Your username has been cleared."
+    redirect RedirectTemporary ProfileR
+
+postSetUsernameR :: Handler ()
+postSetUsernameR = do
+    (uid, _) <- requireAuth
+    (res, _, _) <- runFormPost $ stringInput "username"
+    let musername =
+            case res of
+                FormSuccess x ->
+                    if all validChar x && readIntegral x == (Nothing :: Maybe UserId)
+                        then Just x
+                        else Nothing
+                _ -> Nothing
+    case musername of
+        Nothing -> setMessage "Invalid username"
+        Just un -> do
+            x <- runDB $ insertBy' $ Username uid un
+            case x of
+                Left _ -> setMessage "Username already in use"
+                Right _ -> setMessage "Your username is set!"
+    redirect RedirectTemporary ProfileR
+  where
+    validChar '-' = True
+    validChar '_' = True
+    validChar c
+        | 'A' <= c && c <= 'Z' = True
+        | 'a' <= c && c <= 'z' = True
+        | '0' <= c && c <= '9' = True
+    validChar _ = False

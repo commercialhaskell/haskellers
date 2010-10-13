@@ -56,15 +56,17 @@ getSkillR sid = do
               $ selectList [ UserSkillSkillEq sid
                            ] [] 0 0
         us <- mapM get404 uids
-        return $ filter go $ zip uids us
+        flip mapM (filter go $ zip uids us) $ \(uid, u) -> do
+            mun <- fmap (fmap snd) $ getBy $ UniqueUsernameUser uid
+            return ((uid, u), mun)
     render <- getUrlRender
     defaultLayoutJson (do
         setTitle $ string $ skillName skill
         $(hamletFile "skill")
         ) $ jsonMap
-        [ ("users", jsonList $ flip map users $ \(uid, u) -> jsonMap
+        [ ("users", jsonList $ flip map users $ \x@((uid, u), _) -> jsonMap
             [ ("id", jsonScalar $ showIntegral uid)
-            , ("url", jsonScalar $ render $ userR (uid, u))
+            , ("url", jsonScalar $ render $ userR x)
             , ("name", jsonScalar $ userFullName u)
             ])
         ]

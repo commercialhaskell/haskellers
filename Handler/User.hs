@@ -35,10 +35,20 @@ getUserR :: String -> Handler RepHtmlJson
 getUserR input = do
     (uid, u) <-
         case readIntegral input of
-            Just uid -> do
-                u <- runDB $ get404 uid -- FIXME add an automatic 301 if there is a username
-                return (uid, u)
-            _ -> notFound
+            Just uid -> runDB $ do
+                u <- get404 uid
+                mun <- getBy $ UniqueUsernameUser uid
+                case mun of
+                    Nothing -> return (uid, u)
+                    Just (_, Username _ un) ->
+                        lift $ redirect RedirectPermanent $ UserR un
+            Nothing -> runDB $ do
+                mun <- getBy $ UniqueUsername input
+                case mun of
+                    Nothing -> lift notFound
+                    Just (_, Username uid _) -> do
+                        u <- get404 uid
+                        return (uid, u)
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
     skills <- runDB $ do
@@ -127,7 +137,7 @@ postFlagR uid = do
             }
         return u
     setMessage $ string "The user has been reported to the admins. Thanks!"
-    redirect RedirectTemporary $ userR (uid, u)
+    redirect RedirectTemporary $ userR ((uid, u), Nothing)
 
 adminControls :: UserId -> User -> Widget Haskellers ()
 adminControls uid u = do

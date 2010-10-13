@@ -6,6 +6,8 @@ module Haskellers
     , Handler
     , maybeAuth
     , requireAuth
+    , maybeAuth'
+    , requireAuth'
     , module Yesod
     , module Settings
     , module Model
@@ -53,6 +55,7 @@ data Profile = Profile
     , profileEmail :: String
     , profileUser :: User
     , profileSkills :: Set.Set SkillId
+    , profileUsername :: Maybe Username
     }
 
 -- | A useful synonym; most of the handler functions in your application
@@ -97,6 +100,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/request-real RequestRealR POST
 /profile/request-realpic RequestRealPicR POST
 /profile/request-unblcok RequestUnblockR POST
+/profile/username SetUsernameR POST
+/profile/clear-username ClearUsernameR POST
 
 /skills AllSkillsR GET POST
 /skills/#SkillId SkillR GET
@@ -130,6 +135,21 @@ mkYesodData "Haskellers" [$parseRoutes|
 /admin/messages/#MessageId/close CloseMessageR POST
 |]
 
+maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
+maybeAuth' = do
+    x <- maybeAuth
+    case x of
+        Nothing -> return Nothing
+        Just (uid, u) -> do
+            y <- runDB $ getBy $ UniqueUsernameUser uid
+            return $ Just ((uid, u), fmap snd y)
+
+requireAuth' :: GHandler s Haskellers ((UserId, User), Maybe Username)
+requireAuth' = do
+    (uid, u) <- requireAuth
+    y <- runDB $ getBy $ UniqueUsernameUser uid
+    return ((uid, u), fmap snd y)
+
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Haskellers where
@@ -137,7 +157,7 @@ instance Yesod Haskellers where
 
     defaultLayout widget = do
         mmsg <- getMessage
-        ma <- maybeAuth
+        ma <- maybeAuth'
         pc <- widgetToPageContent $ do
             widget
             addStyle $(Settings.cassiusFile "default-layout")
@@ -243,5 +263,6 @@ readIntegral s =
 login :: GWidget s Haskellers ()
 login = addStyle $(cassiusFile "login") >> $(hamletFile "login")
 
-userR :: (UserId, User) -> HaskellersRoute
-userR (uid, _) = UserR $ showIntegral uid
+userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
+userR (_, Just (Username _ un)) = UserR un
+userR ((uid, _), _) = UserR $ showIntegral uid
