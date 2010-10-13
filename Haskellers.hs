@@ -12,8 +12,10 @@ module Haskellers
     , StaticRoute (..)
     , AuthRoute (..)
     , showIntegral
+    , readIntegral
     , login
     , Profile (..)
+    , userR
     ) where
 
 import Yesod
@@ -102,7 +104,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 /packages PackagesR POST
 /package/#PackageId/delete DeletePackageR POST
 
-/user/#UserId UserR GET
+/user/#String UserR GET
 /user/#UserId/admin AdminR POST
 /user/#UserId/unadmin UnadminR POST
 
@@ -240,3 +242,6 @@ readIntegral s =
 
 login :: GWidget s Haskellers ()
 login = addStyle $(cassiusFile "login") >> $(hamletFile "login")
+
+userR :: (UserId, User) -> HaskellersRoute
+userR (uid, _) = UserR $ showIntegral uid

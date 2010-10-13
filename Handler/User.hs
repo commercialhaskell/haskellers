@@ -28,12 +28,17 @@ getByIdentR = do
         Nothing -> notFound
         Just (_, Ident { identUser = uid }) -> jsonToRepJson $ jsonMap
             [ ("id", jsonScalar $ showIntegral uid)
-            , ("url", jsonScalar $ render $ UserR uid)
+            , ("url", jsonScalar $ render $ UserR $ showIntegral uid)
             ]
 
-getUserR :: UserId -> Handler RepHtmlJson
-getUserR uid = do
-    u <- runDB $ get404 uid
+getUserR :: String -> Handler RepHtmlJson
+getUserR input = do
+    (uid, u) <-
+        case readIntegral input of
+            Just uid -> do
+                u <- runDB $ get404 uid -- FIXME add an automatic 301 if there is a username
+                return (uid, u)
+            _ -> notFound
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
     skills <- runDB $ do
@@ -109,8 +114,9 @@ encrypt bs = do
 postFlagR :: UserId -> Handler ()
 postFlagR uid = do
     mvid <- fmap (fmap fst) maybeAuth
-    runDB $ do
-        _ <- get404 uid
+
+    u <- runDB $ do
+        u <- get404 uid
         now <- liftIO getCurrentTime
         _ <- insert Message
             { messageClosed = False
@@ -119,9 +125,9 @@ postFlagR uid = do
             , messageRegarding = Just uid
             , messageText = Textarea "User has been reported"
             }
-        return ()
+        return u
     setMessage $ string "The user has been reported to the admins. Thanks!"
-    redirect RedirectTemporary $ UserR uid
+    redirect RedirectTemporary $ userR (uid, u)
 
 adminControls :: UserId -> User -> Widget Haskellers ()
 adminControls uid u = do

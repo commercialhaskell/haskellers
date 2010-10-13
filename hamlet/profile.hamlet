@@ -119,7 +119,8 @@ $elseif not.userVisible.u
         %img!src=@StaticR.badge_png@!alt="I'm a Haskeller"
         \ badge.
     %textarea#badge-code
-        %a!href=@UserR.uid@
+        $# In case they change their username in the future
+        %a!href=@UserR.showIntegral.uid@
             %img!src=@StaticR.badge_png_plain@!alt="I'm a Haskeller"
     $if not.userReal.u
         %h3 Request verified user status

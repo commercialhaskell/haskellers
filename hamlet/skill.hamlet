@@ -4,4 +4,4 @@
 %ul
     $forall users user
         %li
-            %a!href=@UserR.fst.user@ $userFullName.snd.user$
+            %a!href=@userR.user@ $userFullName.snd.user$

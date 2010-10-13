@@ -24,61 +24,37 @@ requireAdmin = do
     (_, admin) <- requireAuth
     unless (userAdmin admin) $ permissionDenied "You are not an admin"
 
-postAdminR :: UserId -> Handler ()
-postAdminR uid = do
+adminHelper :: (Bool -> Update User) -> Bool -> Html -> UserId -> Handler ()
+adminHelper constr bool msg uid = do
     requireAdmin
-    runDB $ update uid [UserAdmin True]
-    setMessage "User is now an admin"
-    redirect RedirectTemporary $ UserR uid
+    u <- runDB $ get404 uid
+    runDB $ update uid [constr bool]
+    setMessage msg
+    redirect RedirectTemporary $ userR (uid, u)
+
+postAdminR :: UserId -> Handler ()
+postAdminR = adminHelper UserAdmin True "User is now an admin"
 
 postUnadminR :: UserId -> Handler ()
-postUnadminR uid = do
-    requireAdmin
-    runDB $ update uid [UserAdmin False]
-    setMessage "User is no longer an admin"
-    redirect RedirectTemporary $ UserR uid
+postUnadminR = adminHelper UserAdmin False "User is no longer an admin"
 
 postRealR :: UserId -> Handler ()
-postRealR uid = do
-    requireAdmin
-    runDB $ update uid [UserReal True]
-    setMessage "User now has verified user status"
-    redirect RedirectTemporary $ UserR uid
+postRealR = adminHelper UserReal True "User now has verified user status"
 
 postUnrealR :: UserId -> Handler ()
-postUnrealR uid = do
-    requireAdmin
-    runDB $ update uid [UserReal False]
-    setMessage "User no longer has verified user status"
-    redirect RedirectTemporary $ UserR uid
+postUnrealR = adminHelper UserReal False "User no longer has verified user status"
 
 postRealPicR :: UserId -> Handler ()
-postRealPicR uid = do
-    requireAdmin
-    runDB $ update uid [UserRealPic True]
-    setMessage "User now has real picture status"
-    redirect RedirectTemporary $ UserR uid
+postRealPicR = adminHelper UserRealPic True "User now has real picture status"
 
 postUnrealPicR :: UserId -> Handler ()
-postUnrealPicR uid = do
-    requireAdmin
-    runDB $ update uid [UserReal False]
-    setMessage "User no longer has real picture status"
-    redirect RedirectTemporary $ UserR uid
+postUnrealPicR = adminHelper UserReal False "User no longer has real picture status"
 
 postBlockR :: UserId -> Handler ()
-postBlockR uid = do
-    requireAdmin
-    runDB $ update uid [UserBlocked True]
-    setMessage "User has been blocked"
-    redirect RedirectTemporary $ UserR uid
+postBlockR = adminHelper UserBlocked True "User has been blocked"
 
 postUnblockR :: UserId -> Handler ()
-postUnblockR uid = do
-    requireAdmin
-    runDB $ update uid [UserBlocked False]
-    setMessage "User has been unblocked"
-    redirect RedirectTemporary $ UserR uid
+postUnblockR = adminHelper UserBlocked False "User has been unblocked"
 
 getMessagesR :: Handler RepHtml
 getMessagesR = do

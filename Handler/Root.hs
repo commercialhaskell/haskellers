@@ -139,7 +139,7 @@ getUsersR = do
     json' r prof = jsonMap
         [ ("id", jsonScalar $ showIntegral $ profileUserId prof)
         , ("name", jsonScalar $ userFullName $ profileUser prof)
-        , ("url", jsonScalar $ r $ UserR $ profileUserId prof)
+        , ("url", jsonScalar $ r $ profileUserR prof)
         ]
 
 gravatar :: Int -> String -> String
@@ -161,10 +161,13 @@ getLocationsR = do
     -- FIXME cache
     jsonToRepJson $ jsonMap [("locations", jsonList $ map (go render) users)]
   where
-    go r (uid, User { userLongitude = Just lng, userLatitude = Just lat, userFullName = n }) = jsonMap
+    go r (uid, u@User { userLongitude = Just lng, userLatitude = Just lat, userFullName = n }) = jsonMap
         [ ("lng", jsonScalar $ show lng)
         , ("lat", jsonScalar $ show lat)
         , ("name", jsonScalar n)
-        , ("url", jsonScalar $ r $ UserR uid)
+        , ("url", jsonScalar $ r $ userR (uid, u))
         ]
     go _ _ = error "getLocationsR"
+
+profileUserR :: Profile -> HaskellersRoute
+profileUserR p = userR (profileUserId p, profileUser p)

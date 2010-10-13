@@ -64,7 +64,7 @@ getSkillR sid = do
         ) $ jsonMap
         [ ("users", jsonList $ flip map users $ \(uid, u) -> jsonMap
             [ ("id", jsonScalar $ showIntegral uid)
-            , ("url", jsonScalar $ render $ UserR uid)
+            , ("url", jsonScalar $ render $ userR (uid, u))
             , ("name", jsonScalar $ userFullName u)
             ])
         ]
