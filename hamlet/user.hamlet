@@ -24,6 +24,8 @@ $if viewerIsAdmin
             %a!href=$w$ $w$
     $maybe userEmployment.u e
         .employment $e$
+    $maybe userLocation.u l
+        .location Living in $l$
 $maybe userDesc.u d
     #desc $d$
 $if not.null.skills
