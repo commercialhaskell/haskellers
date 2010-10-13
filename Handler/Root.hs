@@ -30,7 +30,10 @@ getRootR = do
     y <- getYesod
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
-    let profs = take 9 $ shuffle' allProfs len gen
+    let profs =
+            if null allProfs
+                then []
+                else take 9 $ shuffle' allProfs len gen
     mu <- maybeAuth
     (public, private) <- runDB $ do
         public <- count [ UserVerifiedEmailEq True
