@@ -2,6 +2,7 @@
 module Handler.User
     ( getUserR
     , getByIdentR
+    , getFlagR
     , postFlagR
     , adminControls
     ) where
@@ -121,9 +122,20 @@ encrypt bs = do
     ctx <- newAESCtx Encrypt mailhidePrivate $ S.replicate 16 0
     aesCBC ctx bs
 
+getFlagR :: UserId -> Handler RepHtml
+getFlagR uid = do
+    u <- runDB $ get404 uid
+    let userLink = userR ((uid, u), Nothing)
+    defaultLayout $ do
+        setTitle $ string "Report a user"
+        addStyle $(cassiusFile "flag")
+        $(hamletFile "flag")
+
 postFlagR :: UserId -> Handler ()
 postFlagR uid = do
     mvid <- fmap (fmap fst) maybeAuth
+    mmsg <- runFormPost' $ maybeStringInput "message"
+    let msg = fromMaybe "" mmsg
 
     u <- runDB $ do
         u <- get404 uid
@@ -133,7 +145,7 @@ postFlagR uid = do
             , messageWhen = now
             , messageFrom = mvid
             , messageRegarding = Just uid
-            , messageText = Textarea "User has been reported"
+            , messageText = Textarea $ "User has been reported\n\n" ++ msg
             }
         return u
     setMessage $ string "The user has been reported to the admins. Thanks!"

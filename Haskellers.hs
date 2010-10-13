@@ -122,7 +122,7 @@ mkYesodData "Haskellers" [$parseRoutes|
 /user/#UserId/block BlockR POST
 /user/#UserId/unblock UnblockR POST
 
-/user/#UserId/flag FlagR POST
+/user/#UserId/flag FlagR GET POST
 
 /user ByIdentR GET
 

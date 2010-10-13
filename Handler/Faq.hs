@@ -40,4 +40,6 @@ faqs =
     ]
 
 getFaqR :: Handler RepHtml
-getFaqR = defaultLayout $(hamletFile "faq")
+getFaqR = defaultLayout $ do
+    setTitle "Haskellers Frequently Asked Questions"
+    $(hamletFile "faq")

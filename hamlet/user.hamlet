@@ -6,7 +6,7 @@ $if viewerIsAdmin
         ^(adminControls.uid).u^
 #gravatar
     %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
-    %form!method=post!action=@FlagR.uid@
+    %form!method=get!action=@FlagR.uid@
         %input!type=submit!value="Report this user"
 #basics
     .name $userFullName.u$
