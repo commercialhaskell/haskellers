@@ -5,6 +5,8 @@ module Model where
 
 import Yesod
 import Database.Persist.Base
+import Database.Persist.TH (share2)
+import Database.Persist.GenericSql (mkMigrate)
 import Text.Hamlet (ToHtml (..))
 import Data.Time (UTCTime)
 
@@ -32,7 +34,7 @@ instance ToHtml Employment where toHtml = string . prettyEmployment
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-mkPersist [$persist|
+share2 mkPersist (mkMigrate "migrateAll") [$persist|
 User
     fullName String Asc id=full-name
     website String null id=website

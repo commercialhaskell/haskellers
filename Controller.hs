@@ -47,14 +47,7 @@ getRobotsR = return $ RepPlain $ toContent "User-agent: *"
 -- migrations handled by Yesod.
 withHaskellers :: (Application -> IO a) -> IO a
 withHaskellers f = Settings.withConnectionPool $ \p -> do
-    flip runConnectionPool p $ runMigration $ do
-        migrate (undefined :: User)
-        migrate (undefined :: Username)
-        migrate (undefined :: Ident)
-        migrate (undefined :: Skill)
-        migrate (undefined :: UserSkill)
-        migrate (undefined :: Package)
-        migrate (undefined :: Message)
+    flip runConnectionPool p $ runMigration migrateAll
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
 #if PRODUCTION

@@ -57,6 +57,7 @@ data Profile = Profile
     , profileSkills :: Set.Set SkillId
     , profileUsername :: Maybe Username
     }
+  deriving Show
 
 -- | A useful synonym; most of the handler functions in your application
 -- will need to be of this type.

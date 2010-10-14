@@ -26,7 +26,7 @@ executable         simple-server
                    wai-extra,
                    directory,
                    bytestring,
-                   persistent,
+                   persistent >= 0.2.3,
                    persistent-postgresql,
                    template-haskell,
                    hamlet,
