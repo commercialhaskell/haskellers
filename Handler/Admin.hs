@@ -11,6 +11,7 @@ module Handler.Admin
     , getMessagesR
     , postCloseMessageR
     , getAdminUsersR
+    , requireAdmin
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__

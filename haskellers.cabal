@@ -39,6 +39,7 @@ executable         simple-server
                    containers,
                    MonadCatchIO-transformers,
                    stm,
+                   old-locale,
                    utf8-string
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies, CPP

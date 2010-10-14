@@ -20,6 +20,7 @@ module Haskellers
     , userR
     , debugRunDBInner
     , getDebugR
+    , prettyTime
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
@@ -39,6 +40,7 @@ import Model
 import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
                     openid_icon_small_gif, facebook_png)
 import Yesod.Form.Jquery
+import Yesod.Form.Nic
 import Data.IORef (IORef)
 import qualified Data.Set as Set
 import Control.Monad.CatchIO (finally)
@@ -47,6 +49,9 @@ import Control.Concurrent.STM
 import System.IO.Unsafe
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+
+import Data.Time
+import System.Locale
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -145,6 +150,11 @@ mkYesodData "Haskellers" [$parseRoutes|
 /admin/messages MessagesR GET
 /admin/messages/#MessageId/close CloseMessageR POST
 
+/news NewsR GET POST
+/news/#NewsId NewsItemR GET
+
+/feed/news NewsFeedR GET
+
 /debug DebugR GET
 |]
 
@@ -208,6 +218,7 @@ instance YesodPersist Haskellers where
 
 instance YesodJquery Haskellers where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
+instance YesodNic Haskellers
 
 instance YesodAuth Haskellers where
     type AuthId Haskellers = UserId
@@ -323,3 +334,6 @@ debugRunDBInner file line db = do
         m <- readTVar debugInfo
         let (start, stop) = fromMaybe (0, 0) $ Map.lookup (file, line) m -- maybe should never happen
         writeTVar debugInfo $ Map.insert (file, line) (start, stop + 1) m
+
+prettyTime :: UTCTime -> String
+prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"

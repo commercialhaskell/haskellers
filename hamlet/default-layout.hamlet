@@ -3,6 +3,7 @@
     %head
         %title $pageTitle.pc$
         ^pageHead.pc^
+        %link!href=@NewsFeedR@!type="application/atom+xml"!rel="alternate"!title="Haskellers News"
     %body
         %ul#user-bar
             %li

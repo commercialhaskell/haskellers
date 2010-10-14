@@ -77,6 +77,11 @@ Message
     from UserId null
     regarding UserId null
     text Textarea
+News
+    when UTCTime Desc
+    title String
+    content Html
+    deriving Show Eq
 |]
 
 userFullName' :: User -> String

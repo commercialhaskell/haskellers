@@ -21,3 +21,8 @@
     text-align: center
 .buttons
     text-align: center
+#news
+    margin: 1em 3em
+    background: #eee
+    border: 1px solid #666
+    padding: 3px

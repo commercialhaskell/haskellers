@@ -32,6 +32,7 @@ getRootR = do
     y <- getYesod
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
+    news <- debugRunDB $ selectList [] [NewsWhenDesc] 1 0
     let profs =
             if null allProfs
                 then []
