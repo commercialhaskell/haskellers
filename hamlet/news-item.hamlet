@@ -1,4 +1,8 @@
-%h3 $newsTitle.n$
+#buttons
+    <a href="http://feeds.feedburner.com/HaskellersNews" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0;padding-right:10px"/></a><a href="http://feeds.feedburner.com/HaskellersNews" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to Haskellers News</a>
+    %br
+    <script type="text/javascript" src="http://reddit.com/static/button/button1.js"></script>
+%h3!style=font-size:130% $newsTitle.n$
 %h4.time $prettyTime.newsWhen.n$
 $newsContent.n$
 <div id="disqus_thread"></div> <script type="text/javascript"> (function() { var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true; dsq.src = 'http://haskellers.disqus.com/embed.js'; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq); })(); </script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=haskellers">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
