@@ -43,7 +43,6 @@ import Yesod.Form.Jquery
 import Yesod.Form.Nic
 import Data.IORef (IORef)
 import qualified Data.Set as Set
-import Control.Monad.CatchIO (finally)
 
 import Control.Concurrent.STM
 import System.IO.Unsafe
@@ -324,7 +323,7 @@ debugRunDBInner
     -> GHandler s m a
 debugRunDBInner file line db = do
     liftIO addStart
-    finally (runDB db) (liftIO addStop)
+    finallyHandler (runDB db) (liftIO addStop)
   where
     addStart = atomically $ do
         m <- readTVar debugInfo
