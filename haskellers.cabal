@@ -37,9 +37,11 @@ executable         simple-server
                    time,
                    random-shuffle,
                    containers,
+                   MonadCatchIO-transformers,
+                   stm,
                    utf8-string
     ghc-options:   -Wall -Werror
-    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
+    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies, CPP
 
 executable         fastcgi
     if flag(production)
@@ -50,4 +52,4 @@ executable         fastcgi
     main-is:       fastcgi.hs
     build-depends: wai-handler-fastcgi
     ghc-options:   -Wall -threaded
-    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
+    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies, CPP

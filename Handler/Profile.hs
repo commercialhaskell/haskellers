@@ -12,6 +12,8 @@ module Handler.Profile
     , postClearUsernameR
     ) where
 
+#define debugRunDB debugRunDBInner __FILE__ __LINE__
+
 import Haskellers
 import Control.Applicative
 import Handler.Root (gravatar)
@@ -79,20 +81,20 @@ getProfileR :: Handler RepHtml
 getProfileR = do
     (uid, u) <- requireAuth
     (res, form, enctype) <- runFormPost $ userForm u
-    musername <- fmap (fmap snd) $ runDB $ getBy $ UniqueUsernameUser uid
+    musername <- fmap (fmap snd) $ debugRunDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
-            runDB $ replace uid u'
+            debugRunDB $ replace uid u'
             setMessage "Updated your profile"
             redirect RedirectTemporary ProfileR
         _ -> return ()
     y <- getYesod
-    skills <- runDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
+    skills <- debugRunDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
         x <- getBy $ UniqueUserSkill uid sid
         return $ ((sid, s), isJust x)
         )
-    packages <- runDB $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
-    idents <- runDB $ selectList [IdentUserEq uid] [IdentIdentAsc] 0 0
+    packages <- debugRunDB $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
+    idents <- debugRunDB $ selectList [IdentUserEq uid] [IdentIdentAsc] 0 0
     defaultLayout $ do
         addScriptEither $ urlJqueryJs y
         addScript $ StaticR jquery_cookie_js
@@ -113,7 +115,7 @@ postProfileR = getProfileR
 postDeleteAccountR :: Handler ()
 postDeleteAccountR = do
     (uid, _) <- requireAuth
-    runDB $ do
+    debugRunDB $ do
         deleteWhere [IdentUserEq uid]
         deleteWhere [UserSkillUserEq uid]
         delete uid
@@ -123,10 +125,10 @@ postDeleteAccountR = do
 postSkillsR :: Handler ()
 postSkillsR = do
     (uid, _) <- requireAuth
-    allSkills <- fmap (map fst) $ runDB $ selectList [] [] 0 0
+    allSkills <- fmap (map fst) $ debugRunDB $ selectList [] [] 0 0
     skills <- flip filterM allSkills $ \sid ->
         runFormPost' (boolInput $ showIntegral sid)
-    runDB $ do
+    debugRunDB $ do
         deleteWhere [UserSkillUserEq uid]
         forM_ skills $ \sid -> insert (UserSkill uid sid)
     setMessage "Your skills have been updated"
@@ -135,12 +137,12 @@ postSkillsR = do
 postDeleteIdentR :: IdentId -> Handler ()
 postDeleteIdentR iid = do
     (uid, _) <- requireAuth
-    i <- runDB $ get404 iid
+    i <- debugRunDB $ get404 iid
     unless (uid == identUser i) notFound
-    idents <- runDB $ count [IdentUserEq uid]
+    idents <- debugRunDB $ count [IdentUserEq uid]
     if idents > 1
         then do
-            runDB $ delete iid
+            debugRunDB $ delete iid
             setMessage "Identifier deleted"
         else setMessage "You cannot delete your last identifier"
     redirect RedirectTemporary ProfileR
@@ -156,7 +158,7 @@ postRequestRealR = do
         else if userVerifiedEmail u && hasGoodName (userFullName u)
             then do
                 now <- liftIO getCurrentTime
-                _ <- runDB $ insert $ Message
+                _ <- debugRunDB $ insert $ Message
                     { messageClosed = False
                     , messageWhen = now
                     , messageFrom = Just uid
@@ -180,7 +182,7 @@ postRequestRealPicR = do
         else if userVerifiedEmail u && hasGoodName (userFullName u)
             then do
                 now <- liftIO getCurrentTime
-                _ <- runDB $ insert $ Message
+                _ <- debugRunDB $ insert $ Message
                     { messageClosed = False
                     , messageWhen = now
                     , messageFrom = Just uid
@@ -197,7 +199,7 @@ postRequestUnblockR = do
     if userBlocked u
         then do
             now <- liftIO getCurrentTime
-            _ <- runDB $ insert $ Message
+            _ <- debugRunDB $ insert $ Message
                 { messageClosed = False
                 , messageWhen = now
                 , messageFrom = Just uid
@@ -211,7 +213,7 @@ postRequestUnblockR = do
 postClearUsernameR :: Handler ()
 postClearUsernameR = do
     (uid, _) <- requireAuth
-    runDB $ deleteBy $ UniqueUsernameUser uid
+    debugRunDB $ deleteBy $ UniqueUsernameUser uid
     setMessage "Your username has been cleared."
     redirect RedirectTemporary ProfileR
 
@@ -229,7 +231,7 @@ postSetUsernameR = do
     case musername of
         Nothing -> setMessage "Invalid username"
         Just un -> do
-            x <- runDB $ insertBy' $ Username uid un
+            x <- debugRunDB $ insertBy' $ Username uid un
             case x of
                 Left _ -> setMessage "Username already in use"
                 Right _ -> setMessage "Your username is set!"

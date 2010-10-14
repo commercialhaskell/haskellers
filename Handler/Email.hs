@@ -5,6 +5,8 @@ module Handler.Email
     , getVerifyEmailR
     ) where
 
+#define debugRunDB debugRunDBInner __FILE__ __LINE__
+
 import Haskellers
 import Control.Monad (when)
 import Yesod.Mail
@@ -15,7 +17,7 @@ import qualified Data.ByteString.Lazy.UTF8 as LU
 postResetEmailR :: Handler ()
 postResetEmailR = do
     (uid, _) <- requireAuth
-    runDB $ update uid
+    debugRunDB $ update uid
         [ UserVerifiedEmail False
         , UserEmail Nothing
         , UserVerkey Nothing
@@ -28,7 +30,7 @@ getVerifyEmailR verkey = do
     (uid, u) <- requireAuth
     if Just verkey == userVerkey u && isJust (userEmail u)
         then do
-            runDB $ update uid
+            debugRunDB $ update uid
                 [ UserVerifiedEmail True
                 , UserVerkey Nothing
                 ]
@@ -47,7 +49,7 @@ postSendVerifyR = do
         FormSuccess email -> do
             stdgen <- liftIO newStdGen
             let verkey = fst $ randomString 10 stdgen
-            runDB $ update uid [ UserEmail $ Just email
+            debugRunDB $ update uid [ UserEmail $ Just email
                                , UserVerkey $ Just verkey
                                ]
             render <- getUrlRender

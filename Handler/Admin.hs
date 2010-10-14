@@ -13,6 +13,8 @@ module Handler.Admin
     , getAdminUsersR
     ) where
 
+#define debugRunDB debugRunDBInner __FILE__ __LINE__
+
 import Haskellers
 import Control.Monad (unless)
 import Handler.User (adminControls) -- FIXME includes style too many times
@@ -27,8 +29,8 @@ requireAdmin = do
 adminHelper :: (Bool -> Update User) -> Bool -> Html -> UserId -> Handler ()
 adminHelper constr bool msg uid = do
     requireAdmin
-    u <- runDB $ get404 uid
-    runDB $ update uid [constr bool]
+    u <- debugRunDB $ get404 uid
+    debugRunDB $ update uid [constr bool]
     setMessage msg
     redirect RedirectTemporary $ userR ((uid, u), Nothing)
 
@@ -59,7 +61,7 @@ postUnblockR = adminHelper UserBlocked False "User has been unblocked"
 getMessagesR :: Handler RepHtml
 getMessagesR = do
     requireAdmin
-    messages <- runDB $ selectList [MessageClosedEq False] [MessageWhenAsc] 0 0 >>= mapM (\(mid, m) -> do
+    messages <- debugRunDB $ selectList [MessageClosedEq False] [MessageWhenAsc] 0 0 >>= mapM (\(mid, m) -> do
         let go uid = do
                 u <- get404 uid
                 return $ Just (uid, u)
@@ -75,13 +77,13 @@ getMessagesR = do
 postCloseMessageR :: MessageId -> Handler ()
 postCloseMessageR mid = do
     requireAdmin
-    runDB $ update mid [MessageClosed True]
+    debugRunDB $ update mid [MessageClosed True]
     setMessage $ string "Message has been closed"
     redirect RedirectTemporary MessagesR
 
 getAdminUsersR :: Handler RepHtml
 getAdminUsersR = do
-    users <- runDB $ selectList [UserVerifiedEmailEq True] [UserFullNameAsc] 0 0
+    users <- debugRunDB $ selectList [UserVerifiedEmailEq True] [UserFullNameAsc] 0 0
     y <- getYesod
     defaultLayout $ do
         setTitle $ string "Admin list of users"

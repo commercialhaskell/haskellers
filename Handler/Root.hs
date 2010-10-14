@@ -6,6 +6,8 @@ module Handler.Root
     , getLocationsR
     ) where
 
+#define debugRunDB debugRunDBInner __FILE__ __LINE__
+
 import Haskellers hiding (Filter)
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
@@ -35,7 +37,7 @@ getRootR = do
                 then []
                 else take 9 $ shuffle' allProfs len gen
     mu <- maybeAuth
-    (public, private) <- runDB $ do
+    (public, private) <- debugRunDB $ do
         public <- count [ UserVerifiedEmailEq True
                         , UserVisibleEq True
                         , UserBlockedEq False
@@ -155,7 +157,7 @@ gravatar s x =
 getLocationsR :: Handler RepJson
 getLocationsR = do
     render <- getUrlRender
-    users <- runDB $ selectList [ UserLongitudeNe Nothing
+    users <- debugRunDB $ selectList [ UserLongitudeNe Nothing
                                 , UserLatitudeNe Nothing
                                 , UserVerifiedEmailEq True
                                 , UserVisibleEq True

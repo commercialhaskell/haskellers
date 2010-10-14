@@ -18,7 +18,11 @@ module Haskellers
     , login
     , Profile (..)
     , userR
+    , debugRunDBInner
+    , getDebugR
     ) where
+
+#define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 import Yesod
 import Yesod.Helpers.Static
@@ -37,6 +41,12 @@ import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
 import Yesod.Form.Jquery
 import Data.IORef (IORef)
 import qualified Data.Set as Set
+import Control.Monad.CatchIO (finally)
+
+import Control.Concurrent.STM
+import System.IO.Unsafe
+import qualified Data.Map as Map
+import Data.Maybe (fromMaybe)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -134,6 +144,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /admin AdminUsersR GET
 /admin/messages MessagesR GET
 /admin/messages/#MessageId/close CloseMessageR POST
+
+/debug DebugR GET
 |]
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
@@ -142,13 +154,13 @@ maybeAuth' = do
     case x of
         Nothing -> return Nothing
         Just (uid, u) -> do
-            y <- runDB $ getBy $ UniqueUsernameUser uid
+            y <- debugRunDB $ getBy $ UniqueUsernameUser uid
             return $ Just ((uid, u), fmap snd y)
 
 requireAuth' :: GHandler s Haskellers ((UserId, User), Maybe Username)
 requireAuth' = do
     (uid, u) <- requireAuth
-    y <- runDB $ getBy $ UniqueUsernameUser uid
+    y <- debugRunDB $ getBy $ UniqueUsernameUser uid
     return ((uid, u), fmap snd y)
 
 -- Please see the documentation for the Yesod typeclass. There are a number
@@ -205,10 +217,10 @@ instance YesodAuth Haskellers where
 
     getAuthId creds = do
         muid <- maybeAuth
-        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        x <- debugRunDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
             (Just (_, i), Nothing) -> return $ Just $ identUser i
-            (Nothing, Nothing) -> runDB $ do
+            (Nothing, Nothing) -> debugRunDB $ do
                 uid <- insert $ User
                     { userFullName = ""
                     , userWebsite = Nothing
@@ -231,7 +243,7 @@ instance YesodAuth Haskellers where
                 return $ Just uid
             (Nothing, Just (uid, _)) -> do
                 setMessage $ string "Identifier added to your account"
-                _ <- runDB $ insert $ Ident (credsIdent creds) uid
+                _ <- debugRunDB $ insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Just _, Just _) -> do
                 setMessage $ string "That identifier is already attached to an account. Please detach it from the other account first."
@@ -267,3 +279,47 @@ login = addStyle $(cassiusFile "login") >> $(hamletFile "login")
 userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
 userR (_, Just (Username _ un)) = UserR un
 userR ((uid, _), _) = UserR $ showIntegral uid
+
+debugInfo :: TVar (Map.Map (String, Int) (Int, Int))
+debugInfo = unsafePerformIO $ newTVarIO Map.empty
+
+getDebugR :: Handler RepHtml
+getDebugR = do
+    l <- Map.toList `fmap` liftIO (atomically $ readTVar debugInfo)
+    defaultLayout $ do
+        setTitle $ string "Database pool debug info"
+        [$hamlet|
+%table
+    %thead
+        %tr
+            %th File
+            %th Line
+            %th Start
+            %th Stop
+    %tbody
+        $forall l p
+            %tr
+                %td $fst.fst.p$
+                %td $show.snd.fst.p$
+                %td $show.fst.snd.p$
+                %td $show.snd.snd.p$
+|]
+
+debugRunDBInner
+    :: YesodPersist m
+    => String
+    -> Int
+    -> YesodDB m (GHandler s m) a
+    -> GHandler s m a
+debugRunDBInner file line db = do
+    liftIO addStart
+    finally (runDB db) (liftIO addStop)
+  where
+    addStart = atomically $ do
+        m <- readTVar debugInfo
+        let (start, stop) = fromMaybe (0, 0) $ Map.lookup (file, line) m
+        writeTVar debugInfo $ Map.insert (file, line) (start + 1, stop) m
+    addStop = atomically $ do
+        m <- readTVar debugInfo
+        let (start, stop) = fromMaybe (0, 0) $ Map.lookup (file, line) m -- maybe should never happen
+        writeTVar debugInfo $ Map.insert (file, line) (start, stop + 1) m
