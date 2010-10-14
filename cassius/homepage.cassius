@@ -26,3 +26,6 @@
     background: #eee
     border: 1px solid #666
     padding: 3px
+#news .time
+    color: #666
+    font-style: italic

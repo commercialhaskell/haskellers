@@ -1,7 +1,8 @@
 $forall news item
     #news
         %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
-        \ ($fuzzyDiffTime.newsWhen.snd.item$)
+        %span.time
+            \ $fuzzyDiffTime.newsWhen.snd.item$
 #blurb
     Haskellers is a centralized place for professional Haskell programmers to publish themselves.
     $maybe mu _
