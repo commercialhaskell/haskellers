@@ -231,7 +231,7 @@ postSetUsernameR = do
     case musername of
         Nothing -> setMessage "Invalid username"
         Just un -> do
-            x <- debugRunDB $ insertBy' $ Username uid un
+            x <- debugRunDB $ insertBy $ Username uid un
             case x of
                 Left _ -> setMessage "Username already in use"
                 Right _ -> setMessage "Your username is set!"

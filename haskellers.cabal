@@ -21,13 +21,13 @@ executable         simple-server
         Buildable: False
     main-is:       simple-server.hs
     build-depends: base >= 4 && < 5,
-                   yesod >= 0.5.4 && < 0.6,
-                   yesod-auth >= 0.1.4,
+                   yesod >= 0.6 && < 0.7,
+                   yesod-auth >= 0.2,
                    wai-extra,
                    directory,
                    bytestring,
-                   persistent >= 0.2.4,
-                   persistent-postgresql >= 0.2.2,
+                   persistent >= 0.3,
+                   persistent-postgresql >= 0.3,
                    template-haskell,
                    hamlet,
                    pureMD5 < 2,
@@ -37,9 +37,9 @@ executable         simple-server
                    time,
                    random-shuffle,
                    containers,
-                   MonadCatchIO-transformers,
                    stm,
                    old-locale,
+                   neither,
                    utf8-string
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies, CPP

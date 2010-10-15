@@ -8,7 +8,7 @@ module Controller
 import Haskellers
 import Settings
 import Yesod.Helpers.Static
-import Yesod.Helpers.Auth2
+import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
 import Data.IORef
 #if PRODUCTION

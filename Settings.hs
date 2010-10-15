@@ -22,8 +22,7 @@ import qualified Text.Cassius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadCatchIO, finallyHandler, GHandler)
-import qualified Control.Exception as E
+import Yesod (MonadInvertIO)
 
 -- | The base URL for your application. This will usually be different for
 -- development and production. Yesod automatically constructs URLs for you,
@@ -120,15 +119,8 @@ juliusFile x = H.juliusFileDebug $ "julius/" ++ x ++ ".julius"
 -- database actions using a pool, respectively. It is used internally
 -- by the scaffolded application, and therefore you will rarely need to use
 -- them yourself.
-withConnectionPool :: GoodFinally m => (ConnectionPool -> m a) -> m a
-withConnectionPool = withPostgresqlPoolF goodFinally connStr connectionCount
+withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool = withPostgresqlPool connStr connectionCount
 
-runConnectionPool :: GoodFinally m => SqlPersist m a -> ConnectionPool -> m a
-runConnectionPool = runSqlPoolF goodFinally
-
-class MonadCatchIO m => GoodFinally m where
-    goodFinally :: m a -> m b -> m a
-instance GoodFinally IO where
-    goodFinally = E.finally
-instance GoodFinally (GHandler s m) where
-    goodFinally = finallyHandler
+runConnectionPool :: MonadInvertIO m => SqlPersist m a -> ConnectionPool -> m a
+runConnectionPool = runSqlPool

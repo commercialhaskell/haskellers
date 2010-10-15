@@ -4,6 +4,7 @@ module Haskellers
     , HaskellersRoute (..)
     , resourcesHaskellers
     , Handler
+    , Widget
     , maybeAuth
     , requireAuth
     , maybeAuth'
@@ -27,9 +28,9 @@ module Haskellers
 
 import Yesod
 import Yesod.Helpers.Static
-import Yesod.Helpers.Auth2
-import Yesod.Helpers.Auth2.OpenId
-import Yesod.Helpers.Auth2.Facebook
+import Yesod.Helpers.Auth
+import Yesod.Helpers.Auth.OpenId
+import Yesod.Helpers.Auth.Facebook
 import qualified Settings
 import System.Directory
 import qualified Data.ByteString.Lazy as L
@@ -48,6 +49,7 @@ import Control.Concurrent.STM
 import System.IO.Unsafe
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import Control.Monad.Invert (finally)
 
 import Data.Time
 import System.Locale
@@ -76,6 +78,7 @@ data Profile = Profile
 -- | A useful synonym; most of the handler functions in your application
 -- will need to be of this type.
 type Handler = GHandler Haskellers Haskellers
+type Widget = GWidget Haskellers Haskellers
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -323,7 +326,7 @@ debugRunDBInner
     -> GHandler s m a
 debugRunDBInner file line db = do
     liftIO addStart
-    finallyHandler (runDB db) (liftIO addStop)
+    finally (runDB db) (liftIO addStop)
   where
     addStart = atomically $ do
         m <- readTVar debugInfo
