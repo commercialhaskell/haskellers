@@ -1,4 +1,5 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell, OverloadedStrings, QuasiQuotes #-}
+{-# LANGUAGE CPP #-}
 module Handler.News
     ( getNewsR
     , postNewsR

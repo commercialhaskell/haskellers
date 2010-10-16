@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
+{-# LANGUAGE CPP #-}
 module Handler.User
     ( getUserR
     , getByIdentR

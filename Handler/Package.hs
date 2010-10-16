@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes, OverloadedStrings, TemplateHaskell #-}
+{-# LANGUAGE CPP #-}
 module Handler.Package
     ( postDeletePackageR
     , postPackagesR

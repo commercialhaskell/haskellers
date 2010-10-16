@@ -1,4 +1,5 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE CPP #-}
 module Haskellers
     ( Haskellers (..)
     , HaskellersRoute (..)
