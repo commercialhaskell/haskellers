@@ -41,6 +41,7 @@ executable         simple-server
                    old-locale,
                    neither,
                    data-default,
+                   mime-mail,
                    utf8-string
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies

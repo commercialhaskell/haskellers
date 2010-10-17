@@ -10,10 +10,11 @@ module Handler.Email
 
 import Haskellers
 import Control.Monad (when)
-import Yesod.Mail
+import Network.Mail.Mime
 import System.Random (newStdGen)
 import Data.Maybe (isJust)
 import qualified Data.ByteString.Lazy.UTF8 as LU
+import StaticFiles (logo_png)
 
 postResetEmailR :: Handler ()
 postResetEmailR = do
@@ -55,15 +56,26 @@ postSendVerifyR = do
                                ]
             render <- getUrlRender
             let url = render $ VerifyEmailR verkey
-            liftIO $ sendmail $ LU.fromString $ unlines
-                [ "From: noreply@haskellers.com"
-                , "To: " ++ email
-                , "Subject: Verify your email address"
-                , ""
-                , "Please go to the URL below to verify your email address"
-                , ""
-                , url
-                ]
+            liftIO $ renderSendMail Mail
+                { mailHeaders =
+                    [ ("From", "noreply@haskellers.com")
+                    , ("To", email)
+                    , ("Subject", "Verify your email address")
+                    ]
+                , mailParts = return
+                    [ Part "text/plain" None Nothing $ LU.fromString $ unlines
+                        [ "Please go to the URL below to verify your email address."
+                        , ""
+                        , url
+                        ]
+                    , Part "text/html" None Nothing $ renderHtml [$hamlet|
+%img!src=$render.StaticR.logo_png$!alt=Haskellers
+%p Please go to the URL below to verify your email address.
+%p
+    %a!href=$url$ $url$
+|]
+                    ]
+                }
             setMessage "A confirmation link has been sent."
         _ -> setMessage "You entered an invalid email address."
     redirect RedirectTemporary ProfileR
