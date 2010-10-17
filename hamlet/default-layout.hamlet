@@ -4,6 +4,7 @@
         %title $title$
         ^pageHead.pc^
         %link!href=@NewsFeedR@!type="application/atom+xml"!rel="alternate"!title="Haskellers News"
+        %link!href=@JobsFeedR@!type="application/atom+xml"!rel="alternate"!title="Haskellers Job Listings"
     %body
       #wrapper-table
        #wrapper-table-row

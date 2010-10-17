@@ -1,0 +1,29 @@
+%table
+    %tr
+        %th Posted by
+        %td
+            %a!href=@UserR.showIntegral.jobPostedBy.job@
+                $userFullName.poster$
+    %tr
+        %th Posted at
+        %td $prettyTime.jobPostedAt.job$
+    %tr
+        %th Filling by
+        %td $prettyDay.jobFillingBy.job$
+    $if jobFullTime.job
+        $if jobPartTime.job
+            %tr
+                %th Job type
+                %td Full or part time
+        $else
+            %tr
+                %th Job type
+                %td Full time
+    $else
+        %tr
+            %th Job type
+            %td Part time
+    %tr
+        %th Location
+        %td $jobLocation.job$
+#desc $jobDesc.job$

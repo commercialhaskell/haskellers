@@ -40,6 +40,7 @@ executable         simple-server
                    stm,
                    old-locale,
                    neither,
+                   data-default,
                    utf8-string
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies

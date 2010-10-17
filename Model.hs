@@ -5,23 +5,14 @@ module Model where
 
 import Yesod
 import Database.Persist.Base
-import Database.Persist.TH (share2)
+import Database.Persist.TH (share2, derivePersistField)
 import Database.Persist.GenericSql (mkMigrate)
 import Text.Hamlet (ToHtml (..))
-import Data.Time (UTCTime)
+import Data.Time (UTCTime, Day)
 
 data Employment = FullTime | PartTime | FullPartTime | NotLooking
     deriving (Show, Read, Eq, Enum, Bounded)
-instance PersistField Employment where
-    toPersistValue = PersistString . show
-    fromPersistValue v =
-        case fromPersistValue v of
-            Left e -> Left e
-            Right s ->
-                case reads s of
-                    (x, _):_ -> Right x
-                    [] -> Left $ "Invalid Employment: " ++ s
-    sqlType _ = SqlString
+derivePersistField "Employment"
 
 prettyEmployment :: Employment -> String
 prettyEmployment FullTime = "You can ask me about full-time employment"
@@ -82,6 +73,15 @@ News
     title String
     content Html
     deriving Show Eq
+Job
+    postedBy UserId
+    postedAt UTCTime Desc
+    title String
+    fillingBy Day Gt
+    fullTime Bool
+    partTime Bool
+    location String
+    desc Textarea
 |]
 
 userFullName' :: User -> String

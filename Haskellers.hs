@@ -23,6 +23,7 @@ module Haskellers
     , debugRunDBInner
     , getDebugR
     , prettyTime
+    , prettyDay
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
@@ -156,9 +157,13 @@ mkYesodData "Haskellers" [$parseRoutes|
 /news NewsR GET POST
 /news/#NewsId NewsItemR GET
 
-/feed/news NewsFeedR GET
-
 /debug DebugR GET
+
+/jobs JobsR GET POST
+/jobs/#JobId JobR GET
+
+/feed/news NewsFeedR GET
+/feed/jobs JobsFeedR GET
 |]
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
@@ -244,6 +249,10 @@ navbar =
         , ("Browse Skills", AllSkillsR)
         ]
       )
+    , ("Find a Job",
+        [ ("Job Listings", JobsR)
+        ]
+      )
     ]
 
 userbar :: ((UserId, User), Maybe Username)
@@ -293,6 +302,11 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb (AuthR LoginR) = return ("Log in to Haskellers", Just RootR)
     breadcrumb DebugR = return ("Database pool debug info", Just RootR)
 
+    breadcrumb JobsR = return ("Job Listings", Just RootR)
+    breadcrumb (JobR jid) = do
+        j <- runDB $ get404 jid
+        return ("Job Listing: " ++ jobTitle j, Just JobsR)
+
     -- These pages never call breadcrumb
     breadcrumb StaticR{} = return ("", Nothing)
     breadcrumb FaviconR = return ("", Nothing)
@@ -321,6 +335,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb SendVerifyR = return ("", Nothing)
     breadcrumb CloseMessageR{} = return ("", Nothing)
     breadcrumb NewsFeedR = return ("", Nothing)
+    breadcrumb JobsFeedR = return ("", Nothing)
     breadcrumb AuthR{} = return ("", Nothing)
 
 -- How to run database actions.
@@ -446,3 +461,6 @@ debugRunDBInner file line db = do
 
 prettyTime :: UTCTime -> String
 prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
+
+prettyDay :: Day -> String
+prettyDay = formatTime defaultTimeLocale "%B %e, %Y"

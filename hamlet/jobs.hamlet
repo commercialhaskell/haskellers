@@ -1,0 +1,16 @@
+$if null.jobs
+    %p There are no active job listings.
+$else
+    %ul
+        $forall jobs j
+            %li
+                %a!href=@JobR.fst.j@ $jobTitle.snd.j$
+                %span.posted $prettyTime.jobPostedAt.snd.j$
+$maybe mform form
+    %h2 Post a new job
+    %form!method=post!action=@JobsR@
+        %table
+            ^form^
+            %tr
+                %td!colspan=2
+                    %input!type=submit!value="Post Job"
