@@ -1,3 +1,4 @@
+%script!src="http://reddit.com/static/button/button1.js"
 %table
     %tr
         %th Posted by
