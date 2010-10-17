@@ -1,7 +1,9 @@
-#gravatar, #basics
+#gravatar, #basics, #screen-names
     display: table-cell
     vertical-align: top
     padding-right: 30px
+#screen-naems th
+    text-align: left
 #desc
     margin: 10px 0 0 0
 #basics

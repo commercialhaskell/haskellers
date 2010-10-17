@@ -62,6 +62,8 @@ getUserR input = do
     packages <- debugRunDB
               $ fmap (map $ packageName . snd)
               $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
+    screenNames <- debugRunDB $ selectList [ScreenNameUserEq uid]
+                    [ScreenNameServiceAsc, ScreenNameNameAsc] 0 0
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
     let json = jsonMap

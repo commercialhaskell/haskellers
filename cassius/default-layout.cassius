@@ -25,7 +25,7 @@ h1
     border: 1px solid #200e5a
     background: #b38b1b
     padding: 2px
-    margin: 0 0 15px 0
+    margin: 0 5px 15px 0
     font-size: 120%
     color: #900
 #footer

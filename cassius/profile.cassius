@@ -30,3 +30,7 @@
 #map_canvas
     height: 150px
     width: 200px
+#screen-names-table
+    border-collapse: collapse
+#screen-names-table th, #screen-names-table td
+    border: 1px solid #666

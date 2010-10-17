@@ -26,6 +26,13 @@ $if viewerIsAdmin
         .employment $e$
     $maybe userLocation.u l
         .location Living in $l$
+$if not.null.screenNames
+    #screen-names
+        %table
+            $forall screenNames sn
+                %tr
+                    %th $show.screenNameService.snd.sn$
+                    %td $screenNameName.snd.sn$
 $maybe userDesc.u d
     %h3 About Me
     #desc $d$

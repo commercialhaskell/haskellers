@@ -11,6 +11,8 @@ module Handler.Profile
     , postRequestUnblockR
     , postSetUsernameR
     , postClearUsernameR
+    , postScreenNamesR
+    , postDeleteScreenNameR
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
@@ -26,6 +28,13 @@ import Yesod.Form.Core
 import Yesod.Form.Profiles
 import Control.Arrow ((&&&))
 import Data.Time (getCurrentTime)
+
+screenNameFormlet uid = fieldsToTable $ ScreenName
+    <$> pure uid
+    <*> selectField servopts "Service" Nothing
+    <*> stringField "Screen name" Nothing
+  where
+    servopts = map (id &&& show) [minBound..maxBound]
 
 userForm :: User -> Form s m User
 userForm u = fieldsToTable $ User
@@ -96,6 +105,9 @@ getProfileR = do
         )
     packages <- debugRunDB $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
     idents <- debugRunDB $ selectList [IdentUserEq uid] [IdentIdentAsc] 0 0
+    screenNames <- debugRunDB $ selectList [ScreenNameUserEq uid]
+                    [ScreenNameServiceAsc, ScreenNameNameAsc] 0 0
+    (_, screenNameForm, _) <- runFormGet $ screenNameFormlet uid
     defaultLayout $ do
         addScriptEither $ urlJqueryJs y
         addScript $ StaticR jquery_cookie_js
@@ -245,3 +257,23 @@ postSetUsernameR = do
         | 'a' <= c && c <= 'z' = True
         | '0' <= c && c <= '9' = True
     validChar _ = False
+
+postScreenNamesR :: Handler ()
+postScreenNamesR = do
+    (uid, _) <- requireAuth
+    (res, form, _) <- runFormPost $ screenNameFormlet uid
+    case res of
+        FormSuccess sn -> do
+            _ <- runDB $ insert sn
+            setMessage "Screen name added"
+        _ -> setMessage "Invalid screen name"
+    redirect RedirectTemporary ProfileR
+
+postDeleteScreenNameR :: ScreenNameId -> Handler ()
+postDeleteScreenNameR snid = do
+    (uid, u) <- requireAuth
+    sn <- runDB $ get404 snid
+    unless (screenNameUser sn == uid) notFound
+    runDB $ delete snid
+    setMessage "Screen name deleted"
+    redirect RedirectTemporary ProfileR

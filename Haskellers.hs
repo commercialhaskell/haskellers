@@ -122,6 +122,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/request-unblcok RequestUnblockR POST
 /profile/username SetUsernameR POST
 /profile/clear-username ClearUsernameR POST
+/profile/screen-names ScreenNamesR POST
+/profile/screen-names/#ScreenNameId/delete DeleteScreenNameR POST
 
 /skills AllSkillsR GET POST
 /skills/#SkillId SkillR GET

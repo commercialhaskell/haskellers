@@ -21,6 +21,8 @@ $elseif not.userVisible.u
         %li
             %a!href="#identifiers" Identifiers
         %li
+            %a!href="#screen-names" Screen Names
+        %li
             %a!href="#extras" Extras
         %li
             %a!href="#delete" Delete
@@ -112,6 +114,31 @@ $elseif not.userVisible.u
                         %input!type=submit!value=Remove
     %h3 Add new identifier
     ^login^
+  #screen-names
+    %h3 Screen Names
+    $if null.screenNames
+        %p You have not set any screen names.
+    $else
+        %table#screen-names-table
+            %thead
+                %tr
+                    %th Service
+                    %th Screen name
+            %tbody
+                $forall screenNames sn
+                    %tr
+                        %td $show.screenNameService.snd.sn$
+                        %td $screenNameName.snd.sn$
+                        %td
+                            %form!method=post!action=@DeleteScreenNameR.fst.sn@
+                                %input!type=submit!value="Delete"
+    %h3 Add Screenname
+    %form!method=post!action=@ScreenNamesR@
+        %table
+            ^screenNameForm^
+            %tr
+                %td!colspan=2
+                    %input!type=submit!value="Add screen name"
   #extras
     $if not.userReal.u
         %h3 Request verified user status

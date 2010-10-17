@@ -14,6 +14,10 @@ data Employment = FullTime | PartTime | FullPartTime | NotLooking
     deriving (Show, Read, Eq, Enum, Bounded)
 derivePersistField "Employment"
 
+data Service = Twitter | XMPP | AIM
+    deriving (Show, Read, Eq, Enum, Bounded)
+derivePersistField "Service"
+
 prettyEmployment :: Employment -> String
 prettyEmployment FullTime = "You can ask me about full-time employment"
 prettyEmployment PartTime = "You can ask me about part-time employment"
@@ -82,6 +86,10 @@ Job
     partTime Bool
     location String
     desc Textarea
+ScreenName
+    user UserId Eq
+    service Service Asc
+    name String Asc
 |]
 
 userFullName' :: User -> String
