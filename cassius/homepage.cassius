@@ -1,20 +1,14 @@
-#blurb, #users
-    display: inline-block
-    vertical-align: top
-    margin-left: 10px
-#blurb
-    text-align: justify
-    font-size: 120%
-    width: 500px
 #blurb form
     display: inline
 #users
     text-align: center
-    width: 450px
+    width: 600px
+    margin: 0 auto
+    margin-bottom: 30px
 #map_canvas
     height: 300px
     width: 500px
-    margin-top: 20px
+    margin: 0 auto
 .counts
     font-weight: bold
 #login
@@ -23,8 +17,8 @@
     text-align: center
 #news
     margin: 1em 3em
-    background: #eee
-    border: 1px solid #666
+    background: #F1EBDF
+    border: 1px solid #900
     padding: 3px
 #news .time
     color: #666

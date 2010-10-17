@@ -1,6 +1,3 @@
-.breadcrumbs
-    %a!href=@AllSkillsR@ Return to all skills
-%h3 $skillName.skill$
 %ul
     $forall users user
         %li

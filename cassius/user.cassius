@@ -1,10 +1,14 @@
-#gravatar, #basics, #desc
+#gravatar, #basics
     display: table-cell
     vertical-align: top
     padding-right: 30px
+#desc
+    margin: 10px 0 0 0
 #basics
     min-width: 200px
 .name
     font-weight: bold
 .since
     font-style: italic
+#report-button
+    font-size: 60%

@@ -184,10 +184,27 @@ instance Yesod Haskellers where
     defaultLayout widget = do
         mmsg <- getMessage
         ma <- maybeAuth'
+        y <- getYesod
+        (title', parents) <- breadcrumbs
+        current <- getCurrentRoute
+        tm <- getRouteToMaster
+        let title = if fmap tm current == Just RootR
+                        then "Haskellers"
+                        else title'
+        let isCurrent :: HaskellersRoute -> Bool
+            isCurrent RootR = fmap tm current == Just RootR
+            isCurrent x = Just x == fmap tm current || x `elem` map fst parents
+        let navbarSection section = $(hamletFile "navbar-section")
         pc <- widgetToPageContent $ do
             widget
             addStyle $(Settings.cassiusFile "default-layout")
+            addStyle $(Settings.cassiusFile "login")
+            addScriptEither $ urlJqueryJs y
+            addScriptEither $ urlJqueryUiJs y
+            addStylesheetEither $ urlJqueryUiCss y
             addJavascript $(Settings.juliusFile "analytics")
+            addJavascript $(Settings.juliusFile "default-layout")
+        let login' = $(hamletFile "login")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
     -- This is done to provide an optimization for serving static files from
@@ -213,6 +230,98 @@ instance Yesod Haskellers where
         liftIO $ createDirectoryIfMissing True statictmp
         liftIO $ L.writeFile (statictmp ++ fn) content
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
+
+navbar :: [(String, [(String, HaskellersRoute)])]
+navbar =
+    [ ("General",
+        [ ("Homepage", RootR)
+        , ("FAQ", FaqR)
+        , ("News Archive", NewsR)
+        ]
+      )
+    , ("Find a Haskeller",
+        [ ("Browse Users", UsersR)
+        , ("Browse Skills", AllSkillsR)
+        ]
+      )
+    ]
+
+userbar :: ((UserId, User), Maybe Username)
+        -> [(String, [(String, HaskellersRoute)])]
+userbar ((uid, u), a) = (:) ("Your Profile",
+    [ ("Edit Profile", ProfileR)
+    , ("View Profile", userR ((uid, u), a))
+    , ("Logout", AuthR LogoutR)
+    ])
+    $ if userAdmin u
+        then [("Administration",
+                [ ("Messages", MessagesR)
+                , ("All Users", AdminUsersR)
+                ])]
+        else []
+
+loginbar :: (String, [(String, HaskellersRoute)])
+loginbar = ("Account", [("Login", AuthR LoginR)])
+
+instance YesodBreadcrumbs Haskellers where
+    breadcrumb RootR = return ("Homepage", Nothing)
+    breadcrumb FaqR = return ("Frequently Asked Questions", Just RootR)
+    breadcrumb NewsR = return ("News Archive", Just RootR)
+    breadcrumb (NewsItemR nid) = do
+        n <- runDB $ get404 nid
+        return (newsTitle n, Just NewsR)
+    breadcrumb UsersR = return ("Browse Users", Just RootR)
+    breadcrumb AllSkillsR = return ("Browse Skills", Just RootR)
+    breadcrumb (SkillR sid) = do
+        s <- runDB $ get404 sid
+        return (skillName s, Just AllSkillsR)
+    breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ showIntegral uid)
+    breadcrumb (UserR str) = do
+        u <- runDB $
+            case readIntegral str of
+                Just uid -> get404 uid
+                Nothing -> do
+                    x <- getBy $ UniqueUsername str
+                    case x of
+                        Nothing -> lift notFound
+                        Just (_, un) -> get404 $ usernameUser un
+        return (userFullName u, Nothing)
+    breadcrumb ProfileR = return ("Edit Your Profile", Just RootR)
+    breadcrumb VerifyEmailR{} = return ("Verify Your Email Address", Nothing)
+    breadcrumb AdminUsersR = return ("User List- Admin", Nothing)
+    breadcrumb MessagesR = return ("Messages- Admin", Nothing)
+    breadcrumb (AuthR LoginR) = return ("Log in to Haskellers", Just RootR)
+    breadcrumb DebugR = return ("Database pool debug info", Just RootR)
+
+    -- These pages never call breadcrumb
+    breadcrumb StaticR{} = return ("", Nothing)
+    breadcrumb FaviconR = return ("", Nothing)
+    breadcrumb RobotsR = return ("", Nothing)
+    breadcrumb LocationsR = return ("", Nothing)
+    breadcrumb DeleteAccountR = return ("", Nothing)
+    breadcrumb SkillsR = return ("", Nothing)
+    breadcrumb DeleteIdentR{} = return ("", Nothing)
+    breadcrumb RequestRealR = return ("", Nothing)
+    breadcrumb RequestRealPicR = return ("", Nothing)
+    breadcrumb RequestUnblockR = return ("", Nothing)
+    breadcrumb SetUsernameR = return ("", Nothing)
+    breadcrumb ClearUsernameR = return ("", Nothing)
+    breadcrumb PackagesR = return ("", Nothing)
+    breadcrumb DeletePackageR{} = return ("", Nothing)
+    breadcrumb AdminR{} = return ("", Nothing)
+    breadcrumb UnadminR{} = return ("", Nothing)
+    breadcrumb RealR{} = return ("", Nothing)
+    breadcrumb UnrealR{} = return ("", Nothing)
+    breadcrumb RealPicR{} = return ("", Nothing)
+    breadcrumb UnrealPicR{} = return ("", Nothing)
+    breadcrumb BlockR{} = return ("", Nothing)
+    breadcrumb UnblockR{} = return ("", Nothing)
+    breadcrumb ByIdentR = return ("", Nothing)
+    breadcrumb ResetEmailR = return ("", Nothing)
+    breadcrumb SendVerifyR = return ("", Nothing)
+    breadcrumb CloseMessageR{} = return ("", Nothing)
+    breadcrumb NewsFeedR = return ("", Nothing)
+    breadcrumb AuthR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where
@@ -272,9 +381,7 @@ instance YesodAuth Haskellers where
                   ]
 
     loginHandler = defaultLayout $ do
-        setTitle $ string "Log in to Haskellers"
         [$hamlet|
-%h3!style=text-align:center Log in to Haskellers via:
 !style="width:500px;margin:0 auto" ^login^
 |]
 
@@ -301,7 +408,6 @@ getDebugR :: Handler RepHtml
 getDebugR = do
     l <- Map.toList `fmap` liftIO (atomically $ readTVar debugInfo)
     defaultLayout $ do
-        setTitle $ string "Database pool debug info"
         [$hamlet|
 %table
     %thead

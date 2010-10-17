@@ -1,39 +1,40 @@
 !!!
 %html
     %head
-        %title $pageTitle.pc$
+        %title $title$
         ^pageHead.pc^
         %link!href=@NewsFeedR@!type="application/atom+xml"!rel="alternate"!title="Haskellers News"
     %body
-        %ul#user-bar
-            %li
-                %a!href=@RootR@ Homepage
-            %li
-                %a!href=@FaqR@ FAQ
-            %li
-                %a!href=@UsersR@ Browse Haskellers
-            %li
-                %a!href=@AllSkillsR@ Browse Skills
-            $maybe ma u
-                %li
-                    %a!href=@ProfileR@ Edit profile
-                %li
-                    %a!href=@userR.u@ View my user page
-                $if userAdmin.snd.fst.u
-                    %li
-                        %a!href=@MessagesR@ Admin messages
-                    %li
-                        %a!href=@AdminUsersR@ Admin users
-                %li
-                    %a!href=@AuthR.LogoutR@ Logout
-            $nothing
-                %li
-                    %a!href=@AuthR.LoginR@ Login
-        #wrapper
-            %h1
+      #wrapper-table
+       #wrapper-table-row
+        #intro
+            #logo
                 %a!href=@RootR@
                     %img!src=@StaticR.logo_png@!alt=Haskellers
-            %h2 The meeting place for professional Haskell programmers
+            #tagline The meeting place for professional Haskell programmers
+            .buttons
+                %form!action=@AuthR.LoginR@
+                    %input#login-button!type=submit!value="I'm a Haskeller"
+                %form!action=@UsersR@
+                    %input!type=submit!value="Find a Haskeller"
+            #login
+                %h3 Login with
+                ^login'^
+        #navbar
+            $forall navbar section
+                ^navbarSection.section^
+            $maybe ma u
+                $forall userbar.u section
+                    ^navbarSection.section^
+            $nothing
+                ^navbarSection.loginbar^
+        #wrapper
+            $if not.null.parents
+                %ul#breadcrumbs
+                    $forall parents p
+                        %li
+                            %a!href=@fst.p@ $snd.p$
+            %h1 $title$
             $maybe mmsg msg
                 #message $msg$
             ^pageBody.pc^

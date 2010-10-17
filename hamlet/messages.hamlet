@@ -12,7 +12,7 @@ $else
         %tbody
             $forall messages m
                 %tr
-                    %td $show.messageWhen.snd.fst.m$
+                    %td $prettyTime.messageWhen.snd.fst.m$
                     %td
                         $maybe fst.snd.m u
                             %a!href=@UserR.showIntegral.fst.u@ $userFullName.snd.u$

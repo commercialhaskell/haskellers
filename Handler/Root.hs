@@ -39,7 +39,7 @@ getRootR = do
     let profs =
             if null allProfs
                 then []
-                else take 9 $ shuffle' allProfs len gen
+                else take 8 $ shuffle' allProfs len gen
     mu <- maybeAuth
     now <- liftIO getCurrentTime
     let fuzzyDiffTime = humanReadableTimeDiff now

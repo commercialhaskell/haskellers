@@ -3,19 +3,6 @@ $forall news item
         %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
         %span.time
             \ $fuzzyDiffTime.newsWhen.snd.item$
-#blurb
-    Haskellers is a centralized place for professional Haskell programmers to publish themselves.
-    $maybe mu _
-    $nothing
-      .buttons
-        %form!action=@AuthR.LoginR@
-            %input#login-button!type=submit!value="I'm a Haskeller"
-        %form!action=@UsersR@
-            %input!type=submit!value="Find a Haskeller"
-    #login
-        %h3 Login with
-        ^login^
-    #map_canvas
 #users
     .counts
         Total accounts: $show.public$ public, $show.private$ private
@@ -25,3 +12,4 @@ $forall news item
                 %img!src=$(gravatar.80).profileEmail.prof$!alt="Gravatar Profile Picture"
                 %span.name
                   $profileName.prof$
+#map_canvas

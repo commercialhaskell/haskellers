@@ -4,7 +4,7 @@
         ^form^
         %tr
             %td!colspan=2
-                %input!type=submit!value="Apply Filters"
+                %input#apply-filters!type=submit!value="Apply Filters"
                 \ $
                 %a!href=@?noFilter@ Clear Filters
 #results

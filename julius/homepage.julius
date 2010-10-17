@@ -14,16 +14,6 @@ $(function(){
             addMarkerLink(marker, data.locations[i].url);
         }
     });
-    $("#login").hide().attr("title", "Log in to Haskellers").dialog({
-        autoOpen: false,
-        width: 500,
-        modal: true
-    });
-    $("input[type=submit]").button();
-    $("#login-button").click(function(){
-        $("#login").dialog('open');
-        return false;
-    });
 });
 function addMarkerLink(marker, url) {
     google.maps.event.addListener(marker, "click", function(){

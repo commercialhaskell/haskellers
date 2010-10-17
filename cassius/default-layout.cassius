@@ -1,5 +1,6 @@
-body
+html, body
     margin: 0
+    height: 100%
 a, a:visited
     text-decoration: none
     color: #00f
@@ -12,9 +13,10 @@ body
     padding-left: 10px
 h1
     margin: 0 0 0 10px
-h1 img
-    border: 0
-h2
+    font-size: 250%
+    text-align: center
+    font-family: Garamond, Georgia, "Times New Roman", serif
+#tagline
     margin: 0 0 20px 10px
     color: #8b7b2f
 #message
@@ -32,15 +34,52 @@ h2
 .addthis_toolbox
     margin: 5px auto
     width: 180px
-#user-bar
-    margin: 0 0 10px 0
-    padding: 0 0 0 10px
-    border-bottom: 1px solid #470e5a
-    background: #f2cb59
-#user-bar li
+#wrapper-table
+    height: 100%
+    display: table
+#wrapper-table-row
+    min-height: 100%
+    display: table-row
+#intro, #navbar, #wrapper
+    display: table-cell
+    vertical-align: top
+    min-height: 100%
+#intro
+    width: 170px
+#navbar
+    width: 180px
+    border-left: 1px solid #900
+    border-right: 1px solid #900
+    background: #F1EBDF
+    padding-left: 3px
+#navbar h3
+    margin: 10px 0 0 0
+#navbar ul
+    padding-left: 10px
+    list-style: none
+    margin: 0
+#navbar li
+    margin-bottom: 2px
+#navbar a
+    color: #000
+#navbar a.current
+    color: #900
+    cursor: default
+#navbar a.current:hover
+    text-decoration: none
+.buttons
+    font-size: 80%
+    text-align: center
+img
+    border: 0
+#breadcrumbs
+    list-style: none
+    margin: 5px
+    background: #F1EBDF
+    border: 1px solid #900
+#breadcrumbs li
     display: inline
-    padding-right: 15px
-#user-bar a
-    color: #470e5a
-#user-bar a:before
-    content: "» "
+#breadcrumbs li:after
+    content: ' > '
+#breadcrumbs li:last-child:after
+    content: ''

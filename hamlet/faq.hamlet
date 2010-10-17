@@ -1,4 +1,3 @@
-%h3 Frequently Asked Questions
 %ol
     $forall faqs faq
         %li
