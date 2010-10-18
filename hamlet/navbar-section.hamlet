@@ -1,5 +1,6 @@
-%h3 $fst.section$
-%ul
-    $forall snd.section link
-        %li
-            %a!:isCurrent.snd.link:class=current!href=@snd.link@ $fst.link$
+.navsection
+    %h3 $fst.section$
+    %ul
+        $forall snd.section link
+            %li
+                %a!:isCurrent.snd.link:class=current!href=@snd.link@ $fst.link$

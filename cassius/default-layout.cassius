@@ -70,8 +70,9 @@ h1
 #navbar a.current:hover
     text-decoration: none
 .buttons
-    font-size: 80%
     text-align: center
+.buttons a
+    display: block
 img
     border: 0
 #breadcrumbs

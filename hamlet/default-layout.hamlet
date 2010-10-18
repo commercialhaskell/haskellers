@@ -14,10 +14,8 @@
                     %img!src=@StaticR.logo_png@!alt=Haskellers
             #tagline The meeting place for professional Haskell programmers
             .buttons
-                %form!action=@AuthR.LoginR@
-                    %input#login-button!type=submit!value="I'm a Haskeller"
-                %form!action=@UsersR@
-                    %input!type=submit!value="Find a Haskeller"
+                %a!href=@AuthR.LoginR@ I'm a Haskellers
+                %a!href=@UsersR@ Find a Haskellers
             #login
                 %h3 Login with
                 ^login'^
