@@ -339,6 +339,8 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb NewsFeedR = return ("", Nothing)
     breadcrumb JobsFeedR = return ("", Nothing)
     breadcrumb AuthR{} = return ("", Nothing)
+    breadcrumb ScreenNamesR = return ("", Nothing)
+    breadcrumb DeleteScreenNameR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where

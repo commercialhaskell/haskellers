@@ -29,6 +29,7 @@ import Yesod.Form.Profiles
 import Control.Arrow ((&&&))
 import Data.Time (getCurrentTime)
 
+screenNameFormlet :: UserId -> Form s y ScreenName
 screenNameFormlet uid = fieldsToTable $ ScreenName
     <$> pure uid
     <*> selectField servopts "Service" Nothing
@@ -261,7 +262,7 @@ postSetUsernameR = do
 postScreenNamesR :: Handler ()
 postScreenNamesR = do
     (uid, _) <- requireAuth
-    (res, form, _) <- runFormPost $ screenNameFormlet uid
+    (res, _, _) <- runFormPost $ screenNameFormlet uid
     case res of
         FormSuccess sn -> do
             _ <- runDB $ insert sn
@@ -271,7 +272,7 @@ postScreenNamesR = do
 
 postDeleteScreenNameR :: ScreenNameId -> Handler ()
 postDeleteScreenNameR snid = do
-    (uid, u) <- requireAuth
+    (uid, _) <- requireAuth
     sn <- runDB $ get404 snid
     unless (screenNameUser sn == uid) notFound
     runDB $ delete snid
