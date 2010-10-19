@@ -36,6 +36,10 @@ getRootR = do
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
     news <- debugRunDB $ selectList [] [NewsWhenDesc] 1 0
+    now <- liftIO getCurrentTime
+    let minus24h = addUTCTime ((-1) * 60 * 60 * 24) now
+    job <- debugRunDB $ selectList [JobPostedAtGt minus24h]
+                                   [JobPostedAtDesc] 1 0
     let profs =
             if null allProfs
                 then []

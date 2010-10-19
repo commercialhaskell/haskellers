@@ -15,11 +15,11 @@
     text-align: center
 .buttons
     text-align: center
-#news
+#news, #job
     margin: 1em 3em
     background: #F1EBDF
     border: 1px solid #900
     padding: 3px
-#news .time
+#news .time, #job .time
     color: #666
     font-style: italic

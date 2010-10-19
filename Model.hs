@@ -79,7 +79,7 @@ News
     deriving Show Eq
 Job
     postedBy UserId
-    postedAt UTCTime Desc
+    postedAt UTCTime Desc Gt
     title String
     fillingBy Day Gt
     fullTime Bool

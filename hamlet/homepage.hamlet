@@ -3,6 +3,12 @@ $forall news item
         %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
         %span.time
             \ $fuzzyDiffTime.newsWhen.snd.item$
+$forall job item
+    #job
+        %b Newest job: $
+        %a!href=@JobR.fst.item@ $jobTitle.snd.item$
+        %span.time
+            \ $fuzzyDiffTime.jobPostedAt.snd.item$
 #users
     .counts
         Total accounts: $show.public$ public, $show.private$ private
