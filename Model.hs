@@ -14,7 +14,7 @@ data Employment = FullTime | PartTime | FullPartTime | NotLooking
     deriving (Show, Read, Eq, Enum, Bounded)
 derivePersistField "Employment"
 
-data Service = Twitter | XMPP | AIM
+data Service = Twitter | XMPP | AIM | Freenode
     deriving (Show, Read, Eq, Enum, Bounded)
 derivePersistField "Service"
 
