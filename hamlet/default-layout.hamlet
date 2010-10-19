@@ -14,7 +14,7 @@
                     %img!src=@StaticR.logo_png@!alt=Haskellers
             #tagline The meeting place for professional Haskell programmers
             .buttons
-                %a!href=@AuthR.LoginR@ I'm a Haskellers
+                %a#login-button!href=@AuthR.LoginR@ I'm a Haskeller
                 %a!href=@UsersR@ Find a Haskellers
             #login
                 %h3 Login with

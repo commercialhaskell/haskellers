@@ -16,3 +16,12 @@ $if areHidden
                     %a!href=@SkillR.fst.fst.skill@
                         $skillName.snd.fst.skill$
                 %td $show.snd.skill$
+$maybe mu u
+    $if userAdmin.snd.u
+        %h3 Add new skill (admins only)
+        %form!method=post!action=@AllSkillsR@
+            %table
+                ^form^
+                %tr
+                    %td!colspan=2
+                        %input!type=submit!value="Add skill"

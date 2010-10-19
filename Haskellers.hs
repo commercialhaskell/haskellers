@@ -119,7 +119,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /profile/ident/#IdentId/delete DeleteIdentR POST
 /profile/request-real RequestRealR POST
 /profile/request-realpic RequestRealPicR POST
-/profile/request-unblcok RequestUnblockR POST
+/profile/request-unblock RequestUnblockR POST
+/profile/request-skill RequestSkillR POST
 /profile/username SetUsernameR POST
 /profile/clear-username ClearUsernameR POST
 /profile/screen-names ScreenNamesR POST
@@ -320,6 +321,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb RequestRealR = return ("", Nothing)
     breadcrumb RequestRealPicR = return ("", Nothing)
     breadcrumb RequestUnblockR = return ("", Nothing)
+    breadcrumb RequestSkillR = return ("", Nothing)
     breadcrumb SetUsernameR = return ("", Nothing)
     breadcrumb ClearUsernameR = return ("", Nothing)
     breadcrumb PackagesR = return ("", Nothing)

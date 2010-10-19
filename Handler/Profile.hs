@@ -9,6 +9,7 @@ module Handler.Profile
     , postRequestRealR
     , postRequestRealPicR
     , postRequestUnblockR
+    , postRequestSkillR
     , postSetUsernameR
     , postClearUsernameR
     , postScreenNamesR
@@ -222,6 +223,28 @@ postRequestUnblockR = do
                 }
             setMessage "Your request has been logged. Good luck!"
         else setMessage "Your account isn't blocked."
+    redirect RedirectTemporary ProfileR
+
+postRequestSkillR :: Handler ()
+postRequestSkillR = do
+    (uid, _) <- requireAuth
+    (res, _, _) <- runFormPost $ stringInput "skill"
+    case res of
+        FormSuccess skill -> do
+            now <- liftIO getCurrentTime
+            _ <- debugRunDB $ insert $ Message
+                { messageClosed = False
+                , messageWhen = now
+                , messageFrom = Just uid
+                , messageRegarding = Nothing
+                , messageText = Textarea $ unlines
+                    [ "Requesting new skill"
+                    , ""
+                    , skill
+                    ]
+                }
+            setMessage "Your skill request has been logged."
+        _ -> setMessage "Invalid skill entered."
     redirect RedirectTemporary ProfileR
 
 postClearUsernameR :: Handler ()

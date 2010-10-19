@@ -9,25 +9,33 @@ module Handler.Skills
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 import Haskellers
+import Handler.Admin (requireAdmin)
+import Control.Applicative
+
+skillFormlet :: Form s m Skill
+skillFormlet = fieldsToTable $ Skill
+    <$> stringField "Skill name" { ffsId = Just "skill-name" } Nothing
 
 postAllSkillsR :: Handler ()
 postAllSkillsR = do
-    _ <- requireAuth
-    (res, _, _) <- runFormPost $ stringInput "skill"
+    requireAdmin
+    (res, _, _) <- runFormPost skillFormlet
     case res of
         FormSuccess skill -> do
-            _ <- debugRunDB $ insert $ Skill skill
+            _ <- debugRunDB $ insert skill
             setMessage "Inserted new skill to skills list"
         _ -> setMessage "Invalid skill entered"
-    redirect RedirectTemporary ProfileR
+    redirect RedirectTemporary AllSkillsR
 
 getAllSkillsR :: Handler RepHtmlJson
 getAllSkillsR = do
+    mu <- maybeAuth
     skills' <- debugRunDBInner "skills" 25 $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
         users <- count [UserSkillSkillEq sid]
         return ((sid, s), users)
         )
     showall <- runFormGet' $ boolInput "show-all"
+    (_, form, _) <- runFormGet skillFormlet
     let threshhold = 10
     let skills =
             if showall
