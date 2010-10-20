@@ -26,7 +26,6 @@ import StaticFiles (jquery_cookie_js, badge_png)
 import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
 import Yesod.Form.Core
-import Yesod.Form.Profiles
 import Control.Arrow ((&&&))
 import Data.Time (getCurrentTime)
 
@@ -80,16 +79,10 @@ userForm u = fieldsToTable $ User
             } (Just $ userLatitude u)
   where
     empOpts = map (id &&& prettyEmployment) [minBound..maxBound]
-    maybeHaskellSinceField = optionalFieldHelper haskellSinceFieldProfile
-    haskellSinceFieldProfile = intFieldProfile
-        { fpParse =
-            \s ->
-                case fpParse intFieldProfile s of
-                    Left e -> Left e
-                    Right i -> validSinceYear i
-        }
-    validSinceYear y
-        | y >= 1985 && y <= 2010 = Right y
+    maybeHaskellSinceField x = checkField validSinceYear . maybeIntField x
+    validSinceYear Nothing = Right Nothing
+    validSinceYear (Just y)
+        | y >= 1985 && y <= 2010 = Right $ Just y
         | otherwise = Left "Unless you've got a time machine, I don't think that's possible"
 
 getProfileR :: Handler RepHtml
