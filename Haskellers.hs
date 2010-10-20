@@ -379,6 +379,7 @@ instance YesodAuth Haskellers where
                     , userAdmin = False
                     , userEmployment = Nothing
                     , userBlocked = False
+                    , userEmailPublic = False
                     , userLocation = Nothing
                     , userLongitude = Nothing
                     , userLatitude = Nothing

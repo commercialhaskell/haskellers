@@ -65,6 +65,9 @@ userForm u = fieldsToTable $ User
             { ffsTooltip = "Just remember, this information will be public, meaning your current employer will be able to see it!"
             } (Just $ userEmployment u)
     <*> pure (userBlocked u)
+    <*> boolField "Public email address?"
+            { ffsTooltip = "Selecting this will allow anyone to see your email address, without passing a captcha. May lead to spam."
+            } (Just $ userEmailPublic u)
     <*> maybeStringField "Location"
             { ffsTooltip = "This should be a human-readable string"
             , ffsId = Just "location"

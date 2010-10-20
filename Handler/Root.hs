@@ -45,7 +45,6 @@ getRootR = do
                 then []
                 else take 8 $ shuffle' allProfs len gen
     mu <- maybeAuth
-    now <- liftIO getCurrentTime
     let fuzzyDiffTime = humanReadableTimeDiff now
     (public, private) <- debugRunDB $ do
         public <- count [ UserVerifiedEmailEq True

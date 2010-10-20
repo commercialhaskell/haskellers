@@ -44,6 +44,7 @@ User
     admin Bool default=false update
     employment Employment null
     blocked Bool update Eq default=false
+    emailPublic Bool default=false
     location String null
     longitude Double null Ne
     latitude Double null Ne
