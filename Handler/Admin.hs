@@ -73,8 +73,8 @@ getMessagesR = do
         )
     defaultLayout $ do
         setTitle $ string "Admin Messages"
-        addStyle $(cassiusFile "messages")
-        $(hamletFile "messages")
+        addCassius $(cassiusFile "messages")
+        addWidget $(hamletFile "messages")
 
 postCloseMessageR :: MessageId -> Handler ()
 postCloseMessageR mid = do
@@ -89,7 +89,7 @@ getAdminUsersR = do
     y <- getYesod
     defaultLayout $ do
         setTitle $ string "Admin list of users"
-        addStyle $(cassiusFile "admin-users")
+        addCassius $(cassiusFile "admin-users")
         addScriptEither $ urlJqueryJs y
-        addJavascript $(juliusFile "admin-users")
+        addJulius $(juliusFile "admin-users")
         $(hamletFile "admin-users")

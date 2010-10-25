@@ -22,7 +22,7 @@ postDeletePackageR pid = do
 postPackagesR :: Handler ()
 postPackagesR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPost $ stringInput "name"
+    (res, _, _) <- runFormPostNoNonce $ stringInput "name"
     case res of
         FormSuccess name -> do
             _ <- debugRunDB $ insert $ Package uid name

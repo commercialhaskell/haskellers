@@ -31,14 +31,14 @@ getNewsR = do
     (_, form, _) <- runFormGet newsForm
     defaultLayout $ do
         setTitle "Haskellers News Archive"
-        $(hamletFile "news")
+        addWidget $(hamletFile "news")
   where
     newsAdmin = $(cassiusFile "news-admin")
 
 postNewsR :: Handler RepHtml
 postNewsR = do
     requireAdmin
-    (res, form, _) <- runFormPost newsForm
+    (res, form, _) <- runFormPostNoNonce newsForm
     case res of
         FormSuccess (title, content) -> do
             now <- liftIO getCurrentTime

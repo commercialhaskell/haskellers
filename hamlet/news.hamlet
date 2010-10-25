@@ -5,7 +5,7 @@
             \ ($prettyTime.newsWhen.snd.item$)
 $maybe mu u
     $if userAdmin.snd.u
-        ^addStyle.newsAdmin^
+        ^addCassius.newsAdmin^
         %h3 Post news item (admins only)
         %form!method=post!action=@NewsR@
             %table

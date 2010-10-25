@@ -82,9 +82,9 @@ getUserR input = do
             $ []
     flip defaultLayoutJson json $ do
         setTitle $ string $ "Haskellers profile for " ++ userFullName u
-        addStyle $(cassiusFile "user")
+        addCassius $(cassiusFile "user")
         addScriptEither $ urlJqueryJs y
-        addJavascript $(juliusFile "user")
+        addJulius $(juliusFile "user")
         $(hamletFile "user")
   where
     notOne 1 = False
@@ -133,8 +133,8 @@ getFlagR uid = do
     let userLink = userR ((uid, u), Nothing)
     defaultLayout $ do
         setTitle $ string "Report a user"
-        addStyle $(cassiusFile "flag")
-        $(hamletFile "flag")
+        addCassius $(cassiusFile "flag")
+        addWidget $(hamletFile "flag")
 
 postFlagR :: UserId -> Handler ()
 postFlagR uid = do
@@ -158,5 +158,5 @@ postFlagR uid = do
 
 adminControls :: UserId -> User -> Widget ()
 adminControls uid u = do
-    addStyle $(cassiusFile "admin-controls")
+    addCassius $(cassiusFile "admin-controls")
     $(hamletFile "admin-controls")

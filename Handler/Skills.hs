@@ -19,7 +19,7 @@ skillFormlet = fieldsToTable $ Skill
 postAllSkillsR :: Handler ()
 postAllSkillsR = do
     requireAdmin
-    (res, _, _) <- runFormPost skillFormlet
+    (res, _, _) <- runFormPostNoNonce skillFormlet
     case res of
         FormSuccess skill -> do
             _ <- debugRunDB $ insert skill
@@ -47,8 +47,8 @@ getAllSkillsR = do
     render <- getUrlRender
     defaultLayoutJson (do
         setTitle "Browse all skills"
-        addStyle $(cassiusFile "skills")
-        $(hamletFile "skills")
+        addCassius $(cassiusFile "skills")
+        addWidget $(hamletFile "skills")
         ) $ jsonMap
         [ ("skills", jsonList $ flip map skills' $ \((sid, Skill name), users) ->
             jsonMap

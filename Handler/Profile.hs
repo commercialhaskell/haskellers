@@ -88,7 +88,7 @@ userForm u = fieldsToTable $ User
 getProfileR :: Handler RepHtml
 getProfileR = do
     (uid, u) <- requireAuth
-    (res, form, enctype) <- runFormPost $ userForm u
+    (res, form, enctype) <- runFormPostNoNonce $ userForm u
     musername <- fmap (fmap snd) $ debugRunDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
@@ -112,9 +112,9 @@ getProfileR = do
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
         setTitle "Edit Your Profile"
-        addStyle $(cassiusFile "profile")
+        addCassius $(cassiusFile "profile")
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
-        addJavascript $(juliusFile "profile")
+        addJulius $(juliusFile "profile")
         $(hamletFile "profile")
   where
     notOne [_] = False
@@ -224,7 +224,7 @@ postRequestUnblockR = do
 postRequestSkillR :: Handler ()
 postRequestSkillR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPost $ stringInput "skill"
+    (res, _, _) <- runFormPostNoNonce $ stringInput "skill"
     case res of
         FormSuccess skill -> do
             now <- liftIO getCurrentTime
@@ -253,7 +253,7 @@ postClearUsernameR = do
 postSetUsernameR :: Handler ()
 postSetUsernameR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPost $ stringInput "username"
+    (res, _, _) <- runFormPostNoNonce $ stringInput "username"
     let musername =
             case res of
                 FormSuccess x ->
@@ -281,7 +281,7 @@ postSetUsernameR = do
 postScreenNamesR :: Handler ()
 postScreenNamesR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPost $ screenNameFormlet uid
+    (res, _, _) <- runFormPostNoNonce $ screenNameFormlet uid
     case res of
         FormSuccess sn -> do
             _ <- runDB $ insert sn

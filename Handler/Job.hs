@@ -50,15 +50,15 @@ getJobsR = do
                         return $ Just form
                     else return Nothing
     defaultLayout $ do
-        addStyle $(cassiusFile "jobs")
-        $(hamletFile "jobs")
+        addCassius $(cassiusFile "jobs")
+        addWidget $(hamletFile "jobs")
 
 postJobsR :: Handler RepHtml
 postJobsR = do
     (uid, u) <- requireAuth
     unless (userReal u) $ permissionDenied "Only verified users can add job listings"
     now <- liftIO getCurrentTime
-    (res, form, _) <- runFormPost $ jobFormlet uid now Nothing
+    (res, form, _) <- runFormPostNoNonce $ jobFormlet uid now Nothing
     let mform = Just form
     case res of
         FormSuccess job -> do
@@ -68,7 +68,7 @@ postJobsR = do
         _ -> return ()
     let jobs = []
     defaultLayout $ do
-        addStyle $(cassiusFile "jobs")
+        addCassius $(cassiusFile "jobs")
         $(hamletFile "jobs")
 
 getJobR :: JobId -> Handler RepHtml
@@ -76,7 +76,7 @@ getJobR jid = do
     job <- runDB $ get404 jid
     poster <- runDB $ get404 $ jobPostedBy job
     defaultLayout $ do
-        addStyle $(cassiusFile "job")
+        addCassius $(cassiusFile "job")
         $(hamletFile "job")
 
 getJobsFeedR :: Handler RepAtom

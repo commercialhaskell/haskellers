@@ -36,7 +36,7 @@ import Yesod.Helpers.Auth.Facebook
 import qualified Settings
 import System.Directory
 import qualified Data.ByteString.Lazy as L
-import Yesod.WebRoutes
+import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
@@ -205,13 +205,13 @@ instance Yesod Haskellers where
         let navbarSection section = $(hamletFile "navbar-section")
         pc <- widgetToPageContent $ do
             widget
-            addStyle $(Settings.cassiusFile "default-layout")
-            addStyle $(Settings.cassiusFile "login")
+            addCassius $(Settings.cassiusFile "default-layout")
+            addCassius $(Settings.cassiusFile "login")
             addScriptEither $ urlJqueryJs y
             addScriptEither $ urlJqueryUiJs y
             addStylesheetEither $ urlJqueryUiCss y
-            addJavascript $(Settings.juliusFile "analytics")
-            addJavascript $(Settings.juliusFile "default-layout")
+            addJulius $(Settings.juliusFile "analytics")
+            addJulius $(Settings.juliusFile "default-layout")
         let login' = $(hamletFile "login")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
@@ -417,7 +417,7 @@ readIntegral s =
         [] -> Nothing
 
 login :: GWidget s Haskellers ()
-login = addStyle $(cassiusFile "login") >> $(hamletFile "login")
+login = addCassius $(cassiusFile "login") >> $(hamletFile "login")
 
 userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
 userR (_, Just (Username _ un)) = UserR un

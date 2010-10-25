@@ -46,7 +46,7 @@ postSendVerifyR = do
     when (userVerifiedEmail u) $ do
         setMessage "You already have a verified email address."
         redirect RedirectTemporary ProfileR
-    (res, _, _) <- runFormPost $ emailInput "email"
+    (res, _, _) <- runFormPostNoNonce $ emailInput "email"
     case res of
         FormSuccess email -> do
             stdgen <- liftIO newStdGen

@@ -58,13 +58,13 @@ getRootR = do
         return (public, private)
     defaultLayout $ do
         setTitle "Haskellers"
-        addStyle $(cassiusFile "homepage")
-        addStyle $(cassiusFile "users")
+        addCassius $(cassiusFile "homepage")
+        addCassius $(cassiusFile "users")
         addScriptEither $ urlJqueryJs y
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
-        addJavascript $(juliusFile "homepage")
+        addJulius $(juliusFile "homepage")
         $(hamletFile "homepage")
 
 data Filter = Filter
@@ -146,7 +146,7 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (json render profs) $ do
         setTitle "Browsing Haskellers"
-        addStyle $(cassiusFile "users")
+        addCassius $(cassiusFile "users")
         $(hamletFile "users")
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]
