@@ -41,7 +41,8 @@ import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
 import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
-                    openid_icon_small_gif, facebook_png)
+                    openid_icon_small_gif, facebook_png, background_png,
+                    buttons_png, reset_css)
 import Yesod.Form.Jquery
 import Yesod.Form.Nic
 import Data.IORef (IORef)
@@ -196,6 +197,13 @@ instance Yesod Haskellers where
         (title', parents) <- breadcrumbs
         current <- getCurrentRoute
         tm <- getRouteToMaster
+        let bodyClass =
+                case fmap tm current of
+                    Just RootR -> "overview"
+                    Just UsersR -> "find-haskeller"
+                    Just JobsR -> "find-job"
+                    Just JobR{} -> "find-job"
+                    _ -> ""
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
                         else title'
@@ -204,14 +212,13 @@ instance Yesod Haskellers where
             isCurrent x = Just x == fmap tm current || x `elem` map fst parents
         let navbarSection section = $(hamletFile "navbar-section")
         pc <- widgetToPageContent $ do
-            widget
-            addCassius $(Settings.cassiusFile "default-layout")
-            addCassius $(Settings.cassiusFile "login")
+            addWidget widget
             addScriptEither $ urlJqueryJs y
             addScriptEither $ urlJqueryUiJs y
             addStylesheetEither $ urlJqueryUiCss y
             addJulius $(Settings.juliusFile "analytics")
             addJulius $(Settings.juliusFile "default-layout")
+            addCassius $(Settings.cassiusFile "default-layout")
         let login' = $(hamletFile "login")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
@@ -417,7 +424,7 @@ readIntegral s =
         [] -> Nothing
 
 login :: GWidget s Haskellers ()
-login = addCassius $(cassiusFile "login") >> $(hamletFile "login")
+login = {-addCassius $(cassiusFile "login") >> -}$(hamletFile "login")
 
 userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
 userR (_, Just (Username _ un)) = UserR un

@@ -1,25 +1,59 @@
-#blurb form
-    display: inline
-#users
-    text-align: center
-    width: 600px
-    margin: 0 auto
-    margin-bottom: 30px
-#map_canvas
-    height: 300px
-    width: 500px
-    margin: 0 auto
-.counts
-    font-weight: bold
-#login
-    text-align: center
-.buttons
-    text-align: center
 #news, #job
-    margin: 1em 3em
-    background: #F1EBDF
-    border: 1px solid #900
-    padding: 3px
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  padding: 10px
+  margin: 0 10px 10px
+
 #news .time, #job .time
-    color: #666
-    font-style: italic
+  display: block
+  float: right
+  font-size: 12px
+  line-height: 12px
+
+#news
+  color: #FFDBDB
+  background: #B84848
+#news a, #job a
+  color: #fafafa
+#job
+  color: #DBEDFF
+  background: #506982
+#users
+  overflow: hidden
+
+#users .counts
+  font-size: 27px
+  margin-bottom: 20px
+  text-align: center
+
+#users .counts em
+  color: #E5EEF9
+  font-style: normal
+  font-weight: bold
+#users .user
+  float: left
+  margin-bottom: 20px
+  margin-left: 16px
+  text-align: center
+  width: 100px
+
+#users .user a
+  text-decoration: none
+  font-size: 12px
+
+#users .user .name
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  background: #506982
+  display: block
+  height: 25px
+  margin-top: 2px
+  overflow: hidden
+  padding: 5px
+
+#map_canvas
+  height: 300px
+  width: 500px
+  margin: 30px auto 20px
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px

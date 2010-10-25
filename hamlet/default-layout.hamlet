@@ -3,54 +3,54 @@
     %head
         %title $title$
         ^pageHead.pc^
+        %link!rel=stylesheet!href=@StaticR.reset_css@
         %link!href=@NewsFeedR@!type="application/atom+xml"!rel="alternate"!title="Haskellers News"
         %link!href=@JobsFeedR@!type="application/atom+xml"!rel="alternate"!title="Haskellers Job Listings"
-    %body
-      #wrapper-table
-       #wrapper-table-row
-        #intro
-            #logo
-                %a!href=@RootR@
-                    %img!src=@StaticR.logo_png@!alt=Haskellers
-            #tagline The meeting place for professional Haskell programmers
-            .buttons
-                %a#login-button!href=@AuthR.LoginR@ I'm a Haskeller
-                %a!href=@UsersR@ Find a Haskeller
-            #login
-                %h3 Login with
-                ^login'^
-        #navbar
-            $forall navbar section
-                ^navbarSection.section^
-            $maybe ma u
-                $forall userbar.u section
-                    ^navbarSection.section^
-            $nothing
-                ^navbarSection.loginbar^
-        #wrapper
-            $if not.null.parents
+    %body.$bodyClass$
+        #heading_wrapper
+            #heading
+                %img.logo!src=@StaticR.logo_png@!alt=Haskellers
+                %span.tagline The meeting place for professional Haskell programmers
+                #main_menu
+                    #overview
+                        %a!href=@RootR@ Overview
+                    #find_haskeller
+                        %a!href=@UsersR@ Find a Haskeller
+                    #find_job
+                        %a!href=@JobsR@ Find a Job
+                #secondary_menu
+                    %a!href=@FaqR@ FAQ
+                    %a!href=@NewsR@ News Archive
+                    $maybe ma u
+                        %a!href=@ProfileR@ Your Profile
+                    $nothing
+                        %a!href=@AuthR.LoginR@ Login
+                #im_a_haskeller
+                    %a#login-button!href=@AuthR.LoginR@ I'm a Haskeller!
+        #section_title
+            %div
                 %ul#breadcrumbs
-                    $forall parents p
-                        %li
-                            %a!href=@fst.p@ $snd.p$
-            %h1 $title$
-            $maybe mmsg msg
-                #message $msg$
-            ^pageBody.pc^
-            #footer
-                %div
-                    I know that the functionality of this site has outgrown its current design. Once we decide to take a break from new features, we can start working on a better design. If you're interested in assisting, please $
-                    %a!href="http://www.haskellers.com/user/16/" contact me
+                    $if not.null.parents
+                        $forall parents p
+                            %li
+                                %a!href=@fst.p@ $snd.p$
+                    %li $title'$
+        #content_wrapper
+            #content
+                $maybe mmsg msg
+                    #message $msg$
+                ^pageBody.pc^
+        #footer_wrapper
+            #footer_content
+                %p
+                    Developed by $
+                    %a!href="http://www.yesodweb.com/" Yesod Web Development
+                    \ and powered by the $
+                    %a!href="http://docs.yesodweb.com/" Yesod Web Framework
                     \.
-                Developed by $
-                %a!href="http://www.yesodweb.com/" Yesod Web Development
-                \ and powered by the $
-                %a!href="http://docs.yesodweb.com/" Yesod Web Framework
-                \.
-                %br
-                Graphics by $
-                %a!href="http://www.google.com/profiles/miriam.snoyman" Miriam Snoyman
-                \.
+                %p
+                    Design by Nubis
+                %a!href="http://github.com/snoyberg/haskellers" View Source
                 .addthis_toolbox.addthis_default_style
                     %a.addthis_button_compact!href="http://www.addthis.com/bookmark.php?v=250&amp;username=snoyberg" Share
                     %span.addthis_separator |
@@ -60,4 +60,6 @@
                     <a class="addthis_button_preferred_4"></a>
                     <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
                     <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg"></script>
-                %a!href="http://github.com/snoyberg/haskellers" View Source
+        #login
+            %h3 Login with
+            ^login'^
