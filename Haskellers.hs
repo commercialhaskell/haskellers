@@ -15,8 +15,6 @@ module Haskellers
     , module Model
     , StaticRoute (..)
     , AuthRoute (..)
-    , showIntegral
-    , readIntegral
     , login
     , Profile (..)
     , userR
@@ -315,7 +313,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb JobsR = return ("Job Listings", Just RootR)
     breadcrumb (JobR jid) = do
         j <- runDB $ get404 jid
-        return ("Job Listing: " ++ jobTitle j, Just JobsR)
+        return ((jobTitle j) ++ " - " ++ (prettyDay . utctDay . jobPostedAt $ j), Just JobsR)
 
     -- These pages never call breadcrumb
     breadcrumb StaticR{} = return ("", Nothing)
@@ -414,14 +412,14 @@ instance YesodAuth Haskellers where
 !style="width:500px;margin:0 auto" ^login^
 |]
 
-showIntegral :: Integral a => a -> String
-showIntegral x = show (fromIntegral x :: Integer)
+--showIntegral :: Integral a => a -> String
+--showIntegral x = show (fromIntegral x :: Integer)
 
-readIntegral :: Num a => String -> Maybe a
-readIntegral s =
-    case reads s of
-        (i, _):_ -> Just $ fromInteger i
-        [] -> Nothing
+--readIntegral :: Num a => String -> Maybe a
+--readIntegral s =
+--    case reads s of
+--        (i, _):_ -> Just $ fromInteger i
+--        [] -> Nothing
 
 login :: GWidget s Haskellers ()
 login = {-addCassius $(cassiusFile "login") >> -}$(hamletFile "login")

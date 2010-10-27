@@ -1,10 +1,10 @@
 $forall news item
-    #news
+    .news
         %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
         %span.time
             \ $fuzzyDiffTime.newsWhen.snd.item$
 $forall job item
-    #job
+    .job
         %b Newest job: $
         %a!href=@JobR.fst.item@ $jobTitle.snd.item$
         %span.time
@@ -12,7 +12,11 @@ $forall job item
 #map_canvas
 #users
     .counts
-        Total accounts: $show.public$ public, $show.private$ private
+        Total accounts: 
+        %em $show.public$ $
+        public, $
+        %em $show.private$ $
+        private
     $forall profs prof
         .user
             %a!href=@profileUserR.prof@

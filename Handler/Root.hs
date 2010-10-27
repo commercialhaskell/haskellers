@@ -64,6 +64,7 @@ getRootR = do
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         addJulius $(juliusFile "homepage")
         addCassius $(cassiusFile "homepage")
+        addCassius $(cassiusFile "jobs")
         $(hamletFile "homepage")
 
 data Filter = Filter

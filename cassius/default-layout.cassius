@@ -94,6 +94,8 @@ body.find-haskeller #main_menu div#find_haskeller
   font-size: 13px
   padding: 8px 0
 
+body #section_title
+  color: #333
 body.overview #section_title
   color: #4B5057
   background: #E5EEF9
@@ -104,13 +106,14 @@ body.find-haskeller #section_title
   color: #FFDBDB
   background: #B84848
 #section_title, #section_title a
-  color: #000 !important
+  color: inherit
+  text-decoration: none
 #content_wrapper
   background: url(@StaticR.background_png@) repeat-x scroll 0 -175px #151515
 #content
   background: #2A2D38
   min-height: 400px
-  padding: 15px 0
+  padding: 10px 0
 #footer_wrapper
   border-top: solid 5px #506982
   background: #e6e6e6
@@ -128,6 +131,8 @@ body.find-haskeller #footer_wrapper
   text-align: center
   padding: 15px
   width: 910px
+  font-size: 15px
+  line-height: 17px
 
 #footer_content a
   color: #B84848
@@ -138,3 +143,33 @@ body.find-haskeller #footer_wrapper
     display: inline
 #breadcrumbs li + li:before
     content: " » "
+
+.subscribe
+  overflow: hidden
+.subscribe a
+  float: right
+  font-size: 13px
+  line-height: 22px
+  text-decoration: none
+  margin-right: 10px
+.subscribe img
+  height: 20px
+
+.news, .job
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  padding: 10px
+  margin: 0 10px 10px
+.news .time, .job .time
+  display: block
+  float: right
+  font-size: 12px
+  line-height: 12px
+.news
+  color: #FFDBDB
+  background: #B84848
+.news a, .job a
+  color: #fafafa
+.job
+  color: #DBEDFF
+  background: #506982

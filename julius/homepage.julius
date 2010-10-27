@@ -2,6 +2,7 @@ $(function(){
     $.getJSON("@LocationsR@", function(data){
         var map = new google.maps.Map(document.getElementById("map_canvas"), {
             zoom: 1,
+            scrollwheel: false,
             center: new google.maps.LatLng(0, 0),
             mapTypeId: google.maps.MapTypeId.ROADMAP
         });

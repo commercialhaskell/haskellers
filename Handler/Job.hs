@@ -23,13 +23,13 @@ jobFormlet uid now mj = fieldsToTable $ Job
     <*> stringField "Title"
             { ffsId = Just "title"
             } (fmap jobTitle mj)
-    <*> jqueryDayField def "Filling by" (fmap jobFillingBy mj)
-    <*> boolField "Full time option?" (fmap jobFullTime mj)
-    <*> boolField "Part time option?" (fmap jobPartTime mj)
     <*> stringField "Location"
             { ffsTooltip = "If this is a telecommuting position, specify here"
             , ffsId = Just "location"
             } (fmap jobLocation mj)
+    <*> jqueryDayField def "Filling by" (fmap jobFillingBy mj)
+    <*> boolField "Full time option?" (fmap jobFullTime mj)
+    <*> boolField "Part time option?" (fmap jobPartTime mj)
     <*> textareaField "Description"
             { ffsId = Just "desc"
             } (fmap jobDesc mj)

@@ -1,15 +1,20 @@
-<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a><a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
+<div class="subscribe">
+<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a>
+<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
+</div>
+
 $if null.jobs
     %p There are no active job listings.
 $else
-    %ul
-        $forall jobs j
-            %li
-                %a!href=@JobR.fst.j@ $jobTitle.snd.j$
-                %span.posted $prettyTime.jobPostedAt.snd.j$
+    $forall jobs j
+        .job
+            %a!href=@JobR.fst.j@ $jobTitle.snd.j$ in $jobLocation.snd.j$
+            %span.time
+                \ $prettyTime.jobPostedAt.snd.j$
+
 $maybe mform form
     %h2 Post a new job
-    %form!method=post!action=@JobsR@
+    %form.add-job!method=post!action=@JobsR@
         %table
             ^form^
             %tr
