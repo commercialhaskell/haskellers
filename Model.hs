@@ -102,9 +102,16 @@ Team
     deriving Show Eq
 TeamUser
     team TeamId Eq
-    user UserId
+    user UserId Eq
     status TeamUserStatus update
     UniqueTeamUser team user
+TeamNews
+    team TeamId Eq In
+    when UTCTime Desc
+    title String
+    content Html
+    url String
+    deriving Show Eq
 |]
 
 userFullName' :: User -> String

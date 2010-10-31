@@ -22,6 +22,7 @@ module Haskellers
     , getDebugR
     , prettyTime
     , prettyDay
+    , addTeamNews
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
@@ -165,6 +166,9 @@ mkYesodData "Haskellers" [$parseRoutes|
 
 /feed/news NewsFeedR GET
 /feed/jobs JobsFeedR GET
+/feed/team/#TeamId TeamFeedR GET
+/feed/user/#UserId UserFeedR GET
+/feed/team-item/#TeamNewsId TeamNewsR GET
 
 /teams TeamsR GET POST
 /teams/#TeamId TeamR GET POST
@@ -211,6 +215,10 @@ instance Yesod Haskellers where
             isCurrent x = Just x == fmap tm current || x `elem` map fst parents
         let navbarSection section = $(hamletFile "navbar-section")
         pc <- widgetToPageContent $ do
+            case ma of
+                Nothing -> return ()
+                Just ((uid, _), _) -> addHamletHead [$hamlet|%link!href=@UserFeedR.uid@!type="application/atom+xml"!rel="alternate"!title="Your Haskellers Updates"
+|]
             widget
             addCassius $(Settings.cassiusFile "default-layout")
             addCassius $(Settings.cassiusFile "login")
@@ -358,6 +366,15 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb AuthR{} = return ("", Nothing)
     breadcrumb ScreenNamesR = return ("", Nothing)
     breadcrumb DeleteScreenNameR{} = return ("", Nothing)
+    breadcrumb TeamFeedR{} = return ("", Nothing)
+    breadcrumb UserFeedR{} = return ("", Nothing)
+    breadcrumb TeamNewsR{} = return ("", Nothing)
+    breadcrumb LeaveTeamR{} = return ("", Nothing)
+    breadcrumb WatchTeamR{} = return ("", Nothing)
+    breadcrumb JoinTeamR{} = return ("", Nothing)
+    breadcrumb ApproveTeamR{} = return ("", Nothing)
+    breadcrumb TeamAdminR{} = return ("", Nothing)
+    breadcrumb TeamUnadminR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where
@@ -477,3 +494,10 @@ prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
 
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"
+
+addTeamNews :: TeamId -> String -> Html -> HaskellersRoute -> SqlPersist (GHandler Haskellers Haskellers) ()
+addTeamNews tid title content url = do
+    render <- lift getUrlRender
+    now <- liftIO getCurrentTime
+    _ <- insert $ TeamNews tid now title content $ render url
+    return ()
