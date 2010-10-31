@@ -18,6 +18,10 @@ data Service = Twitter | XMPP | AIM | Freenode
     deriving (Show, Read, Eq, Enum, Bounded)
 derivePersistField "Service"
 
+data TeamUserStatus = Watching | UnapprovedMember | ApprovedMember | Admin
+    deriving (Show, Read, Eq, Enum, Bounded)
+derivePersistField "TeamUserStatus"
+
 prettyEmployment :: Employment -> String
 prettyEmployment FullTime = "You can ask me about full-time employment"
 prettyEmployment PartTime = "You can ask me about part-time employment"
@@ -91,6 +95,16 @@ ScreenName
     user UserId Eq
     service Service Asc
     name String Asc
+Team
+    name String Asc
+    desc Html
+    UniqueTeam name
+    deriving Show Eq
+TeamUser
+    team TeamId Eq
+    user UserId
+    status TeamUserStatus update
+    UniqueTeamUser team user
 |]
 
 userFullName' :: User -> String

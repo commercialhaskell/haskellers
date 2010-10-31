@@ -29,6 +29,7 @@ import Handler.Package
 import Handler.Faq
 import Handler.News
 import Handler.Job
+import Handler.Team
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Haskellers.hs. Please see

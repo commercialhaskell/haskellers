@@ -1,0 +1,63 @@
+$maybe ma _
+    #status
+        $if isAdmin
+            You are an administrator for this group.
+        $elseif isMember
+            $if isApprovedMember
+                You are a member of this group.
+            $else
+                You have applied for membership in this group. An admin must approve you.
+            %form!method=post!action=@LeaveTeamR.tid@
+                %input!type=submit!value="Leave this group"
+        $elseif isWatching
+            %form!method=post!action=@LeaveTeamR.tid@
+                You are watching this group.
+                %input!type=submit!value="Stop watching"
+            %form!method=post!action=@JoinTeamR.tid@
+                %input!type=submit!value="Become a member"
+        $else
+            You are not watching this group.
+            %form!method=post!action=@WatchTeamR.tid@
+                %input!type=submit!value="Start watching"
+            %form!method=post!action=@JoinTeamR.tid@
+                %input!type=submit!value="Become a member"
+#description $teamDesc.t$
+#admins
+    %h3 Admins
+    %ul
+        $forall admins admin
+            %li
+                %a!href=@UserR.showIntegral.fst.admin@ $userFullName.snd.admin$
+                $if cet
+                    $if notMe.fst.admin
+                        %form!method=post!action=@(TeamUnadminR.tid).fst.admin@
+                            %input!type=submit!value="Remove group admin rights"
+$if not.null.amembers
+    #members
+        %h3 Members
+        %ul
+            $forall amembers u
+                %li
+                    %a!href=@UserR.showIntegral.fst.u@ $userFullName.snd.u$
+                    $if cet
+                        %form!method=post!action=@(TeamAdminR.tid).fst.u@
+                            %input!type=submit!value="Make group admin"
+$if not.null.umembers
+  $if cet
+    #unapproved
+        %h3 Unapproved Members
+        %ul
+            $forall umembers u
+                %li
+                    %a!href=@UserR.showIntegral.fst.u@ $userFullName.snd.u$
+                    %form!method=post!action=@(ApproveTeamR.tid).fst.u@
+                        %input!type=submit!value="Approve Membership"
+$if cet
+    %h3 Edit group
+    %form!method=post!action=@TeamR.tid@
+        %table
+            ^form^
+            %tr
+                %td!colspan=2
+                    $nonce$
+                    %input!type=submit!value="Update Group"

@@ -165,6 +165,15 @@ mkYesodData "Haskellers" [$parseRoutes|
 
 /feed/news NewsFeedR GET
 /feed/jobs JobsFeedR GET
+
+/teams TeamsR GET POST
+/teams/#TeamId TeamR GET POST
+/teams/#TeamId/leave LeaveTeamR POST
+/teams/#TeamId/watch WatchTeamR POST
+/teams/#TeamId/join JoinTeamR POST
+/teams/#TeamId/approve/#UserId ApproveTeamR POST
+/teams/#TeamId/admin/#UserId TeamAdminR POST
+/teams/#TeamId/unadmin/#UserId TeamUnadminR POST
 |]
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
@@ -254,6 +263,10 @@ navbar =
         [ ("Job Listings", JobsR)
         ]
       )
+    , ("Special Interest Groups",
+        [ ("All Groups", TeamsR)
+        ]
+      )
     ]
 
 userbar :: ((UserId, User), Maybe Username)
@@ -307,6 +320,10 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb (JobR jid) = do
         j <- runDB $ get404 jid
         return ("Job Listing: " ++ jobTitle j, Just JobsR)
+    breadcrumb TeamsR = return ("Special Interest Groups", Just RootR)
+    breadcrumb (TeamR tid) = do
+        t <- runDB $ get404 tid
+        return (teamName t, Just TeamsR)
 
     -- These pages never call breadcrumb
     breadcrumb StaticR{} = return ("", Nothing)

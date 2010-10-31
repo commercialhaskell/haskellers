@@ -1,0 +1,7 @@
+%form!method=post!action=@TeamR.tid@
+    %table
+        ^form^
+        %tr
+            %td!colspan=2
+                $nonce$
+                %input!type=submit!value="Update Group"

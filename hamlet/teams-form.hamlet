@@ -1,0 +1,7 @@
+%form!method=post!action=@TeamsR@
+    %table
+        ^form^
+        %tr
+            %td!colspan=2
+                $nonce$
+                %input!type=submit!value="Add Group"
