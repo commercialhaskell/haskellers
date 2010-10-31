@@ -15,8 +15,6 @@ module Haskellers
     , module Model
     , StaticRoute (..)
     , AuthRoute (..)
-    , showIntegral
-    , readIntegral
     , login
     , Profile (..)
     , userR
@@ -406,15 +404,6 @@ instance YesodAuth Haskellers where
         [$hamlet|
 !style="width:500px;margin:0 auto" ^login^
 |]
-
-showIntegral :: Integral a => a -> String
-showIntegral x = show (fromIntegral x :: Integer)
-
-readIntegral :: Num a => String -> Maybe a
-readIntegral s =
-    case reads s of
-        (i, _):_ -> Just $ fromInteger i
-        [] -> Nothing
 
 login :: GWidget s Haskellers ()
 login = addCassius $(cassiusFile "login") >> $(hamletFile "login")

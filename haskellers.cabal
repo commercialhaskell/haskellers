@@ -30,7 +30,7 @@ executable         simple-server
                    persistent-postgresql >= 0.3,
                    template-haskell,
                    hamlet,
-                   pureMD5 < 2,
+                   pureMD5 < 3,
                    http-enumerator >= 0.2.0.1,
                    random,
                    HsOpenSSL,

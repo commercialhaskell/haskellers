@@ -11,7 +11,6 @@ import Control.Applicative
 import Data.Maybe (fromMaybe)
 import Data.Time
 import Yesod.Form.Jquery
-import Data.Default
 import Control.Monad (unless)
 import Yesod.Helpers.AtomFeed
 import Text.Hamlet (toHtml)
