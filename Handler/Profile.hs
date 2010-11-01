@@ -127,6 +127,9 @@ postDeleteAccountR :: Handler ()
 postDeleteAccountR = do
     (uid, _) <- requireAuth
     debugRunDB $ do
+        updateWhere [TopicCreatorEq $ Just uid] [TopicCreator Nothing]
+        updateWhere [TopicMessageCreatorEq $ Just uid]
+                    [TopicMessageCreator Nothing]
         deleteWhere [IdentUserEq uid]
         deleteWhere [UserSkillUserEq uid]
         delete uid

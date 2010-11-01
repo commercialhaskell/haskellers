@@ -1,0 +1,40 @@
+%h2 $topicTitle.to$ ($show.topicType.to$)
+.created
+    Created by $
+    $maybe mcreator c
+        $userFullName.c$
+    $nothing
+        [deleted]
+    \ on $prettyTime.topicCreated.to$.
+.status Status: $show.topicStatus.to$
+$if isMember
+    %form!method=post!action=@TopicR.toid@
+        %table
+            ^changeStatus^
+            %tr
+                %td!colspan=2
+                    $nonce$
+                    %input!type=submit!value="Update status"
+$if null.messages
+    %h3 No messages on this topic.
+$else
+    %h3 Messages
+    $forall messages m
+        #message-$showIntegral.fst.fst.m$.message
+            .header
+                By $
+                $maybe snd.m u
+                    $userFullName.u$
+                $nothing
+                    [deleted]
+                \ @@ $prettyTime.topicMessageCreated.snd.fst.m$
+            .content $topicMessageContent.snd.fst.m$
+$if canMessage
+    %h3 Add a message
+    %form!method=post!action=@TopicMessageR.toid@
+        %table
+            ^form^
+            %tr
+                %td!colspan=2
+                    $nonce$
+                    %input!type=submit!value="Post message"

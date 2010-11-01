@@ -269,11 +269,21 @@ getTeamNewsR tnid = do
 postTeamPackagesR :: TeamId -> Handler RepHtml
 postTeamPackagesR tid = do
     requireGroupAdmin tid
+    t <- runDB $ get404 tid
     (res, form, _, nonce) <- runFormPost $ packageFormlet tid Nothing
     case res of
         FormSuccess tp -> do
-            _ <- runDB $ insert tp
+            runDB $ do
+                _ <- insert tp
+                addTeamNews tid ("New package for " ++ teamName t ++ " group") [$hamlet|
             setMessage "Package added"
+%p A new package, $teamPackageName.tp$, has been added to $teamName.t$.
+$maybe teamPackageDesc.tp d
+    %p $d$
+$maybe teamPackageHomepage.tp u
+    %p
+        %a!href=$u$ Visit the homepage.
+|] $ TeamR tid
             redirect RedirectTemporary $ TeamR tid
         _ -> defaultLayout [$hamlet|
 %form!method=post!action=@TeamPackagesR.tid@

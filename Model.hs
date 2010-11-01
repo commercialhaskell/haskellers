@@ -22,6 +22,14 @@ data TeamUserStatus = Watching | UnapprovedMember | ApprovedMember | Admin
     deriving (Show, Read, Eq, Enum, Bounded)
 derivePersistField "TeamUserStatus"
 
+data TopicType = Discussion | Feature | Bug
+    deriving (Show, Read, Eq, Enum, Bounded)
+derivePersistField "TopicType"
+
+data TopicStatus = Open | Resolved | Closed
+    deriving (Show, Read, Eq, Enum, Bounded)
+derivePersistField "TopicStatus"
+
 prettyEmployment :: Employment -> String
 prettyEmployment FullTime = "You can ask me about full-time employment"
 prettyEmployment PartTime = "You can ask me about part-time employment"
@@ -118,6 +126,19 @@ TeamPackage
     hackage Bool
     desc String null
     homepage String null
+Topic
+    team TeamId Eq
+    created UTCTime Desc
+    type TopicType
+    status TopicStatus update
+    creator UserId null update Eq
+    title String
+TopicMessage
+    topic TopicId Eq
+    created UTCTime Asc
+    creator UserId null update Eq
+    content Html
+    deriving Show Eq
 |]
 
 userFullName' :: User -> String

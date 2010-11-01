@@ -180,6 +180,10 @@ mkYesodData "Haskellers" [$parseRoutes|
 /teams/#TeamId/unadmin/#UserId TeamUnadminR POST
 /teams/#TeamId/packages TeamPackagesR POST
 /teams/#TeamId/packages/#TeamPackageId/delete DeleteTeamPackageR POST
+
+/teams/#TeamId/topics TopicsR GET POST
+/topics/#TopicId TopicR GET POST
+/topics/#TopicId/message TopicMessageR POST
 |]
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
@@ -255,6 +259,8 @@ instance Yesod Haskellers where
         liftIO $ createDirectoryIfMissing True statictmp
         liftIO $ L.writeFile (statictmp ++ fn) content
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
+
+    clientSessionDuration _ = 60 * 24 * 14 -- 2 weeks
 
 navbar :: [(String, [(String, HaskellersRoute)])]
 navbar =
@@ -336,6 +342,11 @@ instance YesodBreadcrumbs Haskellers where
         return (teamName t, Just TeamsR)
     breadcrumb (TeamPackagesR tid) = return ("Add Package", Just $ TeamR tid)
 
+    breadcrumb (TopicsR tid) = return ("Discussion Topics", Just $ TeamR tid)
+    breadcrumb (TopicR toid) = do
+        t <- runDB $ get404 toid
+        return (topicTitle t, Just $ TopicsR $ topicTeam t)
+
     -- These pages never call breadcrumb
     breadcrumb StaticR{} = return ("", Nothing)
     breadcrumb FaviconR = return ("", Nothing)
@@ -379,6 +390,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb TeamAdminR{} = return ("", Nothing)
     breadcrumb TeamUnadminR{} = return ("", Nothing)
     breadcrumb DeleteTeamPackageR{} = return ("", Nothing)
+    breadcrumb TopicMessageR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where

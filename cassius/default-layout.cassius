@@ -86,3 +86,7 @@ img
     content: ' > '
 #breadcrumbs li:last-child:after
     content: ''
+th, td
+    vertical-align: top
+tr.required label
+    font-weight: bold

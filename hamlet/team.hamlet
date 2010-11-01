@@ -22,6 +22,17 @@ $maybe ma _
             %form!method=post!action=@JoinTeamR.tid@
                 %input!type=submit!value="Become a member"
 #description $teamDesc.t$
+%h3 Discussions
+%p
+    Please continue to $
+    %a!href=@TopicsR.tid@ discussions page
+    \ to read current discussions, or to start your own. This is also where you would file feature requests and bug reports.
+%p
+    If you want to easily stay up-to-date on the discussions here, you can subscribe to the $
+    %a!href=@TeamFeedR.tid@ group news feed.
+    $maybe ma a
+        \ If you are watching this group, are a member or are an admin, this group's news will automatically appear in $
+        %a!href=@UserFeedR.fst.a@ your personal news feed.
 #admins
     %h3 Admins
     %ul
@@ -65,9 +76,13 @@ $if not.null.packages
                 %td
                     $maybe teamPackageDesc.snd.p d
                         $d$
+                    $nothing
+                        %i No description supplied
                 %td
                     $maybe teamPackageHomepage.snd.p u
                         %a!href=$u$ Homepage
+                    $nothing
+                        %i No website supplied
                 $if cet
                     %td
                         %form!method=post!action=@(DeleteTeamPackageR.tid).fst.p@

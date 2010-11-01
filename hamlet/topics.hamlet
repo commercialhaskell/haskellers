@@ -1,0 +1,28 @@
+$if null.topics
+    %p There are no topics for this group.
+$else
+    %h3 Topics
+    %table
+        %thead
+            %tr
+                %th Title
+                %th Type
+                %th Status
+        %tbody
+            $forall topics t
+                %tr
+                    %td
+                        %a!href=@TopicR.fst.t@ $topicTitle.snd.t$
+                    %td
+                        $show.topicType.snd.t$
+                    %td
+                        $show.topicStatus.snd.t$
+$maybe mf f
+    %h3 Create a new topic
+    %form!method=post!action=@TopicsR.tid@
+        %table
+            ^fst.f^
+            %tr
+                %td!colspan=2
+                    $snd.f$
+                    %input!type=submit!value="Create topic"
