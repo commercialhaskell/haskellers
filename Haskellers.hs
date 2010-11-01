@@ -178,6 +178,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /teams/#TeamId/approve/#UserId ApproveTeamR POST
 /teams/#TeamId/admin/#UserId TeamAdminR POST
 /teams/#TeamId/unadmin/#UserId TeamUnadminR POST
+/teams/#TeamId/packages TeamPackagesR POST
+/teams/#TeamId/packages/#TeamPackageId/delete DeleteTeamPackageR POST
 |]
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
@@ -332,6 +334,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb (TeamR tid) = do
         t <- runDB $ get404 tid
         return (teamName t, Just TeamsR)
+    breadcrumb (TeamPackagesR tid) = return ("Add Package", Just $ TeamR tid)
 
     -- These pages never call breadcrumb
     breadcrumb StaticR{} = return ("", Nothing)
@@ -375,6 +378,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb ApproveTeamR{} = return ("", Nothing)
     breadcrumb TeamAdminR{} = return ("", Nothing)
     breadcrumb TeamUnadminR{} = return ("", Nothing)
+    breadcrumb DeleteTeamPackageR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where

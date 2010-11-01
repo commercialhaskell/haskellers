@@ -52,6 +52,26 @@ $if not.null.umembers
                     %a!href=@UserR.showIntegral.fst.u@ $userFullName.snd.u$
                     %form!method=post!action=@(ApproveTeamR.tid).fst.u@
                         %input!type=submit!value="Approve Membership"
+$if not.null.packages
+    %table#packages
+        %legend Related Packages
+        $forall packages p
+            %tr
+                %th
+                    $if teamPackageHackage.snd.p
+                        %a!href="http://hackage.haskell.org/package/$teamPackageName.snd.p$" $teamPackageName.snd.p$
+                    $else
+                        $teamPackageName.snd.p$
+                %td
+                    $maybe teamPackageDesc.snd.p d
+                        $d$
+                %td
+                    $maybe teamPackageHomepage.snd.p u
+                        %a!href=$u$ Homepage
+                $if cet
+                    %td
+                        %form!method=post!action=@(DeleteTeamPackageR.tid).fst.p@
+                            %input!type=submit!value="Delete"
 $if cet
     %h3 Edit group
     %form!method=post!action=@TeamR.tid@
@@ -61,3 +81,11 @@ $if cet
                 %td!colspan=2
                     $nonce$
                     %input!type=submit!value="Update Group"
+    %h3 Add Package
+    %form!method=post!action=@TeamPackagesR.tid@
+        %table
+            ^addPackage^
+            %tr
+                %td!colspan=2
+                    $nonce2$
+                    %input!type=submit!value="Add Package"

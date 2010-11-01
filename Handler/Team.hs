@@ -13,6 +13,8 @@ module Handler.Team
     , getTeamFeedR
     , getUserFeedR
     , getTeamNewsR
+    , postTeamPackagesR
+    , postDeleteTeamPackageR
     ) where
 
 import Haskellers
@@ -37,6 +39,14 @@ teamFormlet mt = fieldsToTable $ Team
     <*> nicHtmlField "Description"
             { ffsId = Just "team-desc"
             } (fmap teamDesc mt)
+
+packageFormlet :: TeamId -> Formlet s Haskellers TeamPackage
+packageFormlet tid mtp = fieldsToTable $ TeamPackage
+    <$> pure tid
+    <*> stringField "Name" (fmap teamPackageName mtp)
+    <*> boolField "Available from Hackage?" (fmap teamPackageHackage mtp)
+    <*> maybeStringField "Description" (fmap teamPackageDesc mtp)
+    <*> maybeUrlField "Homepage" (fmap teamPackageHomepage mtp)
 
 getTeamsR :: Handler RepHtml
 getTeamsR = do
@@ -97,7 +107,9 @@ getTeamR tid = do
     let amembers = map snd $ filter (\(x, _) -> x == ApprovedMember) users
     let umembers = map snd $ filter (\(x, _) -> x == UnapprovedMember) users
     let notMe x = Just x /= fmap fst ma
+    packages <- runDB $ selectList [TeamPackageTeamEq tid] [TeamPackageNameAsc] 0 0
     (form, enctype, nonce) <- generateForm $ teamFormlet $ Just t
+    (addPackage, _, nonce2) <- generateForm $ packageFormlet tid Nothing
     defaultLayout $ do
         addCassius $(cassiusFile "teams")
         addCassius $(cassiusFile "team")
@@ -253,3 +265,31 @@ getTeamNewsR :: TeamNewsId -> Handler ()
 getTeamNewsR tnid = do
     tn <- runDB $ get404 tnid
     redirectString RedirectPermanent $ teamNewsUrl tn
+
+postTeamPackagesR :: TeamId -> Handler RepHtml
+postTeamPackagesR tid = do
+    requireGroupAdmin tid
+    (res, form, _, nonce) <- runFormPost $ packageFormlet tid Nothing
+    case res of
+        FormSuccess tp -> do
+            _ <- runDB $ insert tp
+            setMessage "Package added"
+            redirect RedirectTemporary $ TeamR tid
+        _ -> defaultLayout [$hamlet|
+%form!method=post!action=@TeamPackagesR.tid@
+    %table
+        ^form^
+        %tr
+            %td!colspan=2
+                $nonce$
+                %input!type=submit!value="Add Package"
+|]
+
+postDeleteTeamPackageR :: TeamId -> TeamPackageId -> Handler ()
+postDeleteTeamPackageR tid tpid = do
+    requireGroupAdmin tid
+    tp <- runDB $ get404 tpid
+    unless (tid == teamPackageTeam tp) notFound
+    runDB $ delete tpid
+    setMessage "Package deleted"
+    redirect RedirectTemporary $ TeamR tid

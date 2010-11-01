@@ -112,6 +112,12 @@ TeamNews
     content Html
     url String
     deriving Show Eq
+TeamPackage
+    team TeamId Eq
+    name String Asc
+    hackage Bool
+    desc String null
+    homepage String null
 |]
 
 userFullName' :: User -> String
