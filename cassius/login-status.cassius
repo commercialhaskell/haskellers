@@ -1,0 +1,7 @@
+#login-status
+    border: 1px solid #200e5a
+    background: #eee
+    padding: 2px
+    margin: 4px 5px 15px 0
+    font-size: 120%
+    color: #900

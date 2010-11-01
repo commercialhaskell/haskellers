@@ -15,6 +15,7 @@ module Handler.Team
     , getTeamNewsR
     , postTeamPackagesR
     , postDeleteTeamPackageR
+    , loginStatus
     ) where
 
 import Haskellers
@@ -26,9 +27,13 @@ import Yesod.Form.Nic
 import Control.Monad (unless)
 import Data.Time (getCurrentTime)
 
-canAddTeam :: Handler Bool
-canAddTeam = do
-    ma <- maybeAuth
+loginStatus :: Maybe (UserId, User) -> Widget ()
+loginStatus ma = do
+    addCassius $(cassiusFile "login-status")
+    addWidget $(hamletFile "login-status")
+
+canAddTeam :: Maybe (UserId, User) -> Handler Bool
+canAddTeam ma = do
     case ma of
         Nothing -> return False
         Just (_, u) -> return $ userVerifiedEmail u && userReal u && not (userBlocked u)
@@ -50,7 +55,8 @@ packageFormlet tid mtp = fieldsToTable $ TeamPackage
 
 getTeamsR :: Handler RepHtml
 getTeamsR = do
-    cat <- canAddTeam
+    ma <- maybeAuth
+    cat <- canAddTeam ma
     (form, enctype, nonce) <- generateForm $ teamFormlet Nothing
     teams' <- runDB $ selectList [] [] 0 0 >>= mapM (\(tid, t) -> do
         users <- count [TeamUserTeamEq tid]
@@ -58,13 +64,14 @@ getTeamsR = do
         )
     let teams = reverse $ sortBy (comparing snd) teams'
     defaultLayout $ do
+        addWidget $ loginStatus ma
         addCassius $(cassiusFile "teams")
         addWidget $(hamletFile "teams")
 
 postTeamsR :: Handler RepHtml
 postTeamsR = do
-    (uid, _) <- requireAuth
-    cat <- canAddTeam
+    u@(uid, _) <- requireAuth
+    cat <- canAddTeam $ Just u
     unless cat $ permissionDenied "Only unblocked, verified users may create special interest groups"
     (res, form, enctype, nonce) <- runFormPost $ teamFormlet Nothing
     case res of
@@ -111,6 +118,7 @@ getTeamR tid = do
     (form, enctype, nonce) <- generateForm $ teamFormlet $ Just t
     (addPackage, _, nonce2) <- generateForm $ packageFormlet tid Nothing
     defaultLayout $ do
+        addWidget $ loginStatus ma
         addCassius $(cassiusFile "teams")
         addCassius $(cassiusFile "team")
         addWidget $(hamletFile "team")

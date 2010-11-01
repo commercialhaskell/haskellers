@@ -8,6 +8,7 @@ module Handler.Topic
     ) where
 
 import Haskellers
+import Handler.Team (loginStatus)
 import Yesod.Form.Nic
 import Data.Time
 import Control.Applicative
@@ -37,6 +38,7 @@ getTopicsR tid = do
                 return $ Just (form, nonce)
             _ -> return Nothing
     defaultLayout $ do
+        addWidget $ loginStatus ma
         addWidget $(hamletFile "topics")
         addCassius $(cassiusFile "topics")
 
@@ -106,6 +108,7 @@ getTopicR toid = do
         return ((mid, m), mu)
         )
     defaultLayout $ do
+        addWidget $ loginStatus ma
         addWidget $(hamletFile "topic")
         addCassius $(cassiusFile "topic")
 
