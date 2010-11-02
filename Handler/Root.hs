@@ -1,15 +1,17 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell, OverloadedStrings, QuasiQuotes #-}
 {-# LANGUAGE CPP #-}
 module Handler.Root
     ( getRootR
     , getUsersR
     , gravatar
     , getLocationsR
+    , yearField
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 import Haskellers hiding (Filter)
+import Yesod.Form.Core
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace)
@@ -111,19 +113,39 @@ applyFilter f p = and
             Just FullPartTime -> True
             _ -> False
 
-filterForm :: Form s y Filter
-filterForm = fieldsToTable $ Filter
+filterForm :: Int -> Form s y Filter
+filterForm my = fieldsToTable $ Filter
     <$> maybeStringField "Name" Nothing
-    <*> maybeIntField "Using Haskell since (minimum)" Nothing
-    <*> maybeIntField "Using Haskell since (maximum)" Nothing
+    <*> yearField 1980 my "Using Haskell since (minimum)" Nothing
+    <*> yearField 1980 my "Using Haskell since (maximum)" Nothing
     <*> boolField "Interested in full-time positions" Nothing
     <*> boolField "Interested in part-time positions" Nothing
+
+yearField :: Int -> Int -> FormFieldSettings -> FormletField s m (Maybe Int)
+yearField x y = optionalFieldHelper $ yearFieldProfile x y
+
+yearFieldProfile :: Int -> Int -> FieldProfile sub y Int
+yearFieldProfile minY maxY = FieldProfile
+    { fpParse = \s ->
+        case readIntegral s of
+            Nothing -> Left "Invalid integer"
+            Just i
+                | i < minY -> Left $ "Value must be at least " ++ show minY
+                | i > maxY -> Left $ "Value must be at most " ++ show maxY
+                | otherwise -> Right i
+    , fpRender = showIntegral
+    , fpWidget = \theId name val isReq -> addHamlet [$hamlet|
+%input#$theId$!name=$name$!type=number!min=$show.minY$!max=$show.maxY$!step=1!:isReq:required!value=$val$
+|]
+    }
 
 getUsersR :: Handler RepHtmlJson
 getUsersR = do
     y <- getYesod
     allProfs <- liftIO $ readIORef $ publicProfiles y
-    (res, form, enctype) <- runFormGet filterForm
+    now <- liftIO getCurrentTime
+    let (maxY, _, _) = toGregorian $ utctDay now
+    (res, form, enctype) <- runFormGet $ filterForm $ fromInteger maxY
     let filteredProfs =
             case res of
                 FormSuccess filt -> filter (applyFilter filt) allProfs

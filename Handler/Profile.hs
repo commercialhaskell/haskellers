@@ -19,6 +19,7 @@ module Handler.Profile
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 import Haskellers
+import Handler.Root (yearField)
 import Control.Applicative
 import Handler.Root (gravatar)
 import Yesod.Form.Jquery
@@ -27,7 +28,7 @@ import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
 import Yesod.Form.Core
 import Control.Arrow ((&&&))
-import Data.Time (getCurrentTime)
+import Data.Time
 
 screenNameFormlet :: UserId -> Form s y ScreenName
 screenNameFormlet uid = fieldsToTable $ ScreenName
@@ -37,8 +38,8 @@ screenNameFormlet uid = fieldsToTable $ ScreenName
   where
     servopts = map (id &&& show) [minBound..maxBound]
 
-userForm :: User -> Form s m User
-userForm u = fieldsToTable $ User
+userForm :: Int -> User -> Form s m User
+userForm maxY u = fieldsToTable $ User
     <$> stringField "Full name"
             { ffsId = Just "full-name"
             } (Just $ userFullName u)
@@ -48,7 +49,7 @@ userForm u = fieldsToTable $ User
     <*> pure (userEmail u)
     <*> pure (userVerifiedEmail u)
     <*> pure (userVerkey u)
-    <*> maybeHaskellSinceField "Using Haskell since"
+    <*> yearField 1985 maxY "Using Haskell since"
             { ffsTooltip = "Don't worry if you took breaks from Haskell, just put the year you wrote your first Haskell code"
             } (Just $ userHaskellSince u)
     <*> maybeTextareaField "Description"
@@ -79,16 +80,13 @@ userForm u = fieldsToTable $ User
             } (Just $ userLatitude u)
   where
     empOpts = map (id &&& prettyEmployment) [minBound..maxBound]
-    maybeHaskellSinceField x = checkField validSinceYear . maybeIntField x
-    validSinceYear Nothing = Right Nothing
-    validSinceYear (Just y)
-        | y >= 1985 && y <= 2010 = Right $ Just y
-        | otherwise = Left "Unless you've got a time machine, I don't think that's possible"
 
 getProfileR :: Handler RepHtml
 getProfileR = do
     (uid, u) <- requireAuth
-    (res, form, enctype) <- runFormPostNoNonce $ userForm u
+    now <- liftIO getCurrentTime
+    let (maxY, _, _) = toGregorian $ utctDay now
+    (res, form, enctype) <- runFormPostNoNonce $ userForm (fromInteger maxY) u
     musername <- fmap (fmap snd) $ debugRunDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
