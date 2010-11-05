@@ -50,6 +50,7 @@ getJobsR = do
                     else return Nothing
     defaultLayout $ do
         addCassius $(cassiusFile "jobs")
+        addCassius $(cassiusFile "login-status")
         addWidget $(hamletFile "jobs")
 
 postJobsR :: Handler RepHtml

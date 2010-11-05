@@ -15,3 +15,8 @@ $maybe mform form
             %tr
                 %td!colspan=2
                     %input!type=submit!value="Post Job"
+$nothing
+    #login-status
+        If you $
+        %a!href=@AuthR.LoginR@ log in
+        , you can add a job listing.
