@@ -1,30 +1,63 @@
-#apply-filters
-    font-size: 60%
-table
-    border-collapse: collapse
-th, td
-    border: 1px solid #666
-    padding: 5px
-caption
-    font-weight: bold
-.user
-    display: inline-block
-    vertical-align: top
-.user a
-    display: block
-    width: 120px
-    margin: 5px
-    text-align: center
-    border: 1px solid #aaa
-    background: #eee
-    padding: 10px 3px
-    font-size: 80%
-.user span.name
-    display: block
-.user img
-    border: 0
-    padding-right: 10px
+.users
+  overflow: hidden
+
+.users .counts
+  font-size: 27px
+  margin-bottom: 20px
+  text-align: center
+
+.users .counts em
+  color: #E5EEF9
+  font-style: normal
+  font-weight: bold
+.users .user
+  float: left
+  margin-bottom: 20px
+  margin-left: 12px
+  text-align: center
+  width: 100px
+
+.users .user a
+  text-decoration: none
+  font-size: 12px
+
+.users .user .name
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  background: #506982
+  display: block
+  height: 25px
+  margin-top: 2px
+  overflow: hidden
+  padding: 5px
+
+.users .controls
+  font-size: 13px
+  margin: 10px
+  text-align: right
+
 .note
-    font-style: italic
-    clear: both
-    text-align: center
+  font-size: 12px
+  text-align: center
+  font-family: serif
+  color: #DBEDFF
+  font-style: italic
+
+form.filter-users
+  background: #B84848
+  padding: 10px
+  width: 450px
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+
+form.filter-users table
+  width: 100%
+
+form.filter-users td
+  vertical-align: top
+  padding: 2px
+form.filter-users label
+  font-size: 14px
+form.filter-users h2
+  font-size: 25px
+  margin-bottom: 15px

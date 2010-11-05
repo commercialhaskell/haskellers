@@ -40,7 +40,8 @@ import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
 import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
-                    openid_icon_small_gif, facebook_png)
+                    facebook_png, background_png,
+                    buttons_png, reset_css)
 import Yesod.Form.Jquery
 import Yesod.Form.Nic
 import Data.IORef (IORef)
@@ -213,6 +214,13 @@ instance Yesod Haskellers where
         (title', parents) <- breadcrumbs
         current <- getCurrentRoute
         tm <- getRouteToMaster
+        let bodyClass =
+                case fmap tm current of
+                    Just RootR -> "overview"
+                    Just UsersR -> "find-haskeller"
+                    Just JobsR -> "find-job"
+                    Just JobR{} -> "find-job"
+                    _ -> ""
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
                         else title'
@@ -225,14 +233,14 @@ instance Yesod Haskellers where
                 Nothing -> return ()
                 Just ((uid, _), _) -> addHamletHead [$hamlet|%link!href=@UserFeedR.uid@!type="application/atom+xml"!rel="alternate"!title="Your Haskellers Updates"
 |]
-            widget
+            addWidget widget
             addCassius $(Settings.cassiusFile "default-layout")
-            addCassius $(Settings.cassiusFile "login")
             addScriptEither $ urlJqueryJs y
             addScriptEither $ urlJqueryUiJs y
             addStylesheetEither $ urlJqueryUiCss y
             addJulius $(Settings.juliusFile "analytics")
             addJulius $(Settings.juliusFile "default-layout")
+            addCassius $(Settings.cassiusFile "default-layout")
         let login' = $(hamletFile "login")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
@@ -335,7 +343,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb JobsR = return ("Job Listings", Just RootR)
     breadcrumb (JobR jid) = do
         j <- runDB $ get404 jid
-        return ("Job Listing: " ++ jobTitle j, Just JobsR)
+        return ((jobTitle j) ++ " - " ++ (prettyDay . utctDay . jobPostedAt $ j), Just JobsR)
     breadcrumb TeamsR = return ("Special Interest Groups", Just RootR)
     breadcrumb (TeamR tid) = do
         t <- runDB $ get404 tid
@@ -456,7 +464,7 @@ instance YesodAuth Haskellers where
 |]
 
 login :: GWidget s Haskellers ()
-login = addCassius $(cassiusFile "login") >> $(hamletFile "login")
+login = {-addCassius $(cassiusFile "login") >> -}$(hamletFile "login")
 
 userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
 userR (_, Just (Username _ un)) = UserR un

@@ -1,85 +1,144 @@
-html, body
-    margin: 0
-    height: 100%
-a, a:visited
-    text-decoration: none
-    color: #00f
-a:hover
-    text-decoration: underline
+body, html
+    min-height: 100%
 body
-    font-family: sans-serif
-    padding: 0
-#wrapper
-    padding-left: 10px
-h1
-    margin: 0 0 0 10px
-    font-size: 250%
-    text-align: center
-    font-family: Garamond, Georgia, "Times New Roman", serif
-#logo
-    margin: 5px 0 0 10px
-#tagline
-    margin: 0 0 20px 10px
-    color: #8b7b2f
-#message
-    border: 1px solid #200e5a
-    background: #b38b1b
-    padding: 2px
-    margin: 0 5px 15px 0
-    font-size: 120%
-    color: #900
-#footer
-    margin-top: 10px
-    padding-top: 10px
-    text-align: center
-    border-top: 1px dashed #0e485a
-.addthis_toolbox
-    margin: 5px auto
-    width: 180px
-#wrapper-table
-    height: 100%
-    display: table
-#wrapper-table-row
-    min-height: 100%
-    display: table-row
-#intro, #navbar, #wrapper
-    display: table-cell
-    vertical-align: top
-    min-height: 100%
-#intro
-    width: 170px
-#navbar
-    width: 180px
-    border-left: 1px solid #900
-    border-right: 1px solid #900
-    background: #F1EBDF
-    padding-left: 3px
-#navbar h3
-    margin: 10px 0 0 0
-#navbar ul
-    padding-left: 10px
-    list-style: none
-    margin: 0
-#navbar li
-    margin-bottom: 2px
-#navbar a
-    color: #000
-#navbar a.current
-    color: #900
-    cursor: default
-#navbar a.current:hover
-    text-decoration: none
-.buttons
-    text-align: center
-.buttons a
-    display: block
-img
-    border: 0
-#breadcrumbs
-    list-style: none
-    margin: 5px
-    background: #F1EBDF
-    border: 1px solid #900
+    background: #E6E6E6
+    color: #f9f9f9
+    font-family: Helvetica, Arial, sans-serif
+a
+    color: white
+a:visited, a:hover
+    color: #e0e0e0
+#heading, #content, #footer_content, #section_title div
+  margin: 0 auto
+  width: 940px
+#heading_wrapper
+  background: #151515 url(@StaticR.background_png@) repeat-x
+#heading
+  height: 155px
+  position: relative
+#heading .logo
+  margin-top: 34px
+  float: left
+#heading .tagline
+  float: left
+  clear: both
+  margin: 4px
+  color: #444
+  font-family: serif
+  font-size: 12px
+  font-style: italic
+#main_menu
+  right: 0px
+  position: absolute
+  top: 95px
+#main_menu div
+  width: 115px
+  height: 75px
+  float: left
+  background: url(@StaticR.buttons_png@) no-repeat 0 -77px
+#main_menu div a
+  color: white
+  display: block
+  margin: 22px 0 0
+  text-align: center
+  text-decoration: none
+body.overview #main_menu div#overview
+  background-position: 0 -1px;  
+#main_menu div#overview a
+  color: #4B5057
+
+#main_menu div#find_job
+  background-position: -240px -77px
+body.find-job #main_menu div#find_job
+  background-position: -240px -1px
+#main_menu div#find_job a
+  color: #DBEDFF
+
+#main_menu div#find_haskeller
+  background-position: -120px -77px
+body.find-haskeller #main_menu div#find_haskeller
+  background-position: -120px -1px
+#main_menu div#find_haskeller a
+  margin: 14px 0 0
+  color: #FFDBDB
+
+#secondary_menu
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  position: absolute
+  right: 0
+  top: 10px
+#secondary_menu a
+  color: #4B5057
+  text-decoration: none
+  padding: 10px
+#secondary_menu a:hover
+  color: #ABC7CF
+#im_a_haskeller
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  background: none repeat scroll 0 0 #506982
+  bottom: 13px
+  padding: 10px
+  position: absolute
+  right: 356px
+#im_a_haskeller a
+  color: #DBEDFF
+  text-decoration: none
+  padding: 0 10px
+#im_a_haskeller a:hover
+  color: #fafafa
+#section_title
+  height: 30px
+#section_title div
+  font-size: 13px
+  padding: 8px 0
+
+body #section_title
+  color: #333
+body.overview #section_title
+  color: #4B5057
+  background: #E5EEF9
+body.find-job #section_title
+  color: #DBEDFF
+  background: #506982
+body.find-haskeller #section_title
+  color: #FFDBDB
+  background: #B84848
+#section_title, #section_title a
+  color: inherit
+  text-decoration: none
+#content_wrapper
+  background: url(@StaticR.background_png@) repeat-x scroll 0 -175px #151515
+#content
+  background: #2A2D38
+  min-height: 400px
+  padding: 10px 0
+#footer_wrapper
+  border-top: solid 5px #506982
+  background: #e6e6e6
+body.overview #footer_wrapper
+  border-color: #E5EEF9
+body.find-job #footer_wrapper
+  border-color: #506982
+body.find-haskeller #footer_wrapper
+  border-color: #B84848
+
+#footer_content
+  background: #f9f9f9
+  height: 70px
+  color: #666
+  text-align: center
+  padding: 15px
+  width: 910px
+  font-size: 15px
+  line-height: 17px
+
+#footer_content a
+  color: #B84848
+  text-decoration: none
+#footer_content a:hover, #footer_content a:visited
+  color: #506982
 #breadcrumbs li
     display: inline
 #breadcrumbs li:after
@@ -90,3 +149,35 @@ th, td
     vertical-align: top
 tr.required label
     font-weight: bold
+#breadcrumbs li + li:before
+    content: " » "
+
+.subscribe
+  overflow: hidden
+.subscribe a
+  float: right
+  font-size: 13px
+  line-height: 22px
+  text-decoration: none
+  margin-right: 10px
+.subscribe img
+  height: 20px
+
+.news, .job
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  padding: 10px
+  margin: 0 10px 10px
+.news .time, .job .time
+  display: block
+  float: right
+  font-size: 12px
+  line-height: 12px
+.news
+  color: #FFDBDB
+  background: #B84848
+.news a, .job a
+  color: #fafafa
+.job
+  color: #DBEDFF
+  background: #506982

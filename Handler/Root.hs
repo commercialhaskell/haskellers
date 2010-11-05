@@ -45,7 +45,7 @@ getRootR = do
     let profs =
             if null allProfs
                 then []
-                else take 8 $ shuffle' allProfs len gen
+                else take 16 $ shuffle' allProfs len gen
     mu <- maybeAuth
     let fuzzyDiffTime = humanReadableTimeDiff now
     (public, private) <- debugRunDB $ do
@@ -60,13 +60,13 @@ getRootR = do
         return (public, private)
     defaultLayout $ do
         setTitle "Haskellers"
-        addCassius $(cassiusFile "homepage")
-        addCassius $(cassiusFile "users")
         addScriptEither $ urlJqueryJs y
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         addJulius $(juliusFile "homepage")
+        addCassius $(cassiusFile "homepage")
+        addCassius $(cassiusFile "jobs")
         $(hamletFile "homepage")
 
 data Filter = Filter
@@ -168,7 +168,6 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (json render profs) $ do
         setTitle "Browsing Haskellers"
-        addCassius $(cassiusFile "users")
         $(hamletFile "users")
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]

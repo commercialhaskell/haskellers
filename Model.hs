@@ -94,10 +94,10 @@ Job
     postedBy UserId
     postedAt UTCTime Desc Gt
     title String
+    location String
     fillingBy Day Gt
     fullTime Bool
     partTime Bool
-    location String
     desc Textarea
 ScreenName
     user UserId Eq
