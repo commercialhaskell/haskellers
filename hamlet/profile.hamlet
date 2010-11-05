@@ -1,13 +1,13 @@
 $if userBlocked.u
-    %h3 Note: Your account has been blocked. You've probably put in some inappropriate gravatar image or content. Please clean it up.
+    %h3.ui-state-error.ui-corner-all Note: Your account has been blocked. You've probably put in some inappropriate gravatar image or content. Please clean it up.
     %form!method=post!action=@RequestUnblockR@
         %input!type=submit!value="I'm clean now, please unblock me!"
 $elseif not.userVerifiedEmail.u
-    %h3 Note: You have not yet verified your email address. Your profile will not be public until you do so.
+    %h3.ui-state-error.ui-corner-all Note: You have not yet verified your email address.  Your profile will not be public until you do so.
 $elseif not.hasGoodName.userFullName.u
-    %h3 Note: Please enter your proper name on the profile tab.
+    %h3.ui-state-error.ui-corner-all Note: Please enter your proper name on the profile tab.
 $elseif not.userVisible.u
-    %h3 Note: You're account is in private mode. You can send people links directly to your profile, but you will not appear in any listings. You can change this in the "Profile" tab.
+    %h3.ui-state-error.ui-corner-all Note: You're account is in private mode. You can send people links directly to your profile, but you will not appear in any listings. You can change this in the "Profile" tab.
 #tabs
   %ul
         %li
@@ -42,10 +42,11 @@ $elseif not.userVisible.u
         $nothing
             There's a database error, because you don't have an email address yet your address is verified. Please report this.
     $else
-        In order to have your profile show up on the homepage, you need to verify an email address. Your address will be protected with $
-        %a!href="http://www.google.com/recaptcha/mailhide/" Recaptcha mailhide
-        \ and will be used to show a $
-        %a!href="http://gravatar.com/" Gravatar.
+        %p 
+          In order to have your profile show up on the homepage, you need to verify an email address. Your address will be protected with $
+          %a!href="http://www.google.com/recaptcha/mailhide/" Recaptcha mailhide
+          \ and will be used to show a $
+          %a!href="http://gravatar.com/" Gravatar.
         %form!method=post!action=@SendVerifyR@
             Email: $
             $maybe userEmail.u email
@@ -58,7 +59,7 @@ $elseif not.userVisible.u
         %table
             ^form^
             %tr
-                %td!colspan=2
+                %td.update-profile!colspan=2
                     %input!type=submit!value="Update Profile"
   #skills
     %h3 Select your skills
@@ -121,15 +122,11 @@ $elseif not.userVisible.u
         %p You have not set any screen names.
     $else
         %table#screen-names-table
-            %thead
-                %tr
-                    %th Service
-                    %th Screen name
             %tbody
                 $forall screenNames sn
                     %tr
-                        %td $show.screenNameService.snd.sn$
-                        %td $screenNameName.snd.sn$
+                        %td.screen-name-service $show.screenNameService.snd.sn$
+                        %td.screen-name $screenNameName.snd.sn$
                         %td
                             %form!method=post!action=@DeleteScreenNameR.fst.sn@
                                 %input!type=submit!value="Delete"
@@ -169,9 +166,8 @@ $elseif not.userVisible.u
             %input!type=submit!value="Request real picture status"
     %h3 I'm a Haskeller button
     %p
-        Simply copy the following code to get your $
-        %img!src=@StaticR.badge_png@!alt="I'm a Haskeller"
-        \ badge.
+        Simply copy the following code to get your badge. $
+        %img.badge!src=@StaticR.badge_png@!alt="I'm a Haskeller"
     %textarea#badge-code
         $# In case they change their username in the future
         %a!href=@UserR.showIntegral.uid@

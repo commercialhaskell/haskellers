@@ -1,13 +1,13 @@
-%form#filter-users
+%form#filter-users.filter-users
     %table
-        %caption Filter Users
+        %h2 Filter Users
         ^form^
         %tr
             %td!colspan=2
                 %input#apply-filters!type=submit!value="Apply Filters"
                 \ $
                 %a!href=@?noFilter@ Clear Filters
-#results
+#results.users
     .controls
         $if hasPrev
             %a!href=@?prev@ Previous

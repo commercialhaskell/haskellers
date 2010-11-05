@@ -1,13 +1,13 @@
-%ul
-    $forall news item
-        %li
-            %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
-            \ ($prettyTime.newsWhen.snd.item$)
+$forall news item
+    .news
+        %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
+        %span.time
+            \ $fuzzyDiffTime.newsWhen.snd.item$
 $maybe mu u
     $if userAdmin.snd.u
         ^addCassius.newsAdmin^
-        %h3 Post news item (admins only)
-        %form!method=post!action=@NewsR@
+        %form.add-news!method=post!action=@NewsR@
+          %h2 Post news item (admins only)
             %table
                 ^form^
                 %tr

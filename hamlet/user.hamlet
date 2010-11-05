@@ -1,14 +1,16 @@
 $if userBlocked.u
     %h3 Warning: This user has been blocked.
+
 $if viewerIsAdmin
     #admin-bar
         Welcome glorious administrator! You may:
         ^(adminControls.uid).u^
-#gravatar
-    %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
-    %form!method=get!action=@FlagR.uid@
-        %input#report-button!type=submit!value="Report this user"
+
 #basics
+  .gravatar
+      %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
+
+  .personal
     .name $userFullName.u$
     $maybe userHaskellSince.u y
         .since Using Haskell since $show.y$
@@ -29,28 +31,33 @@ $if viewerIsAdmin
         .employment $e$
     $maybe userLocation.u l
         .location Living in $l$
-$if not.null.screenNames
-    #screen-names
-        %table
-            $forall screenNames sn
-                %tr
-                    %th $show.screenNameService.snd.sn$
-                    %td $screenNameName.snd.sn$
+
+  $if not.null.screenNames
+      .screen-names
+          %table
+              $forall screenNames sn
+                  %tr
+                      %th $show.screenNameService.snd.sn$
+                      %td $screenNameName.snd.sn$
+
 $maybe userDesc.u d
-    #about
+    #about.user-info-box
         %h3 About Me
         #desc $d$
-.clear
+
 $if not.null.skills
-    #skills
+    #skills.user-info-box
         %h3 Skills
         %ul
             $forall skills s
                 %li $s$
 $if not.null.packages
-    #packages
+    #packages.user-info-box
         %h3 Packages
         %ul
             $forall packages p
                 %li
                     %a!href="http://hackage.haskell.org/package/$p$" $p$
+
+%form.report!method=get!action=@FlagR.uid@
+  %input#report-button!type=submit!value="Report this user"

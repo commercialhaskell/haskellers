@@ -22,6 +22,7 @@ module Haskellers
     , getDebugR
     , prettyTime
     , prettyDay
+    , humanReadableTimeDiff
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
@@ -31,6 +32,7 @@ import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
+import Data.Char (toLower, isSpace)
 import qualified Settings
 import System.Directory
 import qualified Data.ByteString.Lazy as L
@@ -38,9 +40,9 @@ import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
 import Model
-import StaticFiles (logo_png, jquery_ui_css, google_png, yahoo_png,
-                    openid_icon_small_gif, facebook_png, background_png,
-                    buttons_png, reset_css)
+import StaticFiles (logo_png, jquery_ui_css, google_gif, yahoo_gif,
+                    openid_icon_small_gif, facebook_gif, background_png,
+                    buttons_png, reset_css, hslogo_16_png)
 import Yesod.Form.Jquery
 import Yesod.Form.Nic
 import Data.IORef (IORef)
@@ -197,11 +199,11 @@ instance Yesod Haskellers where
         tm <- getRouteToMaster
         let bodyClass =
                 case fmap tm current of
-                    Just RootR -> "overview"
                     Just UsersR -> "find-haskeller"
+                    Just UserR{} -> "find-haskeller"
                     Just JobsR -> "find-job"
                     Just JobR{} -> "find-job"
-                    _ -> ""
+                    _ -> "overview"
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
                         else title'
@@ -476,3 +478,50 @@ prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
 
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"
+
+humanReadableTimeDiff :: UTCTime     -- ^ current time
+                      -> UTCTime     -- ^ old time
+                      -> String
+humanReadableTimeDiff curTime oldTime =
+    helper diff
+  where
+    diff    = diffUTCTime curTime oldTime
+
+    minutes :: NominalDiffTime -> Double
+    minutes n = realToFrac $ n / 60
+
+    hours :: NominalDiffTime -> Double
+    hours   n = (minutes n) / 60
+
+    days :: NominalDiffTime -> Double
+    days    n = (hours n) / 24
+
+    weeks :: NominalDiffTime -> Double
+    weeks   n = (days n) / 7
+
+    years :: NominalDiffTime -> Double
+    years   n = (days n) / 365
+
+    i2s :: RealFrac a => a -> String
+    i2s n = show m where m = truncate n :: Int
+
+    old = utcToLocalTime utc oldTime
+
+    trim = f . f where f = reverse . dropWhile isSpace
+
+    dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
+    thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
+    previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
+
+    helper  d | d < 1          = "one second ago"
+              | d < 60         = i2s d ++ " seconds ago"
+              | minutes d < 2  = "one minute ago"
+              | minutes d < 60 = i2s (minutes d) ++ " minutes ago"
+              | hours d < 2    = "one hour ago"
+              | hours d < 24   = i2s (hours d) ++ " hours ago"
+              | days d < 5     = dow
+              | days d < 10    = i2s (days d)  ++ " days ago"
+              | weeks d < 2    = i2s (weeks d) ++ " week ago"
+              | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
+              | years d < 1    = thisYear
+              | otherwise      = previousYears

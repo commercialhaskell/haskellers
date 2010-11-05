@@ -8,7 +8,24 @@ a
     color: white
 a:visited, a:hover
     color: #e0e0e0
-#heading, #content, #footer_content, #section_title div
+
+#haskell_bar
+  font-size: 13px
+  background: #293845
+  border-top: 5px solid #4E6272
+  color: #DDDDDD
+  padding: 3px
+  position: relative
+  text-align: left
+#haskell_bar .title
+  background: url(@StaticR.hslogo_16_png@) no-repeat scroll 0 50% transparent
+  color: white
+  font-style: normal
+  font-weight: normal
+  margin: 0 3px
+  padding: 2px 30px
+
+#heading, #main_content, #footer_content, #section_title div
   margin: 0 auto
   width: 940px
 #heading_wrapper
@@ -110,10 +127,14 @@ body.find-haskeller #section_title
   text-decoration: none
 #content_wrapper
   background: url(@StaticR.background_png@) repeat-x scroll 0 -175px #151515
-#content
+#main_content
   background: #2A2D38
   min-height: 400px
-  padding: 10px 0
+  padding: 10px
+  overflow: hidden
+  position: relative
+  width: 910px
+
 #footer_wrapper
   border-top: solid 5px #506982
   background: #e6e6e6
@@ -144,6 +165,16 @@ body.find-haskeller #footer_wrapper
 #breadcrumbs li + li:before
     content: " » "
 
+h1
+  font-size: 30px
+  font-weight: normal
+  text-transform: capitalize
+  font-weight: bold
+  margin-bottom: 10px
+
+h2, h3, h4, p
+  margin-bottom: 5px
+
 .subscribe
   overflow: hidden
 .subscribe a
@@ -159,7 +190,7 @@ body.find-haskeller #footer_wrapper
   -moz-border-radius: 2px
   -webkit-border-radius: 2px
   padding: 10px
-  margin: 0 10px 10px
+  margin-bottom: 10px
 .news .time, .job .time
   display: block
   float: right
@@ -173,3 +204,32 @@ body.find-haskeller #footer_wrapper
 .job
   color: #DBEDFF
   background: #506982
+
+#disqus_thread
+  margin-top: 20px
+.dsq-brlink
+  font-size: 11px
+  text-align: left
+
+.login-options
+  -moz-border-radius: 3px
+  -webkit-border-radius: 3px
+  padding: 10px
+  background: white
+  text-align: center
+  width: 334px
+  margin: 0 auto
+
+.login-options .button
+  float: left
+  height: 40px
+  line-height: 35px
+  margin-left: 20px
+
+.login-options h3
+  color: #333
+  clear: both
+  text-align: center
+  margin-bottom: 10px
+  float: left
+  width: 100%
