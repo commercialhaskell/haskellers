@@ -1,0 +1,37 @@
+#main_content ol
+  padding: 10px
+  background: #E5EEF9
+  -moz-border-radius: 3px
+  -webkit-border-radius: 3px
+  font-weight: bold
+  line-height: 20px
+  font-size: 18px  
+
+#main_content li
+  margin: 5px 0
+
+#main_content ol a
+  color: #4B5057
+
+#main_content ol a:hover, #main_content ol a:visited
+  color: #506982
+
+#main_content .faq
+  margin: 20px 0 0 
+
+#main_content h4
+  font-size: 20px
+
+#main_content p, #main_content ul li
+  font-family: serif
+  font-style: italic
+  font-size: 15px
+
+#main_content ul
+  margin: 10px 0 0 20px
+#main_content ul li
+  list-style: disc inside
+
+.back-to-top
+  font-size: 15px
+  color: #E5EEF9
