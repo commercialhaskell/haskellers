@@ -1,39 +1,6 @@
-#users
-  overflow: hidden
-
-#users .counts
-  font-size: 27px
-  margin-bottom: 20px
-  text-align: center
-
-#users .counts em
-  color: #E5EEF9
-  font-style: normal
-  font-weight: bold
-#users .user
-  float: left
-  margin-bottom: 20px
-  margin-left: 16px
-  text-align: center
-  width: 100px
-
-#users .user a
-  text-decoration: none
-  font-size: 12px
-
-#users .user .name
-  -moz-border-radius: 2px
-  -webkit-border-radius: 2px
-  background: #506982
-  display: block
-  height: 25px
-  margin-top: 2px
-  overflow: hidden
-  padding: 5px
-
 #map_canvas
   height: 400px
-  width: 920px
+  width: 910px
   margin: 10px auto 20px
   -moz-border-radius: 2px
   -webkit-border-radius: 2px

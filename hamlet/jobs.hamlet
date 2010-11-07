@@ -13,8 +13,8 @@ $else
                 \ $prettyTime.jobPostedAt.snd.j$
 
 $maybe mform form
-    %h2 Post a new job
     %form.add-job!method=post!action=@JobsR@
+        %h2 Post a new job
         %table
             ^form^
             %tr

@@ -23,7 +23,6 @@ import Control.Applicative
 import Data.List (isInfixOf)
 import Yesod.Form.Jquery
 import Data.Time
-import System.Locale (defaultTimeLocale)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -67,6 +66,7 @@ getRootR = do
         addJulius $(juliusFile "homepage")
         addCassius $(cassiusFile "homepage")
         addCassius $(cassiusFile "jobs")
+        addCassius $(cassiusFile "users")
         $(hamletFile "homepage")
 
 data Filter = Filter
@@ -168,6 +168,7 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (json render profs) $ do
         setTitle "Browsing Haskellers"
+        addCassius $(cassiusFile "users")
         $(hamletFile "users")
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]
@@ -206,50 +207,3 @@ getLocationsR = do
 
 profileUserR :: Profile -> HaskellersRoute
 profileUserR p = userR ((profileUserId p, profileUser p), profileUsername p)
-
-humanReadableTimeDiff :: UTCTime     -- ^ current time
-                      -> UTCTime     -- ^ old time
-                      -> String
-humanReadableTimeDiff curTime oldTime =
-    helper diff
-  where
-    diff    = diffUTCTime curTime oldTime
-
-    minutes :: NominalDiffTime -> Double
-    minutes n = realToFrac $ n / 60
-
-    hours :: NominalDiffTime -> Double
-    hours   n = (minutes n) / 60
-
-    days :: NominalDiffTime -> Double
-    days    n = (hours n) / 24
-
-    weeks :: NominalDiffTime -> Double
-    weeks   n = (days n) / 7
-
-    years :: NominalDiffTime -> Double
-    years   n = (days n) / 365
-
-    i2s :: RealFrac a => a -> String
-    i2s n = show m where m = truncate n :: Int
-
-    old = utcToLocalTime utc oldTime
-
-    trim = f . f where f = reverse . dropWhile isSpace
-
-    dow           = trim $! formatTime defaultTimeLocale "%l:%M %p on %A" old
-    thisYear      = trim $! formatTime defaultTimeLocale "%b %e" old
-    previousYears = trim $! formatTime defaultTimeLocale "%b %e, %Y" old
-
-    helper  d | d < 1          = "one second ago"
-              | d < 60         = i2s d ++ " seconds ago"
-              | minutes d < 2  = "one minute ago"
-              | minutes d < 60 = i2s (minutes d) ++ " minutes ago"
-              | hours d < 2    = "one hour ago"
-              | hours d < 24   = i2s (hours d) ++ " hours ago"
-              | days d < 5     = dow
-              | days d < 10    = i2s (days d)  ++ " days ago"
-              | weeks d < 2    = i2s (weeks d) ++ " week ago"
-              | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
-              | years d < 1    = thisYear
-              | otherwise      = previousYears

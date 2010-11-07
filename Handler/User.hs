@@ -55,6 +55,7 @@ getUserR input = do
                         return (uid, u)
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
+    
     skills <- debugRunDB $ do
         x <- selectList [UserSkillUserEq uid] [] 0 0
         y <- mapM (get404 . userSkillSkill . snd) x

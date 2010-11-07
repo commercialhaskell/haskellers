@@ -29,6 +29,10 @@ getNewsR = do
     cacheSeconds 3600
     news <- debugRunDB $ selectList [] [NewsWhenDesc] 0 0
     (_, form, _) <- runFormGet newsForm
+
+    now <- liftIO getCurrentTime
+    let fuzzyDiffTime = humanReadableTimeDiff now
+
     defaultLayout $ do
         setTitle "Haskellers News Archive"
         addWidget $(hamletFile "news")

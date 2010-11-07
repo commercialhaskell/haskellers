@@ -42,4 +42,5 @@ faqs =
 getFaqR :: Handler RepHtml
 getFaqR = defaultLayout $ do
     setTitle "Haskellers Frequently Asked Questions"
+    addCassius $(cassiusFile "faq")
     $(hamletFile "faq")

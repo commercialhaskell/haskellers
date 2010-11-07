@@ -1,16 +1,49 @@
-#gravatar, #basics, #screen-names
-    display: table-cell
-    vertical-align: top
-    padding-right: 30px
-#screen-naems th
-    text-align: left
-#desc
-    margin: 10px 0 0 0
+#admin-bar
+  margin: 10px 10px 20px
+
+.user-info-box, #basics
+  background: #B84848
+  -moz-border-radius: 3px
+  -webkit-border-radius: 3px
+  padding: 10px
+
 #basics
-    min-width: 200px
-.name
-    font-weight: bold
-.since
-    font-style: italic
-#report-button
-    font-size: 60%
+  overflow: hidden
+
+#basics a:hover, #basics a:visited
+  color: #FFDBDB
+
+.gravatar, .personal
+  float: left
+
+.screen-names
+  float: right
+  font-size: 14px
+
+.screen-names td, .screen-names th
+  padding: 2px
+
+.personal
+  margin-left: 10px
+  font-size: 14px
+  line-height: 17px
+
+.personal .name
+  font-size: 30px
+  line-height: 30px
+  text-shadow: 1px 1px #772222
+  text-transform: capitalize
+
+.user-info-box
+  float: left
+  margin: 10px 10px 50px 0
+  width: 276px
+  background: #506982
+
+#packages.user-info-box
+  margin-right: 0
+
+form.report
+  clear: both
+  float: right
+  margin: 10px 10px 0 0

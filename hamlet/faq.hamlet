@@ -1,4 +1,4 @@
-%ol
+%ol#toc
     $forall faqs faq
         %li
             %a!href="#$hash.faq$" $question.faq$
@@ -6,3 +6,4 @@ $forall faqs faq
     .faq
         %h4#$hash.faq$ $question.faq$
         $answer.faq$
+    %a.back-to-top!href="#toc" back to top
