@@ -43,6 +43,8 @@ executable         simple-server
                    data-default,
                    mime-mail,
                    web-routes,
+                   text,
+                   text-icu,
                    utf8-string
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies

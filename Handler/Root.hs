@@ -14,15 +14,16 @@ import Haskellers hiding (Filter)
 import Yesod.Form.Core
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
-import Data.Char (toLower, isSpace)
+import Data.Char (toLower, isSpace, isMark)
 import Data.Maybe (fromMaybe)
 import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
 import Data.IORef (readIORef)
 import Control.Applicative
-import Data.List (isInfixOf)
 import Yesod.Form.Jquery
 import Data.Time
+import qualified Data.Text as T
+import Data.Text.ICU.Normalize
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -91,7 +92,10 @@ applyFilter f p = and
         case y f of
             Nothing -> True
             Just z -> x z
-    name x = map toLower x `isInfixOf` map toLower (profileName p)
+    norm = T.filter validChar . T.map toLower . normalize NFKD . T.pack
+    validChar = not . isMark
+    isInfixOf x y = norm x `T.isInfixOf` norm y
+    name x = x `isInfixOf` profileName p
     minsince x =
         case userHaskellSince $ profileUser p of
             Nothing -> False
