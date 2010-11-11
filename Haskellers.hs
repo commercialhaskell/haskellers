@@ -24,6 +24,7 @@ module Haskellers
     , prettyDay
     , addTeamNews
     , humanReadableTimeDiff
+    , userFullName
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
@@ -40,7 +41,8 @@ import qualified Data.ByteString.Lazy as L
 import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile)
-import Model
+import Model hiding (userFullName)
+import qualified Model
 import StaticFiles (logo_png, jquery_ui_css, google_gif, yahoo_gif,
                     facebook_gif, background_png,
                     buttons_png, reset_css, hslogo_16_png)
@@ -424,7 +426,7 @@ instance YesodAuth Haskellers where
             (Just (_, i), Nothing) -> return $ Just $ identUser i
             (Nothing, Nothing) -> debugRunDB $ do
                 uid <- insert $ User
-                    { userFullName = ""
+                    { Model.userFullName = ""
                     , userWebsite = Nothing
                     , userEmail = Nothing
                     , userVerifiedEmail = False
@@ -574,3 +576,10 @@ humanReadableTimeDiff curTime oldTime =
               | weeks d < 5    = i2s (weeks d)  ++ " weeks ago"
               | years d < 1    = thisYear
               | otherwise      = previousYears
+
+userFullName :: User -> String
+userFullName =
+    go . Model.userFullName
+  where
+    go "" = "<Unnamed user>"
+    go x = x

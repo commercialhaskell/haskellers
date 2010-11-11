@@ -11,6 +11,7 @@ module Handler.Root
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 import Haskellers hiding (Filter)
+import qualified Model
 import Yesod.Form.Core
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
@@ -201,7 +202,11 @@ getLocationsR = do
     cacheSeconds 3600
     jsonToRepJson $ jsonMap [("locations", jsonList $ map (go render) users)]
   where
-    go r (uid, u@User { userLongitude = Just lng, userLatitude = Just lat, userFullName = n }) = jsonMap
+    go r (uid, u@User
+                { userLongitude = Just lng
+                , userLatitude = Just lat
+                , Model.userFullName = n
+                }) = jsonMap
         [ ("lng", jsonScalar $ show lng)
         , ("lat", jsonScalar $ show lat)
         , ("name", jsonScalar n)
