@@ -1,8 +1,30 @@
 textarea
-    width: 500px
-    height: 300px
+  width: 500px
+  height: 300px
 .message
-    margin: 10px
-.header
-    font-style: italic
-    color: #333
+  margin: 20px 0
+  padding: 10px
+  background: #506982
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+.message .header
+  font-style: italic
+  color: #DBEDFF
+  margin-bottom: 10px
+
+.message:nth-child(even)
+  background: #DBEDFF
+  color: #2A2D38
+.message:nth-child(even) .header
+  color: #506982
+
+form.inline
+  margin: 20px 0
+  padding: 10px
+  width: 180px
+  background: #506982
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+
+
+

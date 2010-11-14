@@ -224,6 +224,7 @@ instance Yesod Haskellers where
                     Just UserR{} -> "find-haskeller"
                     Just JobsR -> "find-job"
                     Just JobR{} -> "find-job"
+                    Just TeamsR -> "teams"
                     _ -> "overview"
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
@@ -244,7 +245,6 @@ instance Yesod Haskellers where
             addStylesheetEither $ urlJqueryUiCss y
             addJulius $(Settings.juliusFile "analytics")
             addJulius $(Settings.juliusFile "default-layout")
-            addCassius $(Settings.cassiusFile "default-layout")
         let login' = $(hamletFile "login")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 

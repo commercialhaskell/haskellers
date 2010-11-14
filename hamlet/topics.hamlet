@@ -1,7 +1,8 @@
 $if null.topics
     %p There are no topics for this group.
 $else
-    %h3 Topics
+  .full-width-table
+    %h2 Topics
     %table
         %thead
             %tr
@@ -18,8 +19,8 @@ $else
                     %td
                         $show.topicStatus.snd.t$
 $maybe mf f
-    %h3 Create a new topic
-    %form!method=post!action=@TopicsR.tid@
+    %form.big!method=post!action=@TopicsR.tid@
+        %h2 Create a new topic
         %table
             ^fst.f^
             %tr

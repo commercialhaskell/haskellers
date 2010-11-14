@@ -1,5 +1,5 @@
 $maybe ma _
-    #status
+    #login-status.notice
         $if isAdmin
             You are an administrator for this group.
         $elseif isMember
@@ -64,40 +64,47 @@ $if not.null.umembers
                     %form!method=post!action=@(ApproveTeamR.tid).fst.u@
                         %input!type=submit!value="Approve Membership"
 $if not.null.packages
-    %table#packages
-        %legend Related Packages
-        $forall packages p
-            %tr
-                %th
-                    $if teamPackageHackage.snd.p
-                        %a!href="http://hackage.haskell.org/package/$teamPackageName.snd.p$" $teamPackageName.snd.p$
-                    $else
-                        $teamPackageName.snd.p$
-                %td
-                    $maybe teamPackageDesc.snd.p d
-                        $d$
-                    $nothing
-                        %i No description supplied
-                %td
-                    $maybe teamPackageHomepage.snd.p u
-                        %a!href=$u$ Homepage
-                    $nothing
-                        %i No website supplied
-                $if cet
-                    %td
-                        %form!method=post!action=@(DeleteTeamPackageR.tid).fst.p@
-                            %input!type=submit!value="Delete"
+    .full-width-table
+        %h2 Related Packages
+        %table
+            %thead
+                %tr
+                    %th Package Name
+                    %th Description
+                    %th Homepage
+          %tbody
+              $forall packages p
+                  %tr
+                      %th
+                          $if teamPackageHackage.snd.p
+                              %a!href="http://hackage.haskell.org/package/$teamPackageName.snd.p$" $teamPackageName.snd.p$
+                          $else
+                              $teamPackageName.snd.p$
+                      %td
+                          $maybe teamPackageDesc.snd.p d
+                              $d$
+                          $nothing
+                              %i No description supplied
+                      %td
+                          $maybe teamPackageHomepage.snd.p u
+                              %a!href=$u$ Homepage
+                          $nothing
+                              %i No website supplied
+                      $if cet
+                          %td
+                              %form!method=post!action=@(DeleteTeamPackageR.tid).fst.p@
+                                  %input!type=submit!value="Delete"
 $if cet
-    %h3 Edit group
-    %form!method=post!action=@TeamR.tid@
+    %form.big!method=post!action=@TeamR.tid@
+        %h2 Edit group
         %table
             ^form^
             %tr
                 %td!colspan=2
                     $nonce$
                     %input!type=submit!value="Update Group"
-    %h3 Add Package
-    %form!method=post!action=@TeamPackagesR.tid@
+    %form.big!method=post!action=@TeamPackagesR.tid@
+        %h2 Add Package
         %table
             ^addPackage^
             %tr

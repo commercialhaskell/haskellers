@@ -8,7 +8,7 @@
     \ on $prettyTime.topicCreated.to$.
 .status Status: $show.topicStatus.to$
 $if isMember
-    %form!method=post!action=@TopicR.toid@
+    %form.inline!method=post!action=@TopicR.toid@
         %table
             ^changeStatus^
             %tr
@@ -16,9 +16,9 @@ $if isMember
                     $nonce$
                     %input!type=submit!value="Update status"
 $if null.messages
-    %h3 No messages on this topic.
+    %h2 No messages on this topic.
 $else
-    %h3 Messages
+    %h2 Messages
     $forall messages m
         #message-$showIntegral.fst.fst.m$.message
             .header
@@ -30,8 +30,8 @@ $else
                 \ @@ $prettyTime.topicMessageCreated.snd.fst.m$
             .content $topicMessageContent.snd.fst.m$
 $if canMessage
-    %h3 Add a message
-    %form!method=post!action=@TopicMessageR.toid@
+    %form.big!method=post!action=@TopicMessageR.toid@
+        %h2 Add a message
         %table
             ^form^
             %tr
