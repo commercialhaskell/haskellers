@@ -225,6 +225,9 @@ instance Yesod Haskellers where
                     Just JobsR -> "find-job"
                     Just JobR{} -> "find-job"
                     Just TeamsR -> "teams"
+                    Just TeamR{} -> "teams"
+                    Just TopicsR{} -> "teams"
+                    Just TopicR{} -> "teams"
                     _ -> "overview"
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
