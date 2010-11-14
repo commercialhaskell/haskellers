@@ -53,7 +53,8 @@
                     %a!href="http://docs.yesodweb.com/" Yesod Web Framework
                     \.
                 %p
-                    Design by Nubis
+                    Design by 
+                      %a!href="http://www.haskellers.com/user/nubis/" Nubis
                 %a!href="http://github.com/snoyberg/haskellers" View Source
                 .addthis_toolbox.addthis_default_style
                     %a.addthis_button_compact!href="http://www.addthis.com/bookmark.php?v=250&amp;username=snoyberg" Share
