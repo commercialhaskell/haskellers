@@ -13,7 +13,7 @@ $else
                 \ $prettyTime.jobPostedAt.snd.j$
 
 $maybe mform form
-    %form.add-job!method=post!action=@JobsR@
+    %form.big!method=post!action=@JobsR@
         %h2 Post a new job
         %table
             ^form^
@@ -21,7 +21,7 @@ $maybe mform form
                 %td!colspan=2
                     %input!type=submit!value="Post Job"
 $nothing
-    #login-status
+    #login-status.notice
         If you $
         %a!href=@AuthR.LoginR@ log in
         , you can add a job listing.

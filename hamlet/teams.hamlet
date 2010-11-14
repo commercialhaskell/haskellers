@@ -1,12 +1,12 @@
-%h3 Existing Special Interest Groups
-%ul
-    $forall teams team
-        %li
-            %a!href=@TeamR.fst.fst.team@
-                $teamName.snd.fst.team$ ($show.snd.team$)
+%h1 Existing Special Interest Groups
+$forall teams team
+  %div.team
+    %a!href=@TeamR.fst.fst.team@
+      $teamName.snd.fst.team$ ($show.snd.team$)
+
 $if cat
-    %h3 Add new special interest group
-    %form!method=post!action=@TeamsR@
+    %form.big!method=post!action=@TeamsR@
+        %h2 Add new special interest group
         %table
             ^form^
             %tr

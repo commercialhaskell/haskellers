@@ -16,6 +16,8 @@
                 #main_menu
                     #overview
                         %a!href=@RootR@ Overview
+                    #teams
+                        %a!href=@TeamsR@ Groups
                     #find_haskeller
                         %a!href=@UsersR@ Find a Haskeller
                     #find_job

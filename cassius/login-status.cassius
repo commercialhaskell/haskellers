@@ -1,7 +1,10 @@
 #login-status
-    border: 1px solid #200e5a
-    background: #eee
-    padding: 2px
-    margin: 4px 5px 15px 0
-    font-size: 120%
-    color: #900
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  padding: 10px
+  margin-bottom: 10px
+  background: #FFDBDB
+  color: #B84848
+#login-status a
+  color: #FA3232
+

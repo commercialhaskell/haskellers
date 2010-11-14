@@ -44,6 +44,7 @@ a:visited, a:hover
   font-family: serif
   font-size: 12px
   font-style: italic
+
 #main_menu
   right: 0px
   position: absolute
@@ -54,15 +55,14 @@ a:visited, a:hover
   float: left
   background: url(@StaticR.buttons_png@) no-repeat 0 -77px
 #main_menu div a
-  color: white
+  color: #4B5057
   display: block
   margin: 22px 0 0
   text-align: center
   text-decoration: none
-body.overview #main_menu div#overview
-  background-position: 0 -1px;  
-#main_menu div#overview a
-  color: #4B5057
+
+body.overview #main_menu div#overview, body.teams #main_menu div#teams
+  background-position: 0 -1px;
 
 #main_menu div#find_job
   background-position: -240px -77px
@@ -83,7 +83,7 @@ body.find-haskeller #main_menu div#find_haskeller
   -moz-border-radius: 2px
   -webkit-border-radius: 2px
   position: absolute
-  right: 0
+  right: 143px
   top: 10px
 #secondary_menu a
   color: #4B5057
@@ -91,20 +91,22 @@ body.find-haskeller #main_menu div#find_haskeller
   padding: 10px
 #secondary_menu a:hover
   color: #ABC7CF
+
 #im_a_haskeller
   -moz-border-radius: 2px
   -webkit-border-radius: 2px
   background: none repeat scroll 0 0 #506982
-  bottom: 13px
-  padding: 10px
+  padding: 4px 0
   position: absolute
-  right: 356px
+  top: 6px
+  right: 3px
 #im_a_haskeller a
   color: #DBEDFF
   text-decoration: none
   padding: 0 10px
 #im_a_haskeller a:hover
   color: #fafafa
+
 #section_title
   height: 30px
 #section_title div
@@ -112,8 +114,6 @@ body.find-haskeller #main_menu div#find_haskeller
   padding: 8px 0
 
 body #section_title
-  color: #333
-body.overview #section_title
   color: #4B5057
   background: #E5EEF9
 body.find-job #section_title
@@ -138,7 +138,7 @@ body.find-haskeller #section_title
 #footer_wrapper
   border-top: solid 5px #506982
   background: #e6e6e6
-body.overview #footer_wrapper
+body #footer_wrapper
   border-color: #E5EEF9
 body.find-job #footer_wrapper
   border-color: #506982
@@ -163,15 +163,13 @@ body.find-haskeller #footer_wrapper
 #breadcrumbs li
     display: inline
 #breadcrumbs li:after
-    content: ' > '
+    content: " » "
 #breadcrumbs li:last-child:after
     content: ''
 th, td
     vertical-align: top
 tr.required label
     font-weight: bold
-#breadcrumbs li + li:before
-    content: " » "
 
 h1
   font-size: 30px
@@ -180,8 +178,16 @@ h1
   font-weight: bold
   margin-bottom: 10px
 
-h2, h3, h4, p
+h4, p
   margin-bottom: 5px
+
+h2
+  font-size: 25px
+  margin: 20px 0 5px 0
+
+h3
+  font-size: 20px
+  margin: 15px 0 5px 0
 
 .subscribe
   overflow: hidden
@@ -194,7 +200,7 @@ h2, h3, h4, p
 .subscribe img
   height: 20px
 
-.news, .job
+.news, .job, .team
   -moz-border-radius: 2px
   -webkit-border-radius: 2px
   padding: 10px
@@ -209,7 +215,7 @@ h2, h3, h4, p
   background: #B84848
 .news a, .job a
   color: #fafafa
-.job
+.job, .team
   color: #DBEDFF
   background: #506982
 
@@ -241,3 +247,52 @@ h2, h3, h4, p
   margin-bottom: 10px
   float: left
   width: 100%
+
+form.big
+  background: #506982
+  padding: 20px
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  margin: 30px auto 0
+  width: 600px
+form.big .nicEdit-main
+  background: white
+  color: black
+form.big td
+  vertical-align: top
+  padding: 2px
+form.big label
+  font-size: 14px
+form h2
+  font-size: 25px
+  margin: 0 0 5px 0
+
+
+.full-width-table
+  background: #506982
+  margin: 30px auto 0
+  padding: 20px
+  -moz-border-radius: 2px
+  -webkit-border-radius: 2px
+  font-size: 14px
+  border-collapse: collapse
+
+.full-width-table table
+  width: 100%
+
+.full-width-table h2
+  margin-top: 0
+
+.full-width-table td, .full-width-table th
+  vertical-align: middle 
+  text-align: left
+  padding: 3px 6px
+
+.full-width-table td:nth-child(4)
+  text-align: right
+
+.full-width-table tbody tr
+  line-height: 30px
+
+.full-width-table tr:nth-child(even), .full-width-table thead tr
+  background: #2A2D38
