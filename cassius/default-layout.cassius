@@ -9,6 +9,27 @@ a
 a:visited, a:hover
     color: #e0e0e0
 
+h1
+  font-size: 30px
+  font-weight: normal
+  text-transform: capitalize
+  font-weight: bold
+  margin-bottom: 10px
+
+h4, p
+  margin-bottom: 5px
+
+p, div
+  line-height: 120%
+
+h2
+  font-size: 25px
+  margin: 20px 0 5px 0
+
+h3
+  font-size: 20px
+  margin: 15px 0 5px 0
+
 #haskell_bar
   font-size: 13px
   background: #293845
@@ -49,35 +70,33 @@ a:visited, a:hover
   right: 0px
   position: absolute
   top: 95px
-#main_menu div
+#main_menu a
+  display: block
   width: 115px
-  height: 75px
+  height: 50px
   float: left
   background: url(@StaticR.buttons_png@) no-repeat 0 -77px
-#main_menu div a
   color: #4B5057
-  display: block
-  margin: 22px 0 0
+  padding: 22px 0 0
   text-align: center
   text-decoration: none
 
-body.overview #main_menu div#overview, body.teams #main_menu div#teams
+body.overview #main_menu a#overview, body.teams #main_menu a#teams
   background-position: 0 -1px;
 
-#main_menu div#find_job
+#main_menu a#find_job
   background-position: -240px -77px
-body.find-job #main_menu div#find_job
-  background-position: -240px -1px
-#main_menu div#find_job a
   color: #DBEDFF
+body.find-job #main_menu a#find_job
+  background-position: -240px -1px
 
-#main_menu div#find_haskeller
+#main_menu a#find_haskeller
   background-position: -120px -77px
-body.find-haskeller #main_menu div#find_haskeller
-  background-position: -120px -1px
-#main_menu div#find_haskeller a
-  margin: 14px 0 0
+  padding: 14px 0 0
   color: #FFDBDB
+  height: 55px
+body.find-haskeller #main_menu a#find_haskeller
+  background-position: -120px -1px
 
 #secondary_menu
   -moz-border-radius: 2px
@@ -170,24 +189,6 @@ th, td
     vertical-align: top
 tr.required label
     font-weight: bold
-
-h1
-  font-size: 30px
-  font-weight: normal
-  text-transform: capitalize
-  font-weight: bold
-  margin-bottom: 10px
-
-h4, p
-  margin-bottom: 5px
-
-h2
-  font-size: 25px
-  margin: 20px 0 5px 0
-
-h3
-  font-size: 20px
-  margin: 15px 0 5px 0
 
 .subscribe
   overflow: hidden

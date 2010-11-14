@@ -7,6 +7,9 @@
   -webkit-border-radius: 3px
   padding: 10px
 
+.user-info-box h3
+  margin-top: 0
+
 #basics
   overflow: hidden
 

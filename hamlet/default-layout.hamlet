@@ -11,17 +11,14 @@
           %p.title Haskell
         #heading_wrapper
             #heading
-                %img.logo!src=@StaticR.logo_png@!alt=Haskellers
-                %span.tagline The meeting place for professional Haskell programmers
+                %a!href=@RootR@!alt=Home
+                    %img.logo!src=@StaticR.logo_png@!alt=Haskellers
+                    %span.tagline The meeting place for professional Haskell programmers
                 #main_menu
-                    #overview
-                        %a!href=@RootR@ Overview
-                    #teams
-                        %a!href=@TeamsR@ Groups
-                    #find_haskeller
-                        %a!href=@UsersR@ Find a Haskeller
-                    #find_job
-                        %a!href=@JobsR@ Find a Job
+                    %a#overview!href=@RootR@ Overview
+                    %a#teams!href=@TeamsR@ Groups
+                    %a#find_haskeller!href=@UsersR@ Find a<br/>Haskeller
+                    %a#find_job!href=@JobsR@ Find a Job
                 #secondary_menu
                     %a!href=@FaqR@ FAQ
                     %a!href=@NewsR@ News Archive
