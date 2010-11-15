@@ -80,7 +80,7 @@ connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=h
 -- Yesod to avoid resource exhaustion. A connection is only considered in
 -- use while within a call to runDB.
 connectionCount :: Int
-connectionCount = 10
+connectionCount = 100
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
