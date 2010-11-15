@@ -27,7 +27,10 @@
                     $nothing
                         %a!href=@AuthR.LoginR@ Login
                 #im_a_haskeller
-                    %a#login-button!href=@AuthR.LoginR@ I'm a Haskeller!
+                    $maybe ma u
+                        %a!href=@userR.u@ Welcome $userFullName.snd.fst.u$
+                    $nothing
+                        %a#login-button!href=@AuthR.LoginR@ I'm a Haskeller!
         #section_title
             %div
                 %ul#breadcrumbs
