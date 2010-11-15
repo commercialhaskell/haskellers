@@ -121,8 +121,8 @@ applyFilter f p = and
 filterForm :: Int -> Form s y Filter
 filterForm my = fieldsToTable $ Filter
     <$> maybeStringField "Name" Nothing
-    <*> yearField 1980 my "Using Haskell since (minimum)" Nothing
-    <*> yearField 1980 my "Using Haskell since (maximum)" Nothing
+    <*> yearField 1980 my "Started using Haskell no earlier than" Nothing
+    <*> yearField 1980 my "Started using Haskell no later than" Nothing
     <*> boolField "Interested in full-time positions" Nothing
     <*> boolField "Interested in part-time positions" Nothing
 
