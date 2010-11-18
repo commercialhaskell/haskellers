@@ -45,6 +45,7 @@ executable         simple-server
                    web-routes,
                    text,
                    text-icu,
+                   hjsmin,
                    utf8-string
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies

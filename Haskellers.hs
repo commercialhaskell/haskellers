@@ -59,6 +59,8 @@ import Control.Monad.Invert (finally)
 
 import Data.Time
 import System.Locale
+import Text.Jasmine
+import Control.Monad (unless)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -270,9 +272,17 @@ instance Yesod Haskellers where
     -- users receiving stale content.
     addStaticContent ext' _ content = do
         let fn = base64md5 content ++ '.' : ext'
+        let content' =
+                if ext' == "js"
+                    then case minifym content of
+                            Left _ -> content
+                            Right y -> y
+                    else content
         let statictmp = Settings.staticdir ++ "/tmp/"
         liftIO $ createDirectoryIfMissing True statictmp
-        liftIO $ L.writeFile (statictmp ++ fn) content
+        let fn' = statictmp ++ fn
+        exists <- liftIO $ doesFileExist fn'
+        unless exists $ liftIO $ L.writeFile fn' content'
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
 
     clientSessionDuration _ = 60 * 24 * 14 -- 2 weeks
