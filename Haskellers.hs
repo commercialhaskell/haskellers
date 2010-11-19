@@ -40,7 +40,7 @@ import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
-import Settings (hamletFile, cassiusFile, juliusFile)
+import Settings (hamletFile, cassiusFile, juliusFile, widgetFile)
 import Model hiding (userFullName)
 import qualified Model
 import StaticFiles (logo_png, jquery_ui_css, google_gif, yahoo_gif,

@@ -65,11 +65,9 @@ getRootR = do
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
-        addJulius $(juliusFile "homepage")
-        addCassius $(cassiusFile "homepage")
         addCassius $(cassiusFile "jobs")
         addCassius $(cassiusFile "users")
-        $(hamletFile "homepage")
+        $(widgetFile "homepage")
 
 data Filter = Filter
     { filterName :: Maybe String
@@ -173,8 +171,7 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (json render profs) $ do
         setTitle "Browsing Haskellers"
-        addCassius $(cassiusFile "users")
-        $(hamletFile "users")
+        $(widgetFile "users")
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]
     json' r prof = jsonMap

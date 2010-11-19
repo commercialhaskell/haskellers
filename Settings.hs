@@ -8,6 +8,7 @@ module Settings
     ( hamletFile
     , cassiusFile
     , juliusFile
+    , widgetFile
     , connStr
     , ConnectionPool
     , withConnectionPool
@@ -22,7 +23,9 @@ import qualified Text.Cassius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadInvertIO)
+import Yesod (MonadInvertIO, addWidget, addCassius, addJulius)
+import Data.Monoid (mempty)
+import System.Directory (doesFileExist)
 
 -- | The base URL for your application. This will usually be different for
 -- development and production. Yesod automatically constructs URLs for you,
@@ -94,26 +97,38 @@ connectionCount = 100
 --
 -- You can see an example of how to call these functions in Handler/Root.hs
 
+toHamletFile, toCassiusFile, toJuliusFile :: String -> FilePath
+toHamletFile x = "hamlet/" ++ x ++ ".hamlet"
+toCassiusFile x = "cassius/" ++ x ++ ".cassius"
+toJuliusFile x = "julius/" ++ x ++ ".julius"
+
 hamletFile :: FilePath -> Q Exp
-#ifdef PRODUCTION
-hamletFile x = H.hamletFile $ "hamlet/" ++ x ++ ".hamlet"
-#else
-hamletFile x = H.hamletFile $ "hamlet/" ++ x ++ ".hamlet"
-#endif
+hamletFile = H.hamletFile . toHamletFile
 
 cassiusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
-cassiusFile x = H.cassiusFile $ "cassius/" ++ x ++ ".cassius"
+cassiusFile = H.cassiusFile . toCassiusFile
 #else
-cassiusFile x = H.cassiusFileDebug $ "cassius/" ++ x ++ ".cassius"
+cassiusFile = H.cassiusFileDebug . toCassiusFile
 #endif
 
 juliusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
-juliusFile x = H.juliusFile $ "julius/" ++ x ++ ".julius"
+juliusFile = H.juliusFile . toJuliusFile
 #else
-juliusFile x = H.juliusFileDebug $ "julius/" ++ x ++ ".julius"
+juliusFile = H.juliusFileDebug . toJuliusFile
 #endif
+
+widgetFile :: FilePath -> Q Exp
+widgetFile x = do
+    let h = unlessExists toHamletFile hamletFile
+    let c = unlessExists toCassiusFile cassiusFile
+    let j = unlessExists toJuliusFile juliusFile
+    [|addWidget $h >> addCassius $c >> addJulius $j|]
+  where
+    unlessExists tofn f = do
+        e <- qRunIO $ doesFileExist $ tofn x
+        if e then f x else [|mempty|]
 
 -- The next two functions are for allocating a connection pool and running
 -- database actions using a pool, respectively. It is used internally
