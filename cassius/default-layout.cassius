@@ -102,7 +102,7 @@ body.find-haskeller #main_menu a#find_haskeller
   -moz-border-radius: 2px
   -webkit-border-radius: 2px
   position: absolute
-  right: 143px
+  right: 0px
   top: 10px
 #secondary_menu a
   color: #4B5057
@@ -116,9 +116,7 @@ body.find-haskeller #main_menu a#find_haskeller
   -webkit-border-radius: 2px
   background: none repeat scroll 0 0 #506982
   padding: 4px 0
-  position: absolute
-  top: 6px
-  right: 3px
+  float: right
 #im_a_haskeller a
   color: #DBEDFF
   text-decoration: none
