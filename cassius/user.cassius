@@ -50,3 +50,9 @@ form.report
   clear: both
   float: right
   margin: 10px 10px 0 0
+
+.packdeps
+  margin-top: 20px
+  font-size: smaller
+  padding-top: 5px
+  border-top: 1px dashed white

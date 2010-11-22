@@ -12,7 +12,8 @@ module Handler.User
 
 import Haskellers
 import Handler.Root (gravatar)
-import Data.List (sort)
+import Data.List (sortBy, intercalate)
+import Data.Ord (comparing)
 import Data.Maybe (fromMaybe)
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as S8
@@ -22,6 +23,7 @@ import OpenSSL.EVP.Base64
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 import Data.Time (getCurrentTime)
+import Control.Arrow ((&&&))
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
@@ -55,11 +57,13 @@ getUserR input = do
                         return (uid, u)
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
-    
+
     skills <- debugRunDB $ do
-        x <- selectList [UserSkillUserEq uid] [] 0 0
-        y <- mapM (get404 . userSkillSkill . snd) x
-        return $ sort $ map skillName y
+        x <- selectList [UserSkillUserEq uid] [] 0 0 >>= mapM (\(_, y) -> do
+            let sid = userSkillSkill y
+            s <- get404 sid
+            return (sid, skillName s))
+        return $ sortBy (comparing snd) x
     packages <- debugRunDB
               $ fmap (map $ packageName . snd)
               $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
@@ -79,8 +83,12 @@ getUserR input = do
             . (case userDesc u of
                 Nothing -> id
                 Just d -> (:) ("description", jsonScalar $ unTextarea d))
-            . ((:) ("skills", jsonList $ map jsonScalar skills))
+            . ((:) ("skills", jsonList $ map (jsonScalar . snd) skills))
             $ []
+    let percentEncode = id -- FIXME
+    let packdeps = "http://packdeps.haskellers.com/specific/?" ++
+            intercalate "&"
+                (map (\x -> "package=" ++ percentEncode x) packages)
     flip defaultLayoutJson json $ do
         setTitle $ string $ "Haskellers profile for " ++ userFullName u
         addCassius $(cassiusFile "user")

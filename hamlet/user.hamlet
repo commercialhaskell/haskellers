@@ -50,7 +50,8 @@ $if not.null.skills
         %h3 Skills
         %ul
             $forall skills s
-                %li $s$
+                %li
+                    %a!href=@SkillR.fst.s@ $snd.s$
 $if not.null.packages
     #packages.user-info-box
         %h3 Packages
@@ -58,6 +59,8 @@ $if not.null.packages
             $forall packages p
                 %li
                     %a!href="http://hackage.haskell.org/package/$p$" $p$
+        .packdeps
+            %a!href=$packdeps$ Check package dependency status.
 
 %form.report!method=get!action=@FlagR.uid@
   %input#report-button!type=submit!value="Report this user"
