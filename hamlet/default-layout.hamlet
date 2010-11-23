@@ -22,8 +22,12 @@
                 #secondary_menu
                     %a!href=@FaqR@ FAQ
                     %a!href=@NewsR@ News Archive
-                    $maybe ma _
+                    %a!href=@AllSkillsR@ Browse Skills
+                    $maybe ma u
                         %a!href=@ProfileR@ Your Profile
+                        $if userAdmin.snd.fst.u
+                            %a!href=@MessagesR@ Admin Messages
+                            %a!href=@AdminUsersR@ Admin Users
                     $nothing
                         %a!href=@AuthR.LoginR@ Login
                     #im_a_haskeller
