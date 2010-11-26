@@ -14,13 +14,16 @@ h1
   font-weight: normal
   text-transform: capitalize
   font-weight: bold
-  margin-bottom: 10px
+  margin-bottom: 20px
 
 h4, p
-  margin-bottom: 5px
+  margin-bottom: 10px
 
-p, div
+div
   line-height: 120%
+
+p
+  line-height: 30px
 
 h2
   font-size: 25px
@@ -116,7 +119,7 @@ body.find-haskeller #main_menu a#find_haskeller
   -webkit-border-radius: 2px
   background: none repeat scroll 0 0 #506982
   padding: 4px 0
-  float: right
+  display: inline
 #im_a_haskeller a
   color: #DBEDFF
   text-decoration: none
@@ -170,7 +173,10 @@ body.find-haskeller #footer_wrapper
   padding: 15px
   width: 910px
   font-size: 15px
+
+#footer_content p
   line-height: 17px
+  margin-bottom: 5px
 
 #footer_content a
   color: #B84848
@@ -195,7 +201,7 @@ tr.required label
   font-size: 13px
   line-height: 22px
   text-decoration: none
-  margin-right: 10px
+  margin: 3px 0 3px 10px
 .subscribe img
   height: 20px
 
@@ -295,3 +301,13 @@ form h2
 
 .full-width-table tr:nth-child(even), .full-width-table thead tr
   background: #2A2D38
+
+.reddit
+  overflow: hidden
+.reddit iframe
+  float: right
+  font-size: 13px
+  line-height: 22px
+  text-decoration: none
+  margin-right: 10px  
+

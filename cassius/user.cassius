@@ -10,6 +10,9 @@
 .user-info-box h3
   margin-top: 0
 
+li  
+  line-height: 25px
+
 #basics
   overflow: hidden
 

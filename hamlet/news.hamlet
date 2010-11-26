@@ -8,8 +8,8 @@ $maybe mu u
         ^addCassius.newsAdmin^
         %form.add-news!method=post!action=@NewsR@
           %h2 Post news item (admins only)
-            %table
-                ^form^
-                %tr
-                    %td!colspan=2
-                        %input!type=submit!value="Post"
+          %table
+              ^form^
+              %tr
+                  %td!colspan=2
+                      %input!type=submit!value="Post"

@@ -4,7 +4,7 @@
   -moz-border-radius: 3px
   -webkit-border-radius: 3px
   font-weight: bold
-  line-height: 20px
+  line-height: 30px
   font-size: 18px  
 
 #main_content li
@@ -17,15 +17,14 @@
   color: #506982
 
 #main_content .faq
-  margin: 20px 0 0 
+  margin: 35px 0 0 
 
 #main_content h4
   font-size: 20px
 
 #main_content p, #main_content ul li
-  font-family: serif
-  font-style: italic
   font-size: 15px
+  line-height: 25px
 
 #main_content ul
   margin: 10px 0 0 20px

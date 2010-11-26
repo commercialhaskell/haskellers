@@ -3,18 +3,10 @@ h1
   margin-left: 10px
   font-weight: normal
   text-transform: uppercase
-.reddit
-  overflow: hidden
-.reddit iframe
-  float: right
-  font-size: 13px
-  line-height: 22px
-  text-decoration: none
-  margin-right: 10px  
 
 table
   border-collapse: collapse
-  margin: 10px 20px 0
+  margin: 0 0 0 20px
 th, td
   padding: 3px
   text-align: left

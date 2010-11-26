@@ -67,6 +67,7 @@ getNewsItemR nid = do
     n <- runDB $ get404 nid
     defaultLayout $ do
         setTitle $ string $ newsTitle n
+        addCassius $(cassiusFile "news")
         $(hamletFile "news-item")
 
 getNewsFeedR :: Handler RepAtom

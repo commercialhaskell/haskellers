@@ -1,7 +1,10 @@
-#buttons
-    <a href="http://feeds.feedburner.com/HaskellersNews" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0;padding-right:10px"/></a><a href="http://feeds.feedburner.com/HaskellersNews" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to Haskellers News</a>
-    %br
-    <script type="text/javascript" src="http://reddit.com/static/button/button1.js"></script>
+.buttons
+    .reddit
+        <script type="text/javascript" src="http://reddit.com/static/button/button1.js"></script>
+
+    .subscribe
+        <a href="http://feeds.feedburner.com/HaskellersNews" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0;padding-right:10px"/></a><a href="http://feeds.feedburner.com/HaskellersNews" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to Haskellers News</a>
+
 %h1 $newsTitle.n$
 %h4.time $prettyTime.newsWhen.n$
 %p $newsContent.n$
