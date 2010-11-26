@@ -46,7 +46,7 @@ getRootR = do
     let profs =
             if null allProfs
                 then []
-                else take 16 $ shuffle' allProfs len gen
+                else take 24 $ shuffle' allProfs len gen
     mu <- maybeAuth
     let fuzzyDiffTime = humanReadableTimeDiff now
     (public, private) <- debugRunDB $ do
@@ -156,7 +156,7 @@ getUsersR = do
     let public = length filteredProfs
     mpage <- runFormGet' $ maybeIntInput "page"
     let page = fromMaybe 0 mpage
-    let perPage = 20
+    let perPage = 32
     let hasPrev = page > 0
     let maxPage = (public - 1) `div` perPage
     let hasNext = page < maxPage
