@@ -12,6 +12,9 @@ $else
             %span.time
                 \ $prettyTime.jobPostedAt.snd.j$
 
+%p
+    You can find more Haskell jobs from $
+    %a!href="http://cufp.org/jobs/language/31" Commercial Users of Functional Programming
 $maybe mform form
     %form.big!method=post!action=@JobsR@
         %h2 Post a new job
