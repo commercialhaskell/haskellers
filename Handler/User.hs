@@ -23,7 +23,6 @@ import OpenSSL.EVP.Base64
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 import Data.Time (getCurrentTime)
-import Control.Arrow ((&&&))
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
