@@ -14,7 +14,11 @@ $else
 
 %p
     You can find more Haskell jobs from $
-    %a!href="http://cufp.org/jobs/language/31" Commercial Users of Functional Programming
+    %ul
+        %li
+            %a!href="http://cufp.org/jobs/language/31" Commercial Users of Functional Programming
+        %li
+            %a!href="http://functionaljobs.com/" Functional Jobs
 $maybe mform form
     %form.big!method=post!action=@JobsR@
         %h2 Post a new job
