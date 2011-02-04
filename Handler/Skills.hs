@@ -6,8 +6,6 @@ module Handler.Skills
     , getSkillR
     ) where
 
-#define debugRunDB debugRunDBInner __FILE__ __LINE__
-
 import Haskellers
 import Handler.Admin (requireAdmin)
 import Control.Applicative
@@ -22,7 +20,7 @@ postAllSkillsR = do
     (res, _, _) <- runFormPostNoNonce skillFormlet
     case res of
         FormSuccess skill -> do
-            _ <- debugRunDB $ insert skill
+            _ <- runDB $ insert skill
             setMessage "Inserted new skill to skills list"
         _ -> setMessage "Invalid skill entered"
     redirect RedirectTemporary AllSkillsR
@@ -30,7 +28,7 @@ postAllSkillsR = do
 getAllSkillsR :: Handler RepHtmlJson
 getAllSkillsR = do
     mu <- maybeAuth
-    skills' <- debugRunDBInner "skills" 25 $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
+    skills' <- runDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
         users <- count [UserSkillSkillEq sid]
         return ((sid, s), users)
         )
@@ -61,8 +59,8 @@ getAllSkillsR = do
 
 getSkillR :: SkillId -> Handler RepHtmlJson
 getSkillR sid = do
-    skill <- debugRunDB $ get404 sid
-    users <- debugRunDB $ do
+    skill <- runDB $ get404 sid
+    users <- runDB $ do
         uids <- fmap (map $ userSkillUser . snd)
               $ selectList [ UserSkillSkillEq sid
                            ] [] 0 0

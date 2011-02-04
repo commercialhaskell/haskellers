@@ -12,8 +12,8 @@ import Data.Maybe (fromMaybe)
 import Data.Time
 import Yesod.Form.Jquery
 import Control.Monad (unless)
-import Yesod.Helpers.AtomFeed
-import Text.Hamlet (toHtml)
+import Yesod.Helpers.Feed
+import Text.Blaze (toHtml)
 
 jobFormlet :: UserId -> UTCTime -> Formlet s Haskellers Job
 jobFormlet uid now mj = fieldsToTable $ Job
@@ -79,7 +79,7 @@ getJobR jid = do
         addCassius $(cassiusFile "job")
         $(hamletFile "job")
 
-getJobsFeedR :: Handler RepAtom
+getJobsFeedR :: Handler RepAtomRss
 getJobsFeedR = do
     cacheSeconds 7200
     now <- liftIO getCurrentTime
@@ -89,17 +89,19 @@ getJobsFeedR = do
             case jobs of
                 (_, newest):_ -> jobPostedAt newest
                 [] -> now
-    atomFeed AtomFeed
-        { atomTitle = "Haskellers Job Listings"
-        , atomLinkSelf = JobsFeedR
-        , atomLinkHome = RootR
-        , atomUpdated = updated
-        , atomEntries = map go jobs
+    newsFeed Feed
+        { feedTitle = "Haskellers Job Listings"
+        , feedLinkSelf = JobsFeedR
+        , feedLinkHome = RootR
+        , feedUpdated = updated
+        , feedEntries = map go jobs
+        , feedDescription = "Haskellers Job Listings"
+        , feedLanguage = "en"
         }
   where
-    go (jid, j) = AtomFeedEntry
-        { atomEntryLink = JobR jid
-        , atomEntryUpdated = jobPostedAt j
-        , atomEntryTitle = jobTitle j
-        , atomEntryContent = toHtml $ jobDesc j
+    go (jid, j) = FeedEntry
+        { feedEntryLink = JobR jid
+        , feedEntryUpdated = jobPostedAt j
+        , feedEntryTitle = jobTitle j
+        , feedEntryContent = toHtml $ jobDesc j
         }

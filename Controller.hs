@@ -1,4 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Controller
@@ -17,6 +19,7 @@ import Control.Monad (forever)
 #endif
 import Data.Maybe (catMaybes)
 import qualified Data.Set as Set
+import Data.ByteString (ByteString)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -43,7 +46,7 @@ getFaviconR :: Handler ()
 getFaviconR = sendFile "image/x-icon" "favicon.ico"
 
 getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent "User-agent: *"
+getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: ByteString)
 
 -- This function allocates resources (such as a database connection pool),
 -- performs initialization and creates a WAI application. This is also the
@@ -63,7 +66,7 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
     let h = Haskellers s p hprofs pprofs
     toWaiApp h >>= f
   where
-    s = fileLookupDir Settings.staticdir typeByExt
+    s = static Settings.staticdir
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do

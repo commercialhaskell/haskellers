@@ -24,7 +24,7 @@ import qualified Text.Cassius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadInvertIO, addWidget, addCassius, addJulius)
+import Yesod (MonadPeelIO, addWidget, addCassius, addJulius)
 import Data.Monoid (mempty)
 import System.Directory (doesFileExist)
 
@@ -135,8 +135,8 @@ widgetFile x = do
 -- database actions using a pool, respectively. It is used internally
 -- by the scaffolded application, and therefore you will rarely need to use
 -- them yourself.
-withConnectionPool :: MonadInvertIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withPostgresqlPool connStr connectionCount
 
-runConnectionPool :: MonadInvertIO m => SqlPersist m a -> ConnectionPool -> m a
+runConnectionPool :: MonadPeelIO m => SqlPersist m a -> ConnectionPool -> m a
 runConnectionPool = runSqlPool

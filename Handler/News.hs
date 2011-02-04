@@ -8,13 +8,11 @@ module Handler.News
     ) where
 
 import Haskellers
-import Yesod.Helpers.AtomFeed
+import Yesod.Helpers.Feed
 import Control.Applicative
 import Yesod.Form.Nic
 import Handler.Admin (requireAdmin)
 import Data.Time (getCurrentTime)
-
-#define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 newsForm :: Form s Haskellers (String, Html)
 newsForm = fieldsToTable $ (,)
@@ -27,7 +25,7 @@ getNewsR :: Handler RepHtml
 getNewsR = do
     mu <- maybeAuth
     cacheSeconds 3600
-    news <- debugRunDB $ selectList [] [NewsWhenDesc] 0 0
+    news <- runDB $ selectList [] [NewsWhenDesc] 0 0
     (_, form, _) <- runFormGet newsForm
 
     now <- liftIO getCurrentTime
@@ -52,13 +50,13 @@ postNewsR = do
         _ -> return ()
     defaultLayout $ do
         setTitle "Add news item"
-        [$hamlet|
-%form!method=post!action=@NewsR@
-    %table
-        ^form^
-        %tr
-            %td!colspan=2
-                %input!type=submit!value=Post
+        [$hamlet|\
+<form method="post" action="@{NewsR}">
+    <table>
+        \^{form}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Post">
 |]
 
 getNewsItemR :: NewsId -> Handler RepHtml
@@ -70,21 +68,23 @@ getNewsItemR nid = do
         addCassius $(cassiusFile "news")
         $(hamletFile "news-item")
 
-getNewsFeedR :: Handler RepAtom
+getNewsFeedR :: Handler RepAtomRss
 getNewsFeedR = do
     cacheSeconds 7200
     news@(newest:_) <- runDB $ selectList [] [NewsWhenDesc] 10 0
-    atomFeed AtomFeed
-        { atomTitle = "Haskellers News"
-        , atomLinkSelf = NewsFeedR
-        , atomLinkHome = RootR
-        , atomUpdated = newsWhen $ snd newest
-        , atomEntries = map go news
+    newsFeed Feed
+        { feedTitle = "Haskellers News"
+        , feedLinkSelf = NewsFeedR
+        , feedLinkHome = RootR
+        , feedUpdated = newsWhen $ snd newest
+        , feedEntries = map go news
+        , feedDescription = "Haskellers news feed"
+        , feedLanguage = "en"
         }
   where
-    go (nid, n) = AtomFeedEntry
-        { atomEntryLink = NewsItemR nid
-        , atomEntryUpdated = newsWhen n
-        , atomEntryTitle = newsTitle n
-        , atomEntryContent = newsContent n
+    go (nid, n) = FeedEntry
+        { feedEntryLink = NewsItemR nid
+        , feedEntryUpdated = newsWhen n
+        , feedEntryTitle = newsTitle n
+        , feedEntryContent = newsContent n
         }

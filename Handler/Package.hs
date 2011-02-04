@@ -5,17 +5,15 @@ module Handler.Package
     , postPackagesR
     ) where
 
-#define debugRunDB debugRunDBInner __FILE__ __LINE__
-
 import Haskellers
 import Control.Monad (unless)
 
 postDeletePackageR :: PackageId -> Handler ()
 postDeletePackageR pid = do
     (uid, _) <- requireAuth
-    p <- debugRunDB $ get404 pid
+    p <- runDB $ get404 pid
     unless (packageUser p == uid) notFound
-    debugRunDB $ delete pid
+    runDB $ delete pid
     setMessage "Package removed"
     redirect RedirectTemporary ProfileR
 
@@ -25,7 +23,7 @@ postPackagesR = do
     (res, _, _) <- runFormPostNoNonce $ stringInput "name"
     case res of
         FormSuccess name -> do
-            _ <- debugRunDB $ insert $ Package uid name
+            _ <- runDB $ insert $ Package uid name
             setMessage "Package added"
         _ -> setMessage "Invalid package name"
     redirect RedirectTemporary ProfileR

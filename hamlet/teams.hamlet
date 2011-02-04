@@ -1,15 +1,15 @@
-%h1 Existing Special Interest Groups
-$forall teams team
-  %div.team
-    %a!href=@TeamR.fst.fst.team@
-      $teamName.snd.fst.team$ ($show.snd.team$)
-
+<h1>Existing Special Interest Groups
+$forall team <- teams
+  <div .team>
+    <a href="@{TeamR (fst (fst team))}">
+      \#{teamName (snd (fst team))} (#{show (snd team)})
+\
 $if cat
-    %form.big!method=post!action=@TeamsR@
-        %h2 Add new special interest group
-        %table
-            ^form^
-            %tr
-                %td!colspan=2
-                    $nonce$
-                    %input!type=submit!value="Add Group"
+    <form method="post" action="@{TeamsR}" .big>
+        <h2>Add new special interest group
+        <table>
+            \^{form}
+            <tr>
+                <td colspan="2">
+                    \#{nonce}
+                    <input type="submit" value="Add Group">

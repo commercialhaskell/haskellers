@@ -18,7 +18,6 @@ module Haskellers
     , login
     , Profile (..)
     , userR
-    , debugRunDBInner
     , getDebugR
     , prettyTime
     , prettyDay
@@ -38,7 +37,6 @@ import Data.Char (isSpace)
 import qualified Settings
 import System.Directory
 import qualified Data.ByteString.Lazy as L
-import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, juliusFile, widgetFile)
 import Model hiding (userFullName)
@@ -54,8 +52,6 @@ import qualified Data.Set as Set
 import Control.Concurrent.STM
 import System.IO.Unsafe
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
-import Control.Monad.Invert (finally)
 
 import Data.Time
 import System.Locale
@@ -199,13 +195,13 @@ maybeAuth' = do
     case x of
         Nothing -> return Nothing
         Just (uid, u) -> do
-            y <- debugRunDB $ getBy $ UniqueUsernameUser uid
+            y <- runDB $ getBy $ UniqueUsernameUser uid
             return $ Just ((uid, u), fmap snd y)
 
 requireAuth' :: GHandler s Haskellers ((UserId, User), Maybe Username)
 requireAuth' = do
     (uid, u) <- requireAuth
-    y <- debugRunDB $ getBy $ UniqueUsernameUser uid
+    y <- runDB $ getBy $ UniqueUsernameUser uid
     return ((uid, u), fmap snd y)
 
 -- Please see the documentation for the Yesod typeclass. There are a number
@@ -241,7 +237,7 @@ instance Yesod Haskellers where
         pc <- widgetToPageContent $ do
             case ma of
                 Nothing -> return ()
-                Just ((uid, _), _) -> addHamletHead [$hamlet|%link!href=@UserFeedR.uid@!type="application/atom+xml"!rel="alternate"!title="Your Haskellers Updates"
+                Just ((uid, _), _) -> addHamletHead [$hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your Haskellers Updates">
 |]
             addWidget widget
             addCassius $(Settings.cassiusFile "default-layout")
@@ -256,11 +252,7 @@ instance Yesod Haskellers where
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a Settings.staticroot) $ format s
-      where
-        format = formatPathSegments ss
-        ss :: Site StaticRoute (String -> Maybe (GHandler Static Haskellers ChooseRep))
-        ss = getSubSite
+        Just $ uncurry (joinPath a Settings.staticroot) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
@@ -420,7 +412,7 @@ instance YesodBreadcrumbs Haskellers where
 -- How to run database actions.
 instance YesodPersist Haskellers where
     type YesodDB Haskellers = SqlPersist
-    runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
+    runDB db = liftIOHandler $ fmap connPool getYesod >>= Settings.runConnectionPool db
 
 instance YesodJquery Haskellers where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
@@ -434,10 +426,10 @@ instance YesodAuth Haskellers where
 
     getAuthId creds = do
         muid <- maybeAuth
-        x <- debugRunDB $ getBy $ UniqueIdent $ credsIdent creds
+        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
             (Just (_, i), Nothing) -> return $ Just $ identUser i
-            (Nothing, Nothing) -> debugRunDB $ do
+            (Nothing, Nothing) -> runDB $ do
                 uid <- insert $ User
                     { Model.userFullName = ""
                     , userWebsite = Nothing
@@ -461,7 +453,7 @@ instance YesodAuth Haskellers where
                 return $ Just uid
             (Nothing, Just (uid, _)) -> do
                 setMessage $ string "Identifier added to your account"
-                _ <- debugRunDB $ insert $ Ident (credsIdent creds) uid
+                _ <- runDB $ insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Just _, Just _) -> do
                 setMessage $ string "That identifier is already attached to an account. Please detach it from the other account first."
@@ -476,8 +468,8 @@ instance YesodAuth Haskellers where
                   ]
 
     loginHandler = defaultLayout $ do
-        [$hamlet|
-!style="width:500px;margin:0 auto" ^login^
+        [$hamlet|\
+<div style="width:500px;margin:0 auto">^{login}
 |]
 
 login :: GWidget s Haskellers ()
@@ -494,41 +486,22 @@ getDebugR :: Handler RepHtml
 getDebugR = do
     l <- Map.toList `fmap` liftIO (atomically $ readTVar debugInfo)
     defaultLayout $ do
-        [$hamlet|
-%table
-    %thead
-        %tr
-            %th File
-            %th Line
-            %th Start
-            %th Stop
-    %tbody
-        $forall l p
-            %tr
-                %td $fst.fst.p$
-                %td $show.snd.fst.p$
-                %td $show.fst.snd.p$
-                %td $show.snd.snd.p$
+        [$hamlet|\
+<table>
+    <thead>
+        <tr>
+            <th>File
+            <th>Line
+            <th>Start
+            <th>Stop
+    <tbody>
+        $forall p <- l
+            <tr>
+                <td>#{fst (fst p)}
+                <td>#{show (snd (fst p))}
+                <td>#{show (fst (snd p))}
+                <td>#{show (snd (snd p))}
 |]
-
-debugRunDBInner
-    :: YesodPersist m
-    => String
-    -> Int
-    -> YesodDB m (GHandler s m) a
-    -> GHandler s m a
-debugRunDBInner file line db = do
-    liftIO addStart
-    finally (runDB db) (liftIO addStop)
-  where
-    addStart = atomically $ do
-        m <- readTVar debugInfo
-        let (start, stop) = fromMaybe (0, 0) $ Map.lookup (file, line) m
-        writeTVar debugInfo $ Map.insert (file, line) (start + 1, stop) m
-    addStop = atomically $ do
-        m <- readTVar debugInfo
-        let (start, stop) = fromMaybe (0, 0) $ Map.lookup (file, line) m -- maybe should never happen
-        writeTVar debugInfo $ Map.insert (file, line) (start, stop + 1) m
 
 prettyTime :: UTCTime -> String
 prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
@@ -536,7 +509,7 @@ prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"
 
-addTeamNews :: TeamId -> String -> Html -> HaskellersRoute -> SqlPersist (GHandler Haskellers Haskellers) ()
+addTeamNews :: TeamId -> String -> Html -> HaskellersRoute -> SqlPersist (GGHandler Haskellers Haskellers IO) ()
 addTeamNews tid title content url = do
     render <- lift getUrlRender
     now <- liftIO getCurrentTime

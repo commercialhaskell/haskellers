@@ -4,8 +4,8 @@ $(function(){
             expires: 1
         }
     });
-    $("#tabs > ul > li > a").css("font-size", "80%%");
-    $("input[type=submit]").css("font-size", "80%%").button();
+    $("#tabs > ul > li > a").css("font-size", "80%");
+    $("input[type=submit]").css("font-size", "80%").button();
 
     $("#location").after("<div id='map_canvas''></div>");
     geocoder = new google.maps.Geocoder();

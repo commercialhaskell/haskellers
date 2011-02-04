@@ -1,66 +1,66 @@
-$if userBlocked.u
-    %h3 Warning: This user has been blocked.
-
+$if userBlocked u
+    <h3>Warning: This user has been blocked.
+\
 $if viewerIsAdmin
-    #admin-bar
-        Welcome glorious administrator! You may:
-        ^(adminControls.uid).u^
-
-#basics
-  .gravatar
-      %img!src=$(gravatar.120).email$!alt="Gravatar Profile Picture"
-
-  .personal
-    .name $userFullName.u$
-    $maybe userHaskellSince.u y
-        .since Using Haskell since $show.y$
-    $maybe userEmail.u email
-        .email
-            $if userEmailPublic.u
-                %a!href="mailto:$email$" $email$
+    <div id="admin-bar">
+        \Welcome glorious administrator! You may:
+        \^{adminControls uid u}
+\
+<div id="basics">
+  <div .gravatar>
+      <img src="#{gravatar 120 email}" alt="Gravatar Profile Picture">
+\
+  <div .personal>
+    <div .name>#{userFullName u}
+    $maybe y <- userHaskellSince u
+        <div .since>Using Haskell since #{show y}
+    $maybe email <- userEmail u
+        <div .email>
+            $if userEmailPublic u
+                <a href="mailto:#{email}">#{email}
             $else
-                %a!href=$emailLink.email$ Reveal email address
-                $if viewerIsAdmin   
-                    %br
-                    Special admin bonus: $
-                    %a!href="mailto:$email$" $email$
-    $maybe userWebsite.u w
-        .website
-            %a!href=$w$ $w$
-    $maybe userEmployment.u e
-        .employment $e$
-    $maybe userLocation.u l
-        .location Living in $l$
-
-  $if not.null.screenNames
-      .screen-names
-          %table
-              $forall screenNames sn
-                  %tr
-                      %th $show.screenNameService.snd.sn$
-                      %td $screenNameName.snd.sn$
-
-$maybe userDesc.u d
-    #about.user-info-box
-        %h3 About Me
-        #desc $d$
-
-$if not.null.skills
-    #skills.user-info-box
-        %h3 Skills
-        %ul
-            $forall skills s
-                %li
-                    %a!href=@SkillR.fst.s@ $snd.s$
-$if not.null.packages
-    #packages.user-info-box
-        %h3 Packages
-        %ul
-            $forall packages p
-                %li
-                    %a!href="http://hackage.haskell.org/package/$p$" $p$
-        .packdeps
-            %a!href=$packdeps$ Check package dependency status.
-
-%form.report!method=get!action=@FlagR.uid@
-  %input#report-button!type=submit!value="Report this user"
+                <a href="#{emailLink email}">Reveal email address
+                $if viewerIsAdmin
+                    <br>
+                    \Special admin bonus: 
+                    <a href="mailto:#{email}">#{email}
+    $maybe w <- userWebsite u
+        <div .website>
+            <a href="#{w}">#{w}
+    $maybe e <- userEmployment u
+        <div .employment>#{e}
+    $maybe l <- userLocation u
+        <div .location>Living in #{l}
+\
+  $if not (null screenNames)
+      <div .screen-names>
+          <table>
+              $forall sn <- screenNames
+                  <tr>
+                      <th>#{show (screenNameService (snd sn))}
+                      <td>#{screenNameName (snd sn)}
+\
+$maybe d <- userDesc u
+    <div id="about" .user-info-box>
+        <h3>About Me
+        <div id="desc">#{d}
+\
+$if not (null skills)
+    <div id="skills" .user-info-box>
+        <h3>Skills
+        <ul>
+            $forall s <- skills
+                <li>
+                    <a href="@{SkillR (fst s)}">#{snd s}
+$if not (null packages)
+    <div id="packages" .user-info-box>
+        <h3>Packages
+        <ul>
+            $forall p <- packages
+                <li>
+                    <a href="http://hackage.haskell.org/package/#{p}">#{p}
+        <div .packdeps>
+            <a href="#{packdeps}">Check package dependency status.
+\
+<form method="get" action="@{FlagR uid}" .report>
+  <input id="report-button" type="submit" value="Report this user">

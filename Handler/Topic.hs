@@ -14,6 +14,7 @@ import Data.Time
 import Control.Applicative
 import Control.Arrow
 import Control.Monad (unless)
+import qualified Data.ByteString.Char8 as S8
 
 topicFormlet :: TeamId -> UserId -> UTCTime -> Form s m Topic
 topicFormlet tid uid now = fieldsToTable $ Topic
@@ -55,21 +56,21 @@ postTopicsR tid = do
                 t <- get404 tid
                 toid <- insert to
                 addTeamNews tid ("New topic started for " ++ teamName t)
-                    [$hamlet|
-%p $topicTitle.to$
-%p Created by $userFullName.u$. Discussion type: $show.topicType.to$.
+                    [$hamlet|\
+<p>#{topicTitle to}
+<p>Created by #{userFullName u}. Discussion type: #{show (topicType to)}.
 |] $ TopicR toid
                 return toid
             setMessage "Topic started"
             redirect RedirectTemporary $ TopicR toid
-        _ -> defaultLayout [$hamlet|
-%form!method=post!action=@TopicsR.tid@
-    %table
-        ^form^
-        %tr
-            %td!colspan=2
-                $nonce$
-                %input!type=submit!value="Create topic"
+        _ -> defaultLayout [$hamlet|\
+<form method="post" action="@{TopicsR tid}">
+    <table>
+        \^{form}
+        <tr>
+            <td colspan="2">
+                \#{nonce}
+                <input type="submit" value="Create topic">
 |]
 
 statusFormlet :: TopicStatus -> Form s m TopicStatus
@@ -128,8 +129,8 @@ postTopicR toid = do
             t <- get404 tid
             lift $ setMessage "Status updated"
             addTeamNews tid ("Topic status update for " ++ teamName t)
-                [$hamlet|
-%p The status of the topic "$topicTitle.to$" has been updated to $show.s$.
+                [$hamlet|\
+<p>The status of the topic "#{topicTitle to}" has been updated to #{show s}.
 |] $ TopicR toid
         _ -> setMessage "Invalid input"
     redirect RedirectTemporary $ TopicR toid
@@ -155,10 +156,10 @@ postTopicMessageR toid = do
         let dest = render (TopicR toid) ++ "#message-" ++ showIntegral mid
         t <- get404 tid
         let title = "Message added for " ++ teamName t
-        let content = [$hamlet|
-%p $userFullName.u$ wrote regarding $topicTitle.to$
-%blockquote $html$
+        let content = [$hamlet|\
+<p>#{userFullName u} wrote regarding #{topicTitle to}
+<blockquote>#{html}
 |]
         _ <- insert $ TeamNews tid now title content dest
         return dest
-    redirectString RedirectTemporary dest
+    redirectString RedirectTemporary $ S8.pack dest

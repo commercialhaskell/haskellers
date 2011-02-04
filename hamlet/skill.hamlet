@@ -1,4 +1,4 @@
-%ul
-    $forall users user
-        %li
-            %a!href=@userR.user@ $userFullName.snd.fst.user$
+<ul>
+    $forall user <- users
+        <li>
+            <a href="@{userR user}">#{userFullName (snd (fst user))}

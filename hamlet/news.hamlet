@@ -1,15 +1,15 @@
-$forall news item
-    .news
-        %a!href=@NewsItemR.fst.item@ $newsTitle.snd.item$
-        %span.time
-            \ $fuzzyDiffTime.newsWhen.snd.item$
-$maybe mu u
-    $if userAdmin.snd.u
-        ^addCassius.newsAdmin^
-        %form.add-news!method=post!action=@NewsR@
-          %h2 Post news item (admins only)
-          %table
-              ^form^
-              %tr
-                  %td!colspan=2
-                      %input!type=submit!value="Post"
+$forall item <- news
+    <div .news>
+        <a href="@{NewsItemR (fst item)}">#{newsTitle (snd item)}
+        <span .time>
+            \ #{fuzzyDiffTime (newsWhen (snd item))}
+$maybe u <- mu
+    $if userAdmin (snd u)
+        \^{addCassius newsAdmin}
+        <form method="post" action="@{NewsR}" .add-news>
+          <h2>Post news item (admins only)
+          <table>
+              \^{form}
+              <tr>
+                  <td colspan="2">
+                      <input type="submit" value="Post">

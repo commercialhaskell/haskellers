@@ -1,34 +1,34 @@
-<div class="subscribe">
-<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a>
-<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
-</div>
-
-$if null.jobs
-    %p There are no active job listings.
+\<div class="subscribe">
+\<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a>
+\<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
+\</div>
+\
+$if null jobs
+    <p>There are no active job listings.
 $else
-    $forall jobs j
-        .job
-            %a!href=@JobR.fst.j@ $jobTitle.snd.j$ in $jobLocation.snd.j$
-            %span.time
-                \ $prettyTime.jobPostedAt.snd.j$
-
-%p
-    You can find more Haskell jobs from $
-    %ul
-        %li
-            %a!href="http://cufp.org/jobs/language/31" Commercial Users of Functional Programming
-        %li
-            %a!href="http://functionaljobs.com/" Functional Jobs
-$maybe mform form
-    %form.big!method=post!action=@JobsR@
-        %h2 Post a new job
-        %table
-            ^form^
-            %tr
-                %td!colspan=2
-                    %input!type=submit!value="Post Job"
+    $forall j <- jobs
+        <div .job>
+            <a href="@{JobR (fst j)}">#{jobTitle (snd j)} in #{jobLocation (snd j)}
+            <span .time>
+                \ #{prettyTime (jobPostedAt (snd j))}
+\
+<p>
+    \You can find more Haskell jobs from 
+    <ul>
+        <li>
+            <a href="http://cufp.org/jobs/language/31">Commercial Users of Functional Programming
+        <li>
+            <a href="http://functionaljobs.com/">Functional Jobs
+$maybe form <- mform
+    <form method="post" action="@{JobsR}" .big>
+        <h2>Post a new job
+        <table>
+            \^{form}
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Post Job">
 $nothing
-    #login-status.notice
-        If you $
-        %a!href=@AuthR.LoginR@ log in
-        , you can add a job listing.
+    <div id="login-status" .notice>
+        \If you 
+        <a href="@{AuthR LoginR}">log in
+        \, you can add a job listing.

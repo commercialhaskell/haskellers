@@ -1,25 +1,25 @@
-.admin-controls
-    $if userAdmin.u
-        %form!method=post!action=@UnadminR.uid@
-            %input!type=submit!value="Remove admin rights"
+<div .admin-controls>
+    $if userAdmin u
+        <form method="post" action="@{UnadminR uid}">
+            <input type="submit" value="Remove admin rights">
     $else
-        %form!method=post!action=@AdminR.uid@
-            %input!type=submit!value="Grant admin rights"
-    $if userReal.u
-        %form!method=post!action=@UnrealR.uid@
-            %input!type=submit!value="Remove verified user status"
+        <form method="post" action="@{AdminR uid}">
+            <input type="submit" value="Grant admin rights">
+    $if userReal u
+        <form method="post" action="@{UnrealR uid}">
+            <input type="submit" value="Remove verified user status">
     $else
-        %form!method=post!action=@RealR.uid@
-            %input!type=submit!value="Grant verified user status"
-    $if userRealPic.u
-        %form!method=post!action=@UnrealPicR.uid@
-            %input!type=submit!value="Remove real picture status"
+        <form method="post" action="@{RealR uid}">
+            <input type="submit" value="Grant verified user status">
+    $if userRealPic u
+        <form method="post" action="@{UnrealPicR uid}">
+            <input type="submit" value="Remove real picture status">
     $else
-        %form!method=post!action=@RealPicR.uid@
-            %input!type=submit!value="Grant real picture status"
-    $if userBlocked.u
-        %form!method=post!action=@UnblockR.uid@
-            %input!type=submit!value=Unblock
+        <form method="post" action="@{RealPicR uid}">
+            <input type="submit" value="Grant real picture status">
+    $if userBlocked u
+        <form method="post" action="@{UnblockR uid}">
+            <input type="submit" value="Unblock">
     $else
-        %form!method=post!action=@BlockR.uid@
-            %input!type=submit!value=Block
+        <form method="post" action="@{BlockR uid}">
+            <input type="submit" value="Block">

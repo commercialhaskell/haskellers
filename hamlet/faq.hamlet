@@ -1,9 +1,9 @@
-%ol#toc
-    $forall faqs faq
-        %li
-            %a!href="#$hash.faq$" $question.faq$
-$forall faqs faq
-    .faq
-        %h4#$hash.faq$ $question.faq$
-        $answer.faq$
-    %a.back-to-top!href="#toc" back to top
+<ol id="toc">
+    $forall faq <- faqs
+        <li>
+            <a href="##{hash faq}">#{question faq}
+$forall faq <- faqs
+    <div .faq>
+        <h4 id="#{hash faq}">#{question faq}
+        \#{answer faq}
+    <a href="#toc" .back-to-top>back to top

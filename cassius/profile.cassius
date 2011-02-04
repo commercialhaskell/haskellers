@@ -1,16 +1,13 @@
 td
-  padding: 4px
-
+    padding: 4px
 h3
-  font-size: 20px
-  margin: 15px 0
-
+    font-size: 20px
+    margin: 15px 0
 ul, ol
-  margin-bottom: 10px
+    margin-bottom: 10px
 li
-  list-style: disc inside
-  margin-bottom: 3px
-
+    list-style: disc inside
+    margin-bottom: 3px
 #tabs
     font-size: 15px
 #full-name, #website, #email, #skill, #package-name, #location
@@ -20,9 +17,8 @@ li
     height: 100px
     font-size: 80%
 .tooltip
-  color: #BBD2EB
-  font-size: 12px
-
+    color: #BBD2EB
+    font-size: 12px
 #gravatar
     float: left
     width: 120px
@@ -34,13 +30,11 @@ li
     text-decoration: none
     font-size: 11px
     text-align: center
-
 #reset
     margin-left: 150px
 #reset .ui-button
-  display: block
-  margin: 10px 0
-
+    display: block
+    margin: 10px 0
 #skills th
     text-align: left
 .delete-ident
@@ -57,25 +51,19 @@ li
     height: 200px
     width: 400px
     margin-top: 5px
-
 #screen-names-table
-  border-collapse: collapse
-
+    border-collapse: collapse
 .screen-name-service
-  font-weight: bold
-
+    font-weight: bold
 .badge
-  display: block
-  margin: 5px 0
-
+    display: block
+    margin: 5px 0
 #main_content .ui-widget-content
-  color: #fafafa
-
+    color: #fafafa
 .update-profile
-  text-align: right
-
+    text-align: right
 h3.ui-state-error.ui-corner-all
-  font-size: 15px
-  line-height: 15px
-  font-weight: normal
-  padding: 10px
+    font-size: 15px
+    line-height: 15px
+    font-weight: normal
+    padding: 10px

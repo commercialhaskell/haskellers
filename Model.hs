@@ -7,7 +7,7 @@ import Yesod
 import Database.Persist.Base
 import Database.Persist.TH (share2, derivePersistField)
 import Database.Persist.GenericSql (mkMigrate)
-import Text.Hamlet (ToHtml (..))
+import Text.Blaze (ToHtml (..))
 import Data.Time (UTCTime, Day)
 
 data Employment = FullTime | PartTime | FullPartTime | NotLooking
@@ -89,7 +89,7 @@ News
     when UTCTime Desc
     title String
     content Html
-    deriving Show Eq
+    deriving
 Job
     postedBy UserId
     postedAt UTCTime Desc Gt
@@ -107,7 +107,7 @@ Team
     name String Asc
     desc Html
     UniqueTeam name
-    deriving Show Eq
+    deriving
 TeamUser
     team TeamId Eq
     user UserId Eq
@@ -119,7 +119,7 @@ TeamNews
     title String
     content Html
     url String
-    deriving Show Eq
+    deriving
 TeamPackage
     team TeamId Eq
     name String Asc
@@ -138,7 +138,7 @@ TopicMessage
     created UTCTime Asc
     creator UserId Maybe Update Eq
     content Html
-    deriving Show Eq
+    deriving
 |]
 
 userFullName' :: User -> String

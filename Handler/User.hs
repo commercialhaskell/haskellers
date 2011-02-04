@@ -8,8 +8,6 @@ module Handler.User
     , adminControls
     ) where
 
-#define debugRunDB debugRunDBInner __FILE__ __LINE__
-
 import Haskellers
 import Handler.Root (gravatar)
 import Data.List (sortBy, intercalate)
@@ -27,7 +25,7 @@ import Data.Time (getCurrentTime)
 getByIdentR :: Handler RepJson
 getByIdentR = do
     identS <- runFormGet' $ stringInput "ident"
-    x <- debugRunDB $ getBy $ UniqueIdent identS
+    x <- runDB $ getBy $ UniqueIdent identS
     render <- getUrlRender
     case x of
         Nothing -> notFound
@@ -40,14 +38,14 @@ getUserR :: String -> Handler RepHtmlJson
 getUserR input = do
     (uid, u) <-
         case readIntegral input of
-            Just uid -> debugRunDB $ do
+            Just uid -> runDB $ do
                 u <- get404 uid
                 mun <- getBy $ UniqueUsernameUser uid
                 case mun of
                     Nothing -> return (uid, u)
                     Just (_, Username _ un) ->
                         lift $ redirect RedirectPermanent $ UserR un
-            Nothing -> debugRunDB $ do
+            Nothing -> runDB $ do
                 mun <- getBy $ UniqueUsername input
                 case mun of
                     Nothing -> lift notFound
@@ -57,16 +55,16 @@ getUserR input = do
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
 
-    skills <- debugRunDB $ do
+    skills <- runDB $ do
         x <- selectList [UserSkillUserEq uid] [] 0 0 >>= mapM (\(_, y) -> do
             let sid = userSkillSkill y
             s <- get404 sid
             return (sid, skillName s))
         return $ sortBy (comparing snd) x
-    packages <- debugRunDB
+    packages <- runDB
               $ fmap (map $ packageName . snd)
               $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
-    screenNames <- debugRunDB $ selectList [ScreenNameUserEq uid]
+    screenNames <- runDB $ selectList [ScreenNameUserEq uid]
                     [ScreenNameServiceAsc, ScreenNameNameAsc] 0 0
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
@@ -137,7 +135,7 @@ encrypt bs = do
 
 getFlagR :: UserId -> Handler RepHtml
 getFlagR uid = do
-    u <- debugRunDB $ get404 uid
+    u <- runDB $ get404 uid
     let userLink = userR ((uid, u), Nothing)
     defaultLayout $ do
         setTitle $ string "Report a user"
@@ -150,7 +148,7 @@ postFlagR uid = do
     mmsg <- runFormPost' $ maybeStringInput "message"
     let msg = fromMaybe "" mmsg
 
-    u <- debugRunDB $ do
+    u <- runDB $ do
         u <- get404 uid
         now <- liftIO getCurrentTime
         _ <- insert Message

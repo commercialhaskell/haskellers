@@ -1,6 +1,6 @@
-.navsection
-    %h3 $fst.section$
-    %ul
-        $forall snd.section link
-            %li
-                %a!:isCurrent.snd.link:class=current!href=@snd.link@ $fst.link$
+<div .navsection>
+    <h3>#{fst section}
+    <ul>
+        $forall link <- snd section
+            <li>
+                <a :isCurrent (snd link):class="current" href="@{snd link}">#{fst link}

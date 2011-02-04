@@ -1,28 +1,28 @@
-%form#filter-users.filter-users
-    %table
-        %h2 Filter Users
-        ^form^
-        %tr
-            %td!colspan=2
-                %input#apply-filters!type=submit!value="Apply Filters"
-                \ $
-                %a!href=@?noFilter@ Clear Filters
-#results.users
-    .controls
+<form id="filter-users" .filter-users>
+    <table>
+        <h2>Filter Users
+        \^{form}
+        <tr>
+            <td colspan="2">
+                <input id="apply-filters" type="submit" value="Apply Filters">
+                \ 
+                <a href="@?{noFilter}">Clear Filters
+<div id="results" .users>
+    <div .controls>
         $if hasPrev
-            %a!href=@?prev@ Previous
+            <a href="@?{prev}">Previous
         $else
-            Previous
-        %b
-            \ Viewing $show.minHaskeller$-$show.maxHaskeller$ of $show.public$ $
+            \Previous
+        <b>
+            \ Viewing #{show minHaskeller}-#{show maxHaskeller} of #{show public} 
         $if hasNext
-            %a!href=@?next@ Next
+            <a href="@?{next}">Next
         $else
-            Next
-    $forall profs prof
-        .user
-            %a!href=@profileUserR.prof@
-                %img!src=$(gravatar.80).profileEmail.prof$!alt="Gravatar Profile Picture"
-                %span.name
-                  $userFullName'.profileUser.prof$
-.note Note: Haskellers are sorted by years of experience with Haskell. Also, verified users are shown first.
+            \Next
+    $forall prof <- profs
+        <div .user>
+            <a href="@{profileUserR prof}">
+                <img src="#{gravatar 80 (profileEmail prof)}" alt="Gravatar Profile Picture">
+                <span .name>
+                  \#{userFullName' (profileUser prof)}
+<div .note>Note: Haskellers are sorted by years of experience with Haskell. Also, verified users are shown first.

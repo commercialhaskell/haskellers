@@ -1,5 +1,5 @@
 $(function(){
-    $.getJSON("@LocationsR@", function(data){
+    $.getJSON("@{LocationsR}", function(data){
         var map = new google.maps.Map(document.getElementById("map_canvas"), {
             zoom: 1,
             scrollwheel: false,

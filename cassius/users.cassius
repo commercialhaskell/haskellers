@@ -1,64 +1,55 @@
 .users
-  overflow: hidden
-
+    overflow: hidden
 .users .counts
-  font-size: 27px
-  margin-bottom: 20px
-  text-align: center
-
+    font-size: 27px
+    margin-bottom: 20px
+    text-align: center
 .users .counts em
-  color: #E5EEF9
-  font-style: normal
-  font-weight: bold
+    color: #E5EEF9
+    font-style: normal
+    font-weight: bold
 .users .user
-  float: left
-  margin-bottom: 20px
-  margin-left: 12px
-  text-align: center
-  width: 100px
-
+    float: left
+    margin-bottom: 20px
+    margin-left: 12px
+    text-align: center
+    width: 100px
 .users .user a
-  text-decoration: none
-  font-size: 12px
-
+    text-decoration: none
+    font-size: 12px
 .users .user .name
-  -moz-border-radius: 2px
-  -webkit-border-radius: 2px
-  background: #506982
-  display: block
-  height: 25px
-  margin-top: 2px
-  overflow: hidden
-  padding: 5px
-  line-height: 100%
-
+    -moz-border-radius: 2px
+    -webkit-border-radius: 2px
+    background: #506982
+    display: block
+    height: 25px
+    margin-top: 2px
+    overflow: hidden
+    padding: 5px
+    line-height: 100%
 .users .controls
-  font-size: 13px
-  margin: 10px
-  text-align: right
-
+    font-size: 13px
+    margin: 10px
+    text-align: right
 .note
-  font-size: 12px
-  text-align: center
-  font-family: serif
-  color: #DBEDFF
-  font-style: italic
-
+    font-size: 12px
+    text-align: center
+    font-family: serif
+    color: #DBEDFF
+    font-style: italic
 form.filter-users
-  background: #B84848
-  padding: 10px
-  width: 450px
-  -moz-border-radius: 2px
-  -webkit-border-radius: 2px
-
+    background: #B84848
+    padding: 10px
+    width: 450px
+    -moz-border-radius: 2px
+    -webkit-border-radius: 2px
 form.filter-users table
-  width: 100%
-
+    width: 100%
 form.filter-users td
-  vertical-align: top
-  padding: 2px
+    vertical-align: top
+    padding: 2px
 form.filter-users label
-  font-size: 14px
+    font-size: 14px
 form.filter-users h2
-  font-size: 25px
-  margin-bottom: 15px
+    font-size: 25px
+    margin-bottom: 15px

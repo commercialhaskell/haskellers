@@ -1,40 +1,40 @@
-%h2 $topicTitle.to$ ($show.topicType.to$)
-.created
-    Created by $
-    $maybe mcreator c
-        $userFullName.c$
+<h2>#{topicTitle to} (#{show (topicType to)})
+<div .created>
+    \Created by 
+    $maybe c <- mcreator
+        \#{userFullName c}
     $nothing
-        [deleted]
-    \ on $prettyTime.topicCreated.to$.
-.status Status: $show.topicStatus.to$
+        \[deleted]
+    \ on #{prettyTime (topicCreated to)}.
+<div .status>Status: #{show (topicStatus to)}
 $if isMember
-    %form.inline!method=post!action=@TopicR.toid@
-        %table
-            ^changeStatus^
-            %tr
-                %td!colspan=2
-                    $nonce$
-                    %input!type=submit!value="Update status"
-$if null.messages
-    %h2 No messages on this topic.
+    <form method="post" action="@{TopicR toid}" .inline>
+        <table>
+            \^{changeStatus}
+            <tr>
+                <td colspan="2">
+                    \#{nonce}
+                    <input type="submit" value="Update status">
+$if null messages
+    <h2>No messages on this topic.
 $else
-    %h2 Messages
-    $forall messages m
-        #message-$showIntegral.fst.fst.m$.message
-            .header
-                By $
-                $maybe snd.m u
-                    $userFullName.u$
+    <h2>Messages
+    $forall m <- messages
+        <div id="message-#{showIntegral (fst (fst m))}" .message>
+            <div .header>
+                \By 
+                $maybe u <- snd m
+                    \#{userFullName u}
                 $nothing
-                    [deleted]
-                \ @@ $prettyTime.topicMessageCreated.snd.fst.m$
-            .content $topicMessageContent.snd.fst.m$
+                    \[deleted]
+                \ @ #{prettyTime (topicMessageCreated (snd (fst m)))}
+            <div .content>#{topicMessageContent (snd (fst m))}
 $if canMessage
-    %form.big!method=post!action=@TopicMessageR.toid@
-        %h2 Add a message
-        %table
-            ^form^
-            %tr
-                %td!colspan=2
-                    $nonce$
-                    %input!type=submit!value="Post message"
+    <form method="post" action="@{TopicMessageR toid}" .big>
+        <h2>Add a message
+        <table>
+            \^{form}
+            <tr>
+                <td colspan="2">
+                    \#{nonce}
+                    <input type="submit" value="Post message">

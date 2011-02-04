@@ -6,8 +6,6 @@ module Handler.Email
     , getVerifyEmailR
     ) where
 
-#define debugRunDB debugRunDBInner __FILE__ __LINE__
-
 import Haskellers
 import Control.Monad (when)
 import Network.Mail.Mime
@@ -19,7 +17,7 @@ import StaticFiles (logo_png)
 postResetEmailR :: Handler ()
 postResetEmailR = do
     (uid, _) <- requireAuth
-    debugRunDB $ update uid
+    runDB $ update uid
         [ UserVerifiedEmail False
         , UserEmail Nothing
         , UserVerkey Nothing
@@ -32,7 +30,7 @@ getVerifyEmailR verkey = do
     (uid, u) <- requireAuth
     if Just verkey == userVerkey u && isJust (userEmail u)
         then do
-            debugRunDB $ update uid
+            runDB $ update uid
                 [ UserVerifiedEmail True
                 , UserVerkey Nothing
                 ]
@@ -51,7 +49,7 @@ postSendVerifyR = do
         FormSuccess email -> do
             stdgen <- liftIO newStdGen
             let verkey = fst $ randomString 10 stdgen
-            debugRunDB $ update uid [ UserEmail $ Just email
+            runDB $ update uid [ UserEmail $ Just email
                                , UserVerkey $ Just verkey
                                ]
             render <- getUrlRender
@@ -63,16 +61,16 @@ postSendVerifyR = do
                     , ("Subject", "Verify your email address")
                     ]
                 , mailParts = return
-                    [ Part "text/plain" None Nothing $ LU.fromString $ unlines
+                    [ Part "text/plain" None Nothing [] $ LU.fromString $ unlines
                         [ "Please go to the URL below to verify your email address."
                         , ""
                         , url
                         ]
-                    , Part "text/html" None Nothing $ renderHtml [$hamlet|
-%img!src=$render.StaticR.logo_png$!alt=Haskellers
-%p Please go to the URL below to verify your email address.
-%p
-    %a!href=$url$ $url$
+                    , Part "text/html" None Nothing [] $ renderHtml [$hamlet|\
+<img src="#{render (StaticR logo_png)}" alt="Haskellers">
+<p>Please go to the URL below to verify your email address.
+<p>
+    <a href="#{url}">#{url}
 |]
                     ]
                 }

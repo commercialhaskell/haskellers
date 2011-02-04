@@ -19,13 +19,14 @@ module Handler.Team
     ) where
 
 import Haskellers
-import Yesod.Helpers.AtomFeed
+import Yesod.Helpers.Feed
 import Data.List (sortBy)
 import Data.Ord (comparing)
 import Control.Applicative
 import Yesod.Form.Nic
 import Control.Monad (unless)
 import Data.Time (getCurrentTime)
+import qualified Data.ByteString.Char8 as S8
 
 loginStatus :: Maybe (UserId, User) -> Widget ()
 loginStatus ma = do
@@ -122,7 +123,8 @@ getTeamR tid = do
         addCassius $(cassiusFile "teams")
         addCassius $(cassiusFile "team")
         addWidget $(hamletFile "team")
-        addHamletHead [$hamlet|%link!href=@TeamFeedR.tid@!type="application/atom+xml"!rel="alternate"!title="$teamName.t$ Updates"|]
+        addHamletHead [$hamlet|<link href="@{TeamFeedR tid}" type="application/atom+xml" rel="alternate" title="#{teamName t} Updates">
+|]
 
 postTeamR :: TeamId -> Handler RepHtml
 postTeamR tid = do
@@ -158,7 +160,8 @@ postWatchTeamR tid = do
     (uid, _) <- requireAuth
     t <- runDB $ get404 tid
     _ <- runDB $ insertBy $ TeamUser tid uid Watching
-    setMessage [$hamlet|You are now watching the <abbr title="Special Interest Group">SIG</abbr> $teamName.t$|]
+    setMessage [$hamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
+|]
     redirect RedirectTemporary $ TeamR tid
 
 postJoinTeamR :: TeamId -> Handler ()
@@ -198,8 +201,8 @@ postApproveTeamR tid uid = do
                 t <- get404 tid
                 u <- get404 uid
                 addTeamNews tid ("New member of " ++ teamName t ++ " group")
-                            [$hamlet|
-%p $userFullName.u$ is now a member of the $teamName.t$ special interest group.
+                            [$hamlet|\
+<p>#{userFullName u} is now a member of the #{teamName t} special interest group.
 |] $ TeamR tid
                 update tuid [TeamUserStatus ApprovedMember]
             setMessage "Membership approved"
@@ -228,7 +231,7 @@ postTeamUnadminR tid uid = do
         _ -> notFound
     redirect RedirectTemporary $ TeamR tid
 
-getTeamFeedR :: TeamId -> Handler RepAtom
+getTeamFeedR :: TeamId -> Handler RepAtomRss
 getTeamFeedR tid = runDB $ do
     t <- get404 tid
     news <- selectList [TeamNewsTeamEq tid] [TeamNewsWhenDesc] 20 0
@@ -236,15 +239,17 @@ getTeamFeedR tid = runDB $ do
         case news of
             [] -> liftIO getCurrentTime
             (_, n):_ -> return $ teamNewsWhen n
-    lift $ atomFeed AtomFeed
-        { atomTitle = teamName t ++ " on Haskellers"
-        , atomLinkSelf = TeamFeedR tid
-        , atomLinkHome = TeamR tid
-        , atomUpdated = updated
-        , atomEntries = map toAtomEntry news
+    lift $ newsFeed Feed
+        { feedTitle = teamName t ++ " on Haskellers"
+        , feedLinkSelf = TeamFeedR tid
+        , feedLinkHome = TeamR tid
+        , feedUpdated = updated
+        , feedEntries = map toAtomEntry news
+        , feedDescription = string $ teamName t ++ " on Haskellers"
+        , feedLanguage = "en"
         }
 
-getUserFeedR :: UserId -> Handler RepAtom
+getUserFeedR :: UserId -> Handler RepAtomRss
 getUserFeedR uid = runDB $ do
     _ <- get404 uid
     tids <- fmap (map $ teamUserTeam . snd) $ selectList [TeamUserUserEq uid] [] 0 0
@@ -253,26 +258,28 @@ getUserFeedR uid = runDB $ do
         case news of
             [] -> liftIO getCurrentTime
             (_, n):_ -> return $ teamNewsWhen n
-    lift $ atomFeed AtomFeed
-        { atomTitle = "Your Haskellers News Feed"
-        , atomLinkSelf = UserFeedR uid
-        , atomLinkHome = UserR $ showIntegral uid
-        , atomUpdated = updated
-        , atomEntries = map toAtomEntry news
+    lift $ newsFeed Feed
+        { feedTitle = "Your Haskellers News Feed"
+        , feedLinkSelf = UserFeedR uid
+        , feedLinkHome = UserR $ showIntegral uid
+        , feedUpdated = updated
+        , feedEntries = map toAtomEntry news
+        , feedDescription = "Personal Haskellers feed"
+        , feedLanguage = "en"
         }
 
-toAtomEntry :: (TeamNewsId, TeamNews) -> AtomFeedEntry HaskellersRoute
-toAtomEntry (tnid, tn) = AtomFeedEntry
-    { atomEntryLink = TeamNewsR tnid
-    , atomEntryUpdated = teamNewsWhen tn
-    , atomEntryTitle = teamNewsTitle tn
-    , atomEntryContent = teamNewsContent tn
+toAtomEntry :: (TeamNewsId, TeamNews) -> FeedEntry HaskellersRoute
+toAtomEntry (tnid, tn) = FeedEntry
+    { feedEntryLink = TeamNewsR tnid
+    , feedEntryUpdated = teamNewsWhen tn
+    , feedEntryTitle = teamNewsTitle tn
+    , feedEntryContent = teamNewsContent tn
     }
 
 getTeamNewsR :: TeamNewsId -> Handler ()
 getTeamNewsR tnid = do
     tn <- runDB $ get404 tnid
-    redirectString RedirectPermanent $ teamNewsUrl tn
+    redirectString RedirectPermanent $ S8.pack $ teamNewsUrl tn
 
 postTeamPackagesR :: TeamId -> Handler RepHtml
 postTeamPackagesR tid = do
@@ -283,24 +290,24 @@ postTeamPackagesR tid = do
         FormSuccess tp -> do
             runDB $ do
                 _ <- insert tp
-                addTeamNews tid ("New package for " ++ teamName t ++ " group") [$hamlet|
-            setMessage "Package added"
-%p A new package, $teamPackageName.tp$, has been added to $teamName.t$.
-$maybe teamPackageDesc.tp d
-    %p $d$
-$maybe teamPackageHomepage.tp u
-    %p
-        %a!href=$u$ Visit the homepage.
+                addTeamNews tid ("New package for " ++ teamName t ++ " group") [$hamlet|\
+            \setMessage "Package added"
+<p>A new package, #{teamPackageName tp}, has been added to #{teamName t}.
+$maybe d <- teamPackageDesc tp
+    <p>#{d}
+$maybe u <- teamPackageHomepage tp
+    <p>
+        <a href="#{u}">Visit the homepage.
 |] $ TeamR tid
             redirect RedirectTemporary $ TeamR tid
-        _ -> defaultLayout [$hamlet|
-%form!method=post!action=@TeamPackagesR.tid@
-    %table
-        ^form^
-        %tr
-            %td!colspan=2
-                $nonce$
-                %input!type=submit!value="Add Package"
+        _ -> defaultLayout [$hamlet|\
+<form method="post" action="@{TeamPackagesR tid}">
+    <table>
+        \^{form}
+        <tr>
+            <td colspan="2">
+                \#{nonce}
+                <input type="submit" value="Add Package">
 |]
 
 postDeleteTeamPackageR :: TeamId -> TeamPackageId -> Handler ()

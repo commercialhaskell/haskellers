@@ -1,6 +1,6 @@
 #map_canvas
-  height: 400px
-  width: 910px
-  margin: 10px auto 20px
-  -moz-border-radius: 2px
-  -webkit-border-radius: 2px
+    height: 400px
+    width: 910px
+    margin: 10px auto 20px
+    -moz-border-radius: 2px
+    -webkit-border-radius: 2px

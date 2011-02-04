@@ -8,8 +8,6 @@ module Handler.Root
     , yearField
     ) where
 
-#define debugRunDB debugRunDBInner __FILE__ __LINE__
-
 import Haskellers hiding (Filter)
 import qualified Model
 import Yesod.Form.Core
@@ -38,10 +36,10 @@ getRootR = do
     y <- getYesod
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
-    news <- debugRunDB $ selectList [] [NewsWhenDesc] 1 0
+    news <- runDB $ selectList [] [NewsWhenDesc] 1 0
     now <- liftIO getCurrentTime
     let minus24h = addUTCTime ((-1) * 60 * 60 * 24) now
-    job <- debugRunDB $ selectList [JobPostedAtGt minus24h]
+    job <- runDB $ selectList [JobPostedAtGt minus24h]
                                    [JobPostedAtDesc] 1 0
     let profs =
             if null allProfs
@@ -49,7 +47,7 @@ getRootR = do
                 else take 24 $ shuffle' allProfs len gen
     mu <- maybeAuth
     let fuzzyDiffTime = humanReadableTimeDiff now
-    (public, private) <- debugRunDB $ do
+    (public, private) <- runDB $ do
         public <- count [ UserVerifiedEmailEq True
                         , UserVisibleEq True
                         , UserBlockedEq False
@@ -137,8 +135,8 @@ yearFieldProfile minY maxY = FieldProfile
                 | i > maxY -> Left $ "Value must be at most " ++ show maxY
                 | otherwise -> Right i
     , fpRender = showIntegral
-    , fpWidget = \theId name val isReq -> addHamlet [$hamlet|
-%input#$theId$!name=$name$!type=number!min=$show.minY$!max=$show.maxY$!step=1!:isReq:required!value=$val$
+    , fpWidget = \theId name val isReq -> addHamlet [$hamlet|\
+<input id="#{theId}" name="#{name}" type="number" min="#{show minY}" max="#{show maxY}" step="1" :isReq:required="" value="#{val}">
 |]
     }
 
@@ -190,7 +188,7 @@ gravatar s x =
 getLocationsR :: Handler RepJson
 getLocationsR = do
     render <- getUrlRender
-    users <- debugRunDB $ selectList [ UserLongitudeNe Nothing
+    users <- runDB $ selectList [ UserLongitudeNe Nothing
                                 , UserLatitudeNe Nothing
                                 , UserVerifiedEmailEq True
                                 , UserVisibleEq True

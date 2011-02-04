@@ -1,27 +1,27 @@
 $if areHidden
-    %p
-        %i
-            Note: hiding $show.hidden$ less common skills. $
-            %a!href=@?showAllUrl@ Show all skills
+    <p>
+        <i>
+            \Note: hiding #{show hidden} less common skills. 
+            <a href="@?{showAllUrl}">Show all skills
             \.
-%table
-    %thead
-        %tr
-            %th Skill
-            %th Users
-    %tbody
-        $forall skills skill
-            %tr
-                %td
-                    %a!href=@SkillR.fst.fst.skill@
-                        $skillName.snd.fst.skill$
-                %td $show.snd.skill$
-$maybe mu u
-    $if userAdmin.snd.u
-        %h3 Add new skill (admins only)
-        %form!method=post!action=@AllSkillsR@
-            %table
-                ^form^
-                %tr
-                    %td!colspan=2
-                        %input!type=submit!value="Add skill"
+<table>
+    <thead>
+        <tr>
+            <th>Skill
+            <th>Users
+    <tbody>
+        $forall skill <- skills
+            <tr>
+                <td>
+                    <a href="@{SkillR (fst (fst skill))}">
+                        \#{skillName (snd (fst skill))}
+                <td>#{show (snd skill)}
+$maybe u <- mu
+    $if userAdmin (snd u)
+        <h3>Add new skill (admins only)
+        <form method="post" action="@{AllSkillsR}">
+            <table>
+                \^{form}
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="Add skill">

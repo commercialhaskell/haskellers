@@ -1,13 +1,13 @@
-$maybe ma a
-    $if userBlocked.snd.a
-        #login-status Your account is blocked. A blocked account cannot participate in Special Interest Groups.
-    $elseif not.userVerifiedEmail.snd.a
-        #login-status
-            You have not yet verified your email address. You cannot participate in Special Interest Groups until your address has been verified. You may do so from $
-            %a!href=@ProfileR@ your profile page
+$maybe a <- ma
+    $if userBlocked (snd a)
+        <div id="login-status">Your account is blocked. A blocked account cannot participate in Special Interest Groups.
+    $elseif not (userVerifiedEmail (snd a))
+        <div id="login-status">
+            \You have not yet verified your email address. You cannot participate in Special Interest Groups until your address has been verified. You may do so from 
+            <a href="@{ProfileR}">your profile page
             \.
 $nothing
-    #login-status
-        You are not logged in. In order to participate in Special Interest Groups, you should $
-        %a!href=@AuthR.LoginR@ log in now
+    <div id="login-status">
+        \You are not logged in. In order to participate in Special Interest Groups, you should 
+        <a href="@{AuthR LoginR}">log in now
         \.

@@ -1,14 +1,14 @@
-%h3 Report a user
-
-%p
-    You are about to report $
-    %b $userFullName.u$
+<h3>Report a user
+\
+<p>
+    \You are about to report 
+    <b>#{userFullName u}
     \. This will send a message to the site administrators to indicate you think there is some inappropriate content on the user's page.
-    %form!method=post!action=@FlagR.uid@
-        I'm reporting this user because:
-        %br
-        %textarea!name=message
-        %br
-        %input!type=submit!value="Send report"
-        \ $
-        %a!href=@userLink@ Never mind
+    <form method="post" action="@{FlagR uid}">
+        \I'm reporting this user because:
+        <br>
+        <textarea name="message">
+        <br>
+        <input type="submit" value="Send report">
+        \ 
+        <a href="@{userLink}">Never mind

@@ -1,29 +1,29 @@
-$if null.topics
-    %p There are no topics for this group.
+$if null topics
+    <p>There are no topics for this group.
 $else
-  .full-width-table
-    %h2 Topics
-    %table
-        %thead
-            %tr
-                %th Title
-                %th Type
-                %th Status
-        %tbody
-            $forall topics t
-                %tr
-                    %td
-                        %a!href=@TopicR.fst.t@ $topicTitle.snd.t$
-                    %td
-                        $show.topicType.snd.t$
-                    %td
-                        $show.topicStatus.snd.t$
-$maybe mf f
-    %form.big!method=post!action=@TopicsR.tid@
-        %h2 Create a new topic
-        %table
-            ^fst.f^
-            %tr
-                %td!colspan=2
-                    $snd.f$
-                    %input!type=submit!value="Create topic"
+  <div .full-width-table>
+    <h2>Topics
+    <table>
+        <thead>
+            <tr>
+                <th>Title
+                <th>Type
+                <th>Status
+        <tbody>
+            $forall t <- topics
+                <tr>
+                    <td>
+                        <a href="@{TopicR (fst t)}">#{topicTitle (snd t)}
+                    <td>
+                        \#{show (topicType (snd t))}
+                    <td>
+                        \#{show (topicStatus (snd t))}
+$maybe f <- mf
+    <form method="post" action="@{TopicsR tid}" .big>
+        <h2>Create a new topic
+        <table>
+            \^{fst f}
+            <tr>
+                <td colspan="2">
+                    \#{snd f}
+                    <input type="submit" value="Create topic">
