@@ -1,2 +1,5 @@
 <p>What is the one thing Haskell is missing? Bling. We need T-shirts, sweatshirts, coffee mugs, USB sticks, and everything else that <i>modern</i> programming languages have. This page should help bridge that gap.
 <p>Anyone who wants to advertise Haskell-specific bling on this page should <a href="/users/snoyberg/">contact me directly</a>: for obvious reasons I will not be putting up a form to get your content automatically added. I don't care if you are selling stuff, giving it away for free, whatever: just send it in.
+<div
+    <a href="http://haskellers.spreadshirt.com/"
+        <img src=@{StaticR bling_monads_in_disguise_png} alt="Transformers: Monads in Disguise"

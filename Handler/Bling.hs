@@ -4,6 +4,7 @@ module Handler.Bling
     ) where
 
 import Haskellers
+import StaticFiles (bling_monads_in_disguise_png)
 
 getBlingR :: Handler RepHtml
 getBlingR = defaultLayout $ do
