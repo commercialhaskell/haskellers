@@ -187,6 +187,8 @@ mkYesodData "Haskellers" [$parseRoutes|
 /teams/#TeamId/topics TopicsR GET POST
 /topics/#TopicId TopicR GET POST
 /topics/#TopicId/message TopicMessageR POST
+
+/bling BlingR GET
 |]
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
@@ -239,13 +241,13 @@ instance Yesod Haskellers where
                 Nothing -> return ()
                 Just ((uid, _), _) -> addHamletHead [$hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your Haskellers Updates">
 |]
-            addWidget widget
             addCassius $(Settings.cassiusFile "default-layout")
             addScriptEither $ urlJqueryJs y
             addScriptEither $ urlJqueryUiJs y
             addStylesheetEither $ urlJqueryUiCss y
             addJulius $(Settings.juliusFile "analytics")
             addJulius $(Settings.juliusFile "default-layout")
+            addWidget widget
         let login' = $(hamletFile "login")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
@@ -322,6 +324,7 @@ loginbar = ("Account", [("Login", AuthR LoginR)])
 instance YesodBreadcrumbs Haskellers where
     breadcrumb RootR = return ("Homepage", Nothing)
     breadcrumb FaqR = return ("Frequently Asked Questions", Just RootR)
+    breadcrumb BlingR = return ("Bling", Just RootR)
     breadcrumb NewsR = return ("News Archive", Just RootR)
     breadcrumb (NewsItemR nid) = do
         n <- runDB $ get404 nid

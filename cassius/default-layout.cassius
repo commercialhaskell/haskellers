@@ -41,6 +41,9 @@ h3
     font-weight: normal
     margin: 0 3px
     padding: 2px 30px
+#haskell_bar a
+    padding-right: 1em
+    text-decoration: none
 #heading, #main_content, #footer_content, #section_title div
     margin: 0 auto
     width: 940px

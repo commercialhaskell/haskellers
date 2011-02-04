@@ -9,7 +9,8 @@
         <link href="@{JobsFeedR}" type="application/atom+xml" rel="alternate" title="Haskellers Job Listings">
     <body .#{bodyClass}>
         <div id="haskell_bar">
-          <p .title>Haskell
+          <p .title>
+            <a href="http://www.haskell.org/">Haskell
         <div id="heading_wrapper">
             <div id="heading">
                 <a href="@{RootR}" alt="Home">
@@ -21,6 +22,7 @@
                     <a id="find_haskeller" href="@{UsersR}">Find a<br/>Haskeller
                     <a id="find_job" href="@{JobsR}">Find a Job
                 <div id="secondary_menu">
+                    <a href=@{BlingR}>Bling
                     <a href="@{FaqR}">FAQ
                     <a href="@{NewsR}">News Archive
                     <a href="@{AllSkillsR}">Browse Skills
