@@ -57,6 +57,7 @@ import Data.Time
 import System.Locale
 import Text.Jasmine
 import Control.Monad (unless)
+import Web.Routes (encodePathInfo)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -209,6 +210,20 @@ requireAuth' = do
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Haskellers where
+    joinPath _ ar pieces qs =
+        ar ++ '/' : encodePathInfo pieces' qs
+      where
+        pieces'
+            | pieces == ["page", "openid", "complete"] = ["page", "openid", "complete", ""]
+            | otherwise = pieces
+    cleanPath _ ["page", "openid", "complete", ""] = Right ["page", "openid", "complete"]
+    cleanPath _ s =
+        if corrected == s
+            then Right s
+            else Left corrected
+      where
+        corrected = filter (not . null) s
+
     approot _ = Settings.approot
 
     defaultLayout widget = do
