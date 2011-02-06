@@ -1,9 +1,9 @@
 $(function(){
     $.getJSON("@{LocationsR}", function(data){
         var map = new google.maps.Map(document.getElementById("map_canvas"), {
-            zoom: 1,
+            zoom: 2,
             scrollwheel: false,
-            center: new google.maps.LatLng(0, 0),
+            center: new google.maps.LatLng(30, 0),
             mapTypeId: google.maps.MapTypeId.ROADMAP
         });
         for (var i = 0; i < data.locations.length; ++i) {

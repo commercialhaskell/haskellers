@@ -104,7 +104,6 @@ $elseif not (userVisible u)
         \Name: 
         <input id="package-name" type="text" name="name">
         <input type="submit" value="Add package">
-\
   <div id="identifiers">
     <h3>Current identifiers
     <ul>

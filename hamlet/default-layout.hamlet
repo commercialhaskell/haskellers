@@ -28,6 +28,7 @@
                     <a href="@{AllSkillsR}">Browse Skills
                     $maybe u <- ma
                         <a href="@{ProfileR}">Your Profile
+                        <a href="@{AuthR LogoutR}">Logout
                         $if userAdmin (snd (fst u))
                             <a href="@{MessagesR}">Admin Messages
                             <a href="@{AdminUsersR}">Admin Users

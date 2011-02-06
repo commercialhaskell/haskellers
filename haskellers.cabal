@@ -52,8 +52,7 @@ executable         simple-server
                    yesod-newsfeed,
                    yesod-static,
                    monad-peel,
-                   blaze-html,
-                   wai-app-static >= 0.1 && < 0.2
+                   blaze-html
     ghc-options:   -Wall -Werror
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
 
