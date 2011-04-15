@@ -1,5 +1,6 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Handler.User
     ( getUserR
     , getByIdentR
@@ -21,6 +22,9 @@ import OpenSSL.EVP.Base64
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 import Data.Time (getCurrentTime)
+import Data.Monoid (mappend)
+import Data.Text (Text)
+import qualified Data.Text as T
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
@@ -30,14 +34,14 @@ getByIdentR = do
     case x of
         Nothing -> notFound
         Just (_, Ident { identUser = uid }) -> jsonToRepJson $ jsonMap
-            [ ("id", jsonScalar $ showIntegral uid)
-            , ("url", jsonScalar $ render $ UserR $ showIntegral uid)
+            [ ("id", jsonScalar $ T.unpack $ toSinglePiece uid)
+            , ("url", jsonScalar $ T.unpack $ render $ UserR $ toSinglePiece uid)
             ]
 
-getUserR :: String -> Handler RepHtmlJson
+getUserR :: Text -> Handler RepHtmlJson
 getUserR input = do
     (uid, u) <-
-        case readIntegral input of
+        case fromSinglePiece input of
             Just uid -> runDB $ do
                 u <- get404 uid
                 mun <- getBy $ UniqueUsernameUser uid
@@ -59,27 +63,27 @@ getUserR input = do
         x <- selectList [UserSkillUserEq uid] [] 0 0 >>= mapM (\(_, y) -> do
             let sid = userSkillSkill y
             s <- get404 sid
-            return (sid, skillName s))
+            return (sid, T.unpack $ skillName s))
         return $ sortBy (comparing snd) x
     packages <- runDB
-              $ fmap (map $ packageName . snd)
+              $ fmap (map $ T.unpack . packageName . snd)
               $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
     screenNames <- runDB $ selectList [ScreenNameUserEq uid]
                     [ScreenNameServiceAsc, ScreenNameNameAsc] 0 0
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
     let json = jsonMap
-            $ ((:) ("id", jsonScalar $ showIntegral uid))
-            . ((:) ("name", jsonScalar $ userFullName u))
+            $ ((:) ("id", jsonScalar $ T.unpack $ toSinglePiece uid))
+            . ((:) ("name", jsonScalar $ T.unpack $ userFullName u))
             . (case userWebsite u of
                 Nothing -> id
-                Just w -> (:) ("website", jsonScalar w))
+                Just w -> (:) ("website", jsonScalar $ T.unpack w))
             . (case userHaskellSince u of
                 Nothing -> id
                 Just e -> (:) ("haskell-since", jsonScalar $ show e))
             . (case userDesc u of
                 Nothing -> id
-                Just d -> (:) ("description", jsonScalar $ unTextarea d))
+                Just d -> (:) ("description", jsonScalar $ T.unpack $ unTextarea d))
             . ((:) ("skills", jsonList $ map (jsonScalar . snd) skills))
             $ []
     let percentEncode = id -- FIXME
@@ -87,7 +91,7 @@ getUserR input = do
             intercalate "&"
                 (map (\x -> "package=" ++ percentEncode x) packages)
     flip defaultLayoutJson json $ do
-        setTitle $ string $ "Haskellers profile for " ++ userFullName u
+        setTitle $ toHtml $ "Haskellers profile for " `mappend` userFullName u
         addCassius $(cassiusFile "user")
         addScriptEither $ urlJqueryJs y
         addJulius $(juliusFile "user")
@@ -96,25 +100,25 @@ getUserR input = do
     notOne 1 = False
     notOne _ = True
 
-mailhidePublic :: String
+mailhidePublic :: Text
 mailhidePublic = "01_o4fjI3uXdNz6rLrIquvlw=="
 
 mailhidePrivate :: S.ByteString
 mailhidePrivate = S8.pack "\x42\x40\x54\x79\x07\x8c\x47\xb0\x50\xd7\x9a\x33\xc6\x09\x69\x1c"
 
-emailLink :: String -> String
+emailLink :: Text -> Text
 emailLink email = unsafePerformIO $ do
     enc <- encryptAddress email
-    return $ concat
+    return $ T.concat
         [ "http://www.google.com/recaptcha/mailhide/d?k="
         , mailhidePublic
         , "&c="
         , enc
         ]
 
-encryptAddress :: String -> IO String
+encryptAddress :: Text -> IO Text
 encryptAddress =
-    fmap (map b64Url . S8.unpack . encodeBase64BS) . encrypt . pad
+    fmap (T.pack . map b64Url . S8.unpack . encodeBase64BS) . encrypt . pad . T.unpack
   where
     b64Url '+' = '-'
     b64Url '/' = '_'
@@ -138,7 +142,7 @@ getFlagR uid = do
     u <- runDB $ get404 uid
     let userLink = userR ((uid, u), Nothing)
     defaultLayout $ do
-        setTitle $ string "Report a user"
+        setTitle "Report a user"
         addCassius $(cassiusFile "flag")
         addWidget $(hamletFile "flag")
 
@@ -156,10 +160,10 @@ postFlagR uid = do
             , messageWhen = now
             , messageFrom = mvid
             , messageRegarding = Just uid
-            , messageText = Textarea $ "User has been reported\n\n" ++ msg
+            , messageText = Textarea $ "User has been reported\n\n" `mappend` msg
             }
         return u
-    setMessage $ string "The user has been reported to the admins. Thanks!"
+    setMessage "The user has been reported to the admins. Thanks!"
     redirect RedirectTemporary $ userR ((uid, u), Nothing)
 
 adminControls :: UserId -> User -> Widget ()

@@ -1,5 +1,5 @@
 name:              haskellers
-version:           0.0.0
+version:           0.1.0
 license:           BSD3
 license-file:      LICENSE
 author:            Michael Snoyman
@@ -10,23 +10,24 @@ category:          Web
 stability:         Experimental
 cabal-version:     >= 1.6
 build-type:        Simple
-homepage:          http://haskellers.yesodweb.com/
+homepage:          http://www.haskellers.com/
 
 Flag production
     Description:   Build the production executable.
     Default:       False
 
-executable         simple-server
+executable         haskellers
     if flag(production)
-        Buildable: False
+        cpp-options:   -DPRODUCTION
     main-is:       simple-server.hs
     build-depends: base >= 4 && < 5,
-                   yesod >= 0.7 && < 0.8,
+                   yesod >= 0.8 && < 0.9,
                    yesod-auth,
                    wai-extra,
                    directory,
                    bytestring,
                    persistent,
+                   persistent-template,
                    persistent-postgresql,
                    template-haskell,
                    hamlet,
@@ -42,7 +43,6 @@ executable         simple-server
                    neither,
                    data-default,
                    mime-mail,
-                   web-routes,
                    text,
                    text-icu,
                    hjsmin,
@@ -51,18 +51,8 @@ executable         simple-server
                    yesod-form,
                    yesod-newsfeed,
                    yesod-static,
-                   monad-peel,
-                   blaze-html
-    ghc-options:   -Wall -Werror
-    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
-
-executable         fastcgi
-    if flag(production)
-        Buildable: True
-    else
-        Buildable: False
-    cpp-options:   -DPRODUCTION
-    main-is:       fastcgi.hs
-    build-depends: wai-handler-fastcgi
-    ghc-options:   -Wall -threaded
-    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
+                   monad-control,
+                   blaze-html,
+                   http-types,
+                   blaze-builder
+    ghc-options:   -Wall -Werror -threaded

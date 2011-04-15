@@ -13,8 +13,9 @@ import Control.Applicative
 import Yesod.Form.Nic
 import Handler.Admin (requireAdmin)
 import Data.Time (getCurrentTime)
+import Data.Text (Text)
 
-newsForm :: Form s Haskellers (String, Html)
+newsForm :: Form s Haskellers (Text, Html)
 newsForm = fieldsToTable $ (,)
     <$> stringField "Title" Nothing
     <*> nicHtmlField "Content"
@@ -50,7 +51,7 @@ postNewsR = do
         _ -> return ()
     defaultLayout $ do
         setTitle "Add news item"
-        [$hamlet|\
+        [hamlet|\
 <form method="post" action="@{NewsR}">
     <table>
         \^{form}
@@ -64,7 +65,7 @@ getNewsItemR nid = do
     cacheSeconds 3600
     n <- runDB $ get404 nid
     defaultLayout $ do
-        setTitle $ string $ newsTitle n
+        setTitle $ toHtml $ newsTitle n
         addCassius $(cassiusFile "news")
         $(hamletFile "news-item")
 

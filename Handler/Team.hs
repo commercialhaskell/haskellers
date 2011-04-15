@@ -26,7 +26,7 @@ import Control.Applicative
 import Yesod.Form.Nic
 import Control.Monad (unless)
 import Data.Time (getCurrentTime)
-import qualified Data.ByteString.Char8 as S8
+import qualified Data.Text as T
 
 loginStatus :: Maybe (UserId, User) -> Widget ()
 loginStatus ma = do
@@ -123,7 +123,7 @@ getTeamR tid = do
         addCassius $(cassiusFile "teams")
         addCassius $(cassiusFile "team")
         addWidget $(hamletFile "team")
-        addHamletHead [$hamlet|<link href="@{TeamFeedR tid}" type="application/atom+xml" rel="alternate" title="#{teamName t} Updates">
+        addHamletHead [hamlet|<link href="@{TeamFeedR tid}" type="application/atom+xml" rel="alternate" title="#{teamName t} Updates">
 |]
 
 postTeamR :: TeamId -> Handler RepHtml
@@ -152,7 +152,7 @@ postLeaveTeamR tid = do
             setMessage "Admins may not leave a group. Have another admin remove your admin rights first."
         Just (tuid, _) -> do
             runDB $ delete tuid
-            setMessage $ string $ "You have left " ++ teamName t
+            setMessage $ toHtml $ "You have left " `T.append` teamName t
     redirect RedirectTemporary $ TeamR tid
 
 postWatchTeamR :: TeamId -> Handler ()
@@ -160,7 +160,7 @@ postWatchTeamR tid = do
     (uid, _) <- requireAuth
     t <- runDB $ get404 tid
     _ <- runDB $ insertBy $ TeamUser tid uid Watching
-    setMessage [$hamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
+    setMessage [hamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
 |]
     redirect RedirectTemporary $ TeamR tid
 
@@ -200,8 +200,8 @@ postApproveTeamR tid uid = do
             runDB $ do
                 t <- get404 tid
                 u <- get404 uid
-                addTeamNews tid ("New member of " ++ teamName t ++ " group")
-                            [$hamlet|\
+                addTeamNews tid (T.concat ["New member of ", teamName t, " group"])
+                            [hamlet|\
 <p>#{userFullName u} is now a member of the #{teamName t} special interest group.
 |] $ TeamR tid
                 update tuid [TeamUserStatus ApprovedMember]
@@ -240,12 +240,12 @@ getTeamFeedR tid = runDB $ do
             [] -> liftIO getCurrentTime
             (_, n):_ -> return $ teamNewsWhen n
     lift $ newsFeed Feed
-        { feedTitle = teamName t ++ " on Haskellers"
+        { feedTitle = teamName t `T.append` " on Haskellers"
         , feedLinkSelf = TeamFeedR tid
         , feedLinkHome = TeamR tid
         , feedUpdated = updated
         , feedEntries = map toAtomEntry news
-        , feedDescription = string $ teamName t ++ " on Haskellers"
+        , feedDescription = toHtml $ teamName t `T.append` " on Haskellers"
         , feedLanguage = "en"
         }
 
@@ -261,7 +261,7 @@ getUserFeedR uid = runDB $ do
     lift $ newsFeed Feed
         { feedTitle = "Your Haskellers News Feed"
         , feedLinkSelf = UserFeedR uid
-        , feedLinkHome = UserR $ showIntegral uid
+        , feedLinkHome = UserR $ toSinglePiece uid
         , feedUpdated = updated
         , feedEntries = map toAtomEntry news
         , feedDescription = "Personal Haskellers feed"
@@ -279,7 +279,7 @@ toAtomEntry (tnid, tn) = FeedEntry
 getTeamNewsR :: TeamNewsId -> Handler ()
 getTeamNewsR tnid = do
     tn <- runDB $ get404 tnid
-    redirectString RedirectPermanent $ S8.pack $ teamNewsUrl tn
+    redirectText RedirectPermanent $ teamNewsUrl tn
 
 postTeamPackagesR :: TeamId -> Handler RepHtml
 postTeamPackagesR tid = do
@@ -290,7 +290,7 @@ postTeamPackagesR tid = do
         FormSuccess tp -> do
             runDB $ do
                 _ <- insert tp
-                addTeamNews tid ("New package for " ++ teamName t ++ " group") [$hamlet|\
+                addTeamNews tid (T.concat ["New package for ", teamName t, " group"]) [hamlet|\
             \setMessage "Package added"
 <p>A new package, #{teamPackageName tp}, has been added to #{teamName t}.
 $maybe d <- teamPackageDesc tp
@@ -300,7 +300,7 @@ $maybe u <- teamPackageHomepage tp
         <a href="#{u}">Visit the homepage.
 |] $ TeamR tid
             redirect RedirectTemporary $ TeamR tid
-        _ -> defaultLayout [$hamlet|\
+        _ -> defaultLayout [hamlet|\
 <form method="post" action="@{TeamPackagesR tid}">
     <table>
         \^{form}

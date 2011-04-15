@@ -4,7 +4,7 @@ $if userBlocked u
         <input type="submit" value="I'm clean now, please unblock me!">
 $elseif not (userVerifiedEmail u)
     <h3 .ui-state-error .ui-corner-all>Note: You have not yet verified your email address.  Your profile will not be public until you do so.
-$elseif not (hasGoodName (userFullName u))
+$elseif not (hasGoodName $ T.unpack (userFullName u))
     <h3 .ui-state-error .ui-corner-all>Note: Please enter your proper name on the profile tab.
 $elseif not (userVisible u)
     <h3 .ui-state-error .ui-corner-all>Note: You're account is in private mode. You can send people links directly to your profile, but you will not appear in any listings. You can change this in the "Profile" tab.
@@ -68,9 +68,9 @@ $elseif not (userVisible u)
             $forall skill <- skills
                 <tr>
                     <td>
-                        <input id="skill-#{showIntegral (fst (fst skill))}" type="checkbox" name="#{showIntegral (fst (fst skill))}" :snd skill:checked="">
+                        <input id="skill-#{toSinglePiece (fst (fst skill))}" type="checkbox" name="#{toSinglePiece (fst (fst skill))}" :snd skill:checked="">
                     <th>
-                        <label for="skill-#{showIntegral (fst (fst skill))}">
+                        <label for="skill-#{toSinglePiece (fst (fst skill))}">
                             \#{skillName (snd (fst skill))}
             <tr>
                 <td colspan="2">
@@ -169,7 +169,7 @@ $elseif not (userVisible u)
         <img src="@{StaticR badge_png}" alt="I'm a Haskeller" .badge>
     <textarea id="badge-code">
         \
-        <a href="@{UserR (showIntegral uid)}">
+        <a href="@{UserR (toSinglePiece uid)}">
             <img src="@{StaticR badge_png_plain}" alt="I'm a Haskeller">
   <div id="delete">
     <form method="post" action="@{DeleteAccountR}">

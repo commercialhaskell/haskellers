@@ -38,7 +38,7 @@ $maybe _ <- ma
     <ul>
         $forall admin <- admins
             <li>
-                <a href="@{UserR (showIntegral (fst admin))}">#{userFullName (snd admin)}
+                <a href="@{UserR (toSinglePiece (fst admin))}">#{userFullName (snd admin)}
                 $if cet
                     $if notMe (fst admin)
                         <form method="post" action="@{TeamUnadminR tid (fst admin)}">
@@ -49,7 +49,7 @@ $if not (null amembers)
         <ul>
             $forall u <- amembers
                 <li>
-                    <a href="@{UserR (showIntegral (fst u))}">#{userFullName (snd u)}
+                    <a href="@{UserR (toSinglePiece (fst u))}">#{userFullName (snd u)}
                     $if cet
                         <form method="post" action="@{TeamAdminR tid (fst u)}">
                             <input type="submit" value="Make group admin">
@@ -60,7 +60,7 @@ $if not (null umembers)
         <ul>
             $forall u <- umembers
                 <li>
-                    <a href="@{UserR (showIntegral (fst u))}">#{userFullName (snd u)}
+                    <a href="@{UserR (toSinglePiece (fst u))}">#{userFullName (snd u)}
                     <form method="post" action="@{ApproveTeamR tid (fst u)}">
                         <input type="submit" value="Approve Membership">
 $if not (null packages)

@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
 -- In addition, you can configure a number of different aspects of Yesod
@@ -24,14 +25,15 @@ import qualified Text.Cassius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadPeelIO, addWidget, addCassius, addJulius)
-import Data.Monoid (mempty)
+import Yesod (MonadControlIO, addWidget, addCassius, addJulius)
+import Data.Monoid (mempty, mappend)
 import System.Directory (doesFileExist)
+import Data.Text (Text)
 
 -- | The base URL for your application. This will usually be different for
 -- development and production. Yesod automatically constructs URLs for you,
 -- so this value must be accurate to create valid links.
-approot :: String
+approot :: Text
 #ifdef PRODUCTION
 -- You probably want to change this. If your domain name was "yesod.com",
 -- you would probably want it to be:
@@ -60,12 +62,12 @@ staticdir = "static"
 -- have to make a corresponding change here.
 --
 -- To see how this value is used, see urlRenderOverride in Haskellers.hs
-staticroot :: String
-staticroot = approot ++ "/static"
+staticroot :: Text
+staticroot = approot `mappend` "/static"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.
-connStr :: String
+connStr :: Text
 #ifdef PRODUCTION
 connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers"
 #else
@@ -135,8 +137,8 @@ widgetFile x = do
 -- database actions using a pool, respectively. It is used internally
 -- by the scaffolded application, and therefore you will rarely need to use
 -- them yourself.
-withConnectionPool :: MonadPeelIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: MonadControlIO m => (ConnectionPool -> m a) -> m a
 withConnectionPool = withPostgresqlPool connStr connectionCount
 
-runConnectionPool :: MonadPeelIO m => SqlPersist m a -> ConnectionPool -> m a
+runConnectionPool :: MonadControlIO m => SqlPersist m a -> ConnectionPool -> m a
 runConnectionPool = runSqlPool

@@ -9,6 +9,7 @@ module Handler.Skills
 import Haskellers
 import Handler.Admin (requireAdmin)
 import Control.Applicative
+import Data.Text (unpack)
 
 skillFormlet :: Form s m Skill
 skillFormlet = fieldsToTable $ Skill
@@ -50,9 +51,9 @@ getAllSkillsR = do
         ) $ jsonMap
         [ ("skills", jsonList $ flip map skills' $ \((sid, Skill name), users) ->
             jsonMap
-                [ ("id", jsonScalar $ showIntegral sid)
-                , ("name", jsonScalar name)
-                , ("url", jsonScalar $ render $ SkillR sid)
+                [ ("id", jsonScalar $ unpack $ toSinglePiece sid)
+                , ("name", jsonScalar $ unpack name)
+                , ("url", jsonScalar $ unpack $ render $ SkillR sid)
                 , ("users", jsonScalar $ show users)
                 ])
         ]
@@ -70,13 +71,13 @@ getSkillR sid = do
             return ((uid, u), mun)
     render <- getUrlRender
     defaultLayoutJson (do
-        setTitle $ string $ skillName skill
+        setTitle $ toHtml $ skillName skill
         $(hamletFile "skill")
         ) $ jsonMap
         [ ("users", jsonList $ flip map users $ \x@((uid, u), _) -> jsonMap
-            [ ("id", jsonScalar $ showIntegral uid)
-            , ("url", jsonScalar $ render $ userR x)
-            , ("name", jsonScalar $ userFullName u)
+            [ ("id", jsonScalar $ unpack $ toSinglePiece uid)
+            , ("url", jsonScalar $ unpack $ render $ userR x)
+            , ("name", jsonScalar $ unpack $ userFullName u)
             ])
         ]
   where

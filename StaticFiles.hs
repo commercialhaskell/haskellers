@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fno-warn-unused-binds #-}
+{-# LANGUAGE TemplateHaskell #-}
 module StaticFiles where
 
 import Yesod.Helpers.Static

@@ -13,7 +13,6 @@ import Data.Time
 import Yesod.Form.Jquery
 import Control.Monad (unless)
 import Yesod.Helpers.Feed
-import Text.Blaze (toHtml)
 
 jobFormlet :: UserId -> UTCTime -> Formlet s Haskellers Job
 jobFormlet uid now mj = fieldsToTable $ Job

@@ -15,10 +15,10 @@ $else
                     <td>#{prettyTime (messageWhen (snd (fst m)))}
                     <td>
                         $maybe u <- fst (snd m)
-                            <a href="@{UserR (showIntegral (fst u))}">#{userFullName (snd u)}
+                            <a href="@{UserR (toSinglePiece (fst u))}">#{userFullName (snd u)}
                     <td>
                         $maybe u <- snd (snd m)
-                            <a href="@{UserR (showIntegral (fst u))}">#{userFullName (snd u)}
+                            <a href="@{UserR (toSinglePiece (fst u))}">#{userFullName (snd u)}
                     <td>#{messageText (snd (fst m))}
                     <td>
                         <form method="post" action="@{CloseMessageR (fst (fst m))}">

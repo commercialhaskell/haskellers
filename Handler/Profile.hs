@@ -27,12 +27,14 @@ import Control.Monad (filterM, forM_, unless)
 import Yesod.Form.Core
 import Control.Arrow ((&&&))
 import Data.Time
+import Data.Text (pack)
+import qualified Data.Text as T
 
 screenNameFormlet :: UserId -> Form s y ScreenName
 screenNameFormlet uid = fieldsToTable $ ScreenName
     <$> pure uid
     <*> selectField servopts "Service" Nothing
-    <*> stringField "Screen name" Nothing
+    <*> (stringField "Screen name" Nothing)
   where
     servopts = map (id &&& show) [minBound..maxBound]
 
@@ -77,7 +79,7 @@ userForm maxY u = fieldsToTable $ User
             { ffsId = Just "latitude"
             } (Just $ userLatitude u)
   where
-    empOpts = map (id &&& prettyEmployment) [minBound..maxBound]
+    empOpts = map (id &&& pack . prettyEmployment) [minBound..maxBound]
 
 getProfileR :: Handler RepHtml
 getProfileR = do
@@ -137,7 +139,7 @@ postSkillsR = do
     (uid, _) <- requireAuth
     allSkills <- fmap (map fst) $ runDB $ selectList [] [] 0 0
     skills <- flip filterM allSkills $ \sid ->
-        runFormPost' (boolInput $ showIntegral sid)
+        runFormPost' (boolInput $ toSinglePiece sid)
     runDB $ do
         deleteWhere [UserSkillUserEq uid]
         forM_ skills $ \sid -> insert (UserSkill uid sid)
@@ -165,7 +167,7 @@ postRequestRealR = do
     (uid, u) <- requireAuth
     if userReal u
         then setMessage "You already have verified user status"
-        else if userVerifiedEmail u && hasGoodName (userFullName u)
+        else if userVerifiedEmail u && hasGoodName (T.unpack $ userFullName u)
             then do
                 now <- liftIO getCurrentTime
                 _ <- runDB $ insert $ Message
@@ -189,7 +191,7 @@ postRequestRealPicR = do
     (uid, u) <- requireAuth
     if userRealPic u
         then setMessage "You already have real picture status"
-        else if userVerifiedEmail u && hasGoodName (userFullName u)
+        else if userVerifiedEmail u && hasGoodName (T.unpack $ userFullName u)
             then do
                 now <- liftIO getCurrentTime
                 _ <- runDB $ insert $ Message
@@ -232,7 +234,7 @@ postRequestSkillR = do
                 , messageWhen = now
                 , messageFrom = Just uid
                 , messageRegarding = Nothing
-                , messageText = Textarea $ unlines
+                , messageText = Textarea $ T.unlines
                     [ "Requesting new skill"
                     , ""
                     , skill
@@ -256,7 +258,7 @@ postSetUsernameR = do
     let musername =
             case res of
                 FormSuccess x ->
-                    if all validChar x && readIntegral x == (Nothing :: Maybe UserId)
+                    if T.all validChar x && fromSinglePiece x == (Nothing :: Maybe UserId)
                         then Just x
                         else Nothing
                 _ -> Nothing

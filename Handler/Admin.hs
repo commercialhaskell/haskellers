@@ -70,7 +70,7 @@ getMessagesR = do
         return ((mid, m), (from, regarding))
         )
     defaultLayout $ do
-        setTitle $ string "Admin Messages"
+        setTitle "Admin Messages"
         addCassius $(cassiusFile "messages")
         addWidget $(hamletFile "messages")
 
@@ -78,7 +78,7 @@ postCloseMessageR :: MessageId -> Handler ()
 postCloseMessageR mid = do
     requireAdmin
     runDB $ update mid [MessageClosed True]
-    setMessage $ string "Message has been closed"
+    setMessage "Message has been closed"
     redirect RedirectTemporary MessagesR
 
 getAdminUsersR :: Handler RepHtml
@@ -86,7 +86,7 @@ getAdminUsersR = do
     users <- runDB $ selectList [UserVerifiedEmailEq True] [UserFullNameAsc] 0 0
     y <- getYesod
     defaultLayout $ do
-        setTitle $ string "Admin list of users"
+        setTitle "Admin list of users"
         addCassius $(cassiusFile "admin-users")
         addScriptEither $ urlJqueryJs y
         addJulius $(juliusFile "admin-users")

@@ -13,6 +13,7 @@ import System.Random (newStdGen)
 import Data.Maybe (isJust)
 import qualified Data.ByteString.Lazy.UTF8 as LU
 import StaticFiles (logo_png)
+import Data.Text (Text, pack, unpack)
 
 postResetEmailR :: Handler ()
 postResetEmailR = do
@@ -25,7 +26,7 @@ postResetEmailR = do
     setMessage "Email address reset. Please verify a new address."
     redirect RedirectTemporary ProfileR
 
-getVerifyEmailR :: String -> Handler ()
+getVerifyEmailR :: Text -> Handler ()
 getVerifyEmailR verkey = do
     (uid, u) <- requireAuth
     if Just verkey == userVerkey u && isJust (userEmail u)
@@ -48,7 +49,7 @@ postSendVerifyR = do
     case res of
         FormSuccess email -> do
             stdgen <- liftIO newStdGen
-            let verkey = fst $ randomString 10 stdgen
+            let verkey = pack $ fst $ randomString 10 stdgen
             runDB $ update uid [ UserEmail $ Just email
                                , UserVerkey $ Just verkey
                                ]
@@ -64,9 +65,9 @@ postSendVerifyR = do
                     [ Part "text/plain" None Nothing [] $ LU.fromString $ unlines
                         [ "Please go to the URL below to verify your email address."
                         , ""
-                        , url
+                        , unpack url
                         ]
-                    , Part "text/html" None Nothing [] $ renderHtml [$hamlet|\
+                    , Part "text/html" None Nothing [] $ renderHtml [hamlet|\
 <img src="#{render (StaticR logo_png)}" alt="Haskellers">
 <p>Please go to the URL below to verify your email address.
 <p>

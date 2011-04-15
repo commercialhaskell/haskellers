@@ -23,6 +23,7 @@ import Yesod.Form.Jquery
 import Data.Time
 import qualified Data.Text as T
 import Data.Text.ICU.Normalize
+import Data.Text (Text, pack, unpack)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -68,7 +69,7 @@ getRootR = do
         $(widgetFile "homepage")
 
 data Filter = Filter
-    { filterName :: Maybe String
+    { filterName :: Maybe T.Text
     , filterMinSince :: Maybe Int
     , filterMaxSince :: Maybe Int
     , filterFullTime :: Bool
@@ -89,10 +90,9 @@ applyFilter f p = and
         case y f of
             Nothing -> True
             Just z -> x z
-    norm = T.filter validChar . T.map toLower . normalize NFKD . T.pack
+    norm = T.filter validChar . T.map toLower . normalize NFKD
     validChar = not . isMark
-    isInfixOf x y = norm x `T.isInfixOf` norm y
-    name x = x `isInfixOf` profileName p
+    name x = norm x `T.isInfixOf` norm (profileName p)
     minsince x =
         case userHaskellSince $ profileUser p of
             Nothing -> False
@@ -128,14 +128,14 @@ yearField x y = optionalFieldHelper $ yearFieldProfile x y
 yearFieldProfile :: Int -> Int -> FieldProfile sub y Int
 yearFieldProfile minY maxY = FieldProfile
     { fpParse = \s ->
-        case readIntegral s of
+        case readIntegral $ T.unpack s of
             Nothing -> Left "Invalid integer"
             Just i
-                | i < minY -> Left $ "Value must be at least " ++ show minY
-                | i > maxY -> Left $ "Value must be at most " ++ show maxY
+                | i < minY -> Left $ T.pack $ "Value must be at least " ++ show minY
+                | i > maxY -> Left $ T.pack $ "Value must be at most " ++ show maxY
                 | otherwise -> Right i
-    , fpRender = showIntegral
-    , fpWidget = \theId name val isReq -> addHamlet [$hamlet|\
+    , fpRender = T.pack . showIntegral
+    , fpWidget = \theId name val isReq -> addHamlet [hamlet|
 <input id="#{theId}" name="#{name}" type="number" min="#{show minY}" max="#{show maxY}" step="1" :isReq:required="" value="#{val}">
 |]
     }
@@ -159,13 +159,13 @@ getUsersR = do
     let maxPage = (public - 1) `div` perPage
     let hasNext = page < maxPage
     allGets <- fmap reqGetParams getRequest
-    let params p = ("page", show p) : filter (\(x, _) -> x /= "page") allGets
+    let params p = ("page", T.pack $ show p) : filter (\(x, _) -> x /= "page") allGets
     let next = (UsersR, params $ page + 1)
     let prev = (UsersR, params $ page - 1)
     let minHaskeller = page * perPage + 1
     let profs = take perPage $ drop (page * perPage) filteredProfs
     let maxHaskeller = minHaskeller + length profs - 1
-    let noFilter = (UsersR, [("page", show page)])
+    let noFilter = (UsersR, [("page", T.pack $ show page)])
     render <- getUrlRender
     flip defaultLayoutJson (json render profs) $ do
         setTitle "Browsing Haskellers"
@@ -173,16 +173,20 @@ getUsersR = do
   where
     json r users = jsonMap [("users", jsonList $ map (json' r) users)]
     json' r prof = jsonMap
-        [ ("id", jsonScalar $ showIntegral $ profileUserId prof)
-        , ("name", jsonScalar $ userFullName $ profileUser prof)
-        , ("url", jsonScalar $ r $ profileUserR prof)
+        [ ("id", jsonScalar $ T.unpack $ toSinglePiece $ profileUserId prof)
+        , ("name", jsonScalar $ T.unpack $ userFullName $ profileUser prof)
+        , ("url", jsonScalar $ T.unpack $ r $ profileUserR prof)
         ]
 
-gravatar :: Int -> String -> String
-gravatar s x =
-    "http://www.gravatar.com/avatar/" ++ hash ++ "?d=identicon&s=" ++ show s
+gravatar :: Int -> Text -> Text
+gravatar s x = T.concat
+    [ "http://www.gravatar.com/avatar/"
+    , hash
+    , "?d=identicon&s="
+    , pack $ show s
+    ]
   where
-    hash = show $ md5 $ L.fromString $ map toLower $ trim x
+    hash = pack $ show $ md5 $ L.fromString $ map toLower $ trim $ unpack x
     trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 getLocationsR :: Handler RepJson
@@ -204,8 +208,8 @@ getLocationsR = do
                 }) = jsonMap
         [ ("lng", jsonScalar $ show lng)
         , ("lat", jsonScalar $ show lat)
-        , ("name", jsonScalar n)
-        , ("url", jsonScalar $ r $ userR ((uid, u), Nothing))
+        , ("name", jsonScalar $ T.unpack n)
+        , ("url", jsonScalar $ T.unpack $ r $ userR ((uid, u), Nothing))
         ]
     go _ _ = error "getLocationsR"
 

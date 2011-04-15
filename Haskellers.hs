@@ -1,5 +1,6 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Haskellers
     ( Haskellers (..)
     , HaskellersRoute (..)
@@ -57,7 +58,11 @@ import Data.Time
 import System.Locale
 import Text.Jasmine
 import Control.Monad (unless)
-import Web.Routes (encodePathInfo)
+import Data.Text (Text, pack, unpack)
+import qualified Data.Text as T
+import Blaze.ByteString.Builder.Char.Utf8 (fromText)
+import Data.Monoid (mappend)
+import Network.HTTP.Types (encodePath, queryTextToQuery)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -72,8 +77,8 @@ data Haskellers = Haskellers
 
 data Profile = Profile
     { profileUserId :: UserId
-    , profileName :: String
-    , profileEmail :: String
+    , profileName :: Text
+    , profileEmail :: Text
     , profileUser :: User
     , profileSkills :: Set.Set SkillId
     , profileUsername :: Maybe Username
@@ -104,93 +109,7 @@ type Widget = GWidget Haskellers Haskellers
 -- for our application to be in scope. However, the handler functions
 -- usually require access to the HaskellersRoute datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
-mkYesodData "Haskellers" [$parseRoutes|
-/static StaticR Static getStatic
-/auth   AuthR   Auth   getAuth
-
-/favicon.ico FaviconR GET
-/robots.txt RobotsR GET
-
-/ RootR GET
-/users UsersR GET
-/locations LocationsR GET
-/page/faq FaqR GET
-
-/profile ProfileR GET POST
-/profile/delete DeleteAccountR POST
-/profile/skills SkillsR POST
-/profile/ident/#IdentId/delete DeleteIdentR POST
-/profile/request-real RequestRealR POST
-/profile/request-realpic RequestRealPicR POST
-/profile/request-unblock RequestUnblockR POST
-/profile/request-skill RequestSkillR POST
-/profile/username SetUsernameR POST
-/profile/clear-username ClearUsernameR POST
-/profile/screen-names ScreenNamesR POST
-/profile/screen-names/#ScreenNameId/delete DeleteScreenNameR POST
-
-/skills AllSkillsR GET POST
-/skills/#SkillId SkillR GET
-
-/packages PackagesR POST
-/package/#PackageId/delete DeletePackageR POST
-
-/user/#String UserR GET
-/user/#UserId/admin AdminR POST
-/user/#UserId/unadmin UnadminR POST
-
-/user/#UserId/real RealR POST
-/user/#UserId/unreal UnrealR POST
-
-/user/#UserId/realpic RealPicR POST
-/user/#UserId/unrealpic UnrealPicR POST
-
-/user/#UserId/block BlockR POST
-/user/#UserId/unblock UnblockR POST
-
-/user/#UserId/flag FlagR GET POST
-
-/user ByIdentR GET
-
-/profile/reset-email ResetEmailR POST
-/profile/send-verify SendVerifyR POST
-/profile/verify/#String VerifyEmailR GET
-
-/admin AdminUsersR GET
-/admin/messages MessagesR GET
-/admin/messages/#MessageId/close CloseMessageR POST
-
-/news NewsR GET POST
-/news/#NewsId NewsItemR GET
-
-/debug DebugR GET
-
-/jobs JobsR GET POST
-/jobs/#JobId JobR GET
-
-/feed/news NewsFeedR GET
-/feed/jobs JobsFeedR GET
-/feed/team/#TeamId TeamFeedR GET
-/feed/user/#UserId UserFeedR GET
-/feed/team-item/#TeamNewsId TeamNewsR GET
-
-/teams TeamsR GET POST
-/teams/#TeamId TeamR GET POST
-/teams/#TeamId/leave LeaveTeamR POST
-/teams/#TeamId/watch WatchTeamR POST
-/teams/#TeamId/join JoinTeamR POST
-/teams/#TeamId/approve/#UserId ApproveTeamR POST
-/teams/#TeamId/admin/#UserId TeamAdminR POST
-/teams/#TeamId/unadmin/#UserId TeamUnadminR POST
-/teams/#TeamId/packages TeamPackagesR POST
-/teams/#TeamId/packages/#TeamPackageId/delete DeleteTeamPackageR POST
-
-/teams/#TeamId/topics TopicsR GET POST
-/topics/#TopicId TopicR GET POST
-/topics/#TopicId/message TopicMessageR POST
-
-/bling BlingR GET
-|]
+mkYesodData "Haskellers" $(parseRoutesFile "routes")
 
 maybeAuth' :: GHandler s Haskellers (Maybe ((UserId, User), Maybe Username))
 maybeAuth' = do
@@ -210,9 +129,11 @@ requireAuth' = do
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Haskellers where
-    joinPath _ ar pieces qs =
-        ar ++ '/' : encodePathInfo pieces' qs
+    joinPath _ ar pieces qs' =
+        fromText ar
+        `mappend` encodePath pieces' (queryTextToQuery qs)
       where
+        qs = map (\(x, y) -> (x, if T.null y then Nothing else Just y)) qs'
         pieces'
             | pieces == ["page", "openid", "complete"] = ["page", "openid", "complete", ""]
             | otherwise = pieces
@@ -222,7 +143,7 @@ instance Yesod Haskellers where
             then Right s
             else Left corrected
       where
-        corrected = filter (not . null) s
+        corrected = filter (not . T.null) s
 
     approot _ = Settings.approot
 
@@ -243,18 +164,20 @@ instance Yesod Haskellers where
                     Just TeamR{} -> "teams"
                     Just TopicsR{} -> "teams"
                     Just TopicR{} -> "teams"
-                    _ -> "overview"
+                    _ -> "overview" :: T.Text
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
                         else title'
         let isCurrent :: HaskellersRoute -> Bool
             isCurrent RootR = fmap tm current == Just RootR
             isCurrent x = Just x == fmap tm current || x `elem` map fst parents
-        let navbarSection section = $(hamletFile "navbar-section")
+        let navbarSection :: (String, [(String, HaskellersRoute)])
+                          -> Hamlet HaskellersRoute
+            navbarSection section = $(hamletFile "navbar-section")
         pc <- widgetToPageContent $ do
             case ma of
                 Nothing -> return ()
-                Just ((uid, _), _) -> addHamletHead [$hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your Haskellers Updates">
+                Just ((uid, _), _) -> addHamletHead [hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your Haskellers Updates">
 |]
             addCassius $(Settings.cassiusFile "default-layout")
             addScriptEither $ urlJqueryJs y
@@ -280,7 +203,7 @@ instance Yesod Haskellers where
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
     addStaticContent ext' _ content = do
-        let fn = base64md5 content ++ '.' : ext'
+        let fn = base64md5 content ++ '.' : unpack ext'
         let content' =
                 if ext' == "js"
                     then case minifym content of
@@ -292,7 +215,7 @@ instance Yesod Haskellers where
         let fn' = statictmp ++ fn
         exists <- liftIO $ doesFileExist fn'
         unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
+        return $ Just $ Right (StaticR $ StaticRoute ["tmp", pack fn] [], [])
 
     clientSessionDuration _ = 60 * 24 * 14 -- 2 weeks
 
@@ -349,10 +272,10 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb (SkillR sid) = do
         s <- runDB $ get404 sid
         return (skillName s, Just AllSkillsR)
-    breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ showIntegral uid)
+    breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ toSinglePiece uid)
     breadcrumb (UserR str) = do
         u <- runDB $
-            case readIntegral str of
+            case fromSinglePiece str of
                 Just uid -> get404 uid
                 Nothing -> do
                     x <- getBy $ UniqueUsername str
@@ -370,7 +293,12 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb JobsR = return ("Job Listings", Just RootR)
     breadcrumb (JobR jid) = do
         j <- runDB $ get404 jid
-        return ((jobTitle j) ++ " - " ++ (prettyDay . utctDay . jobPostedAt $ j), Just JobsR)
+        return (T.concat
+            [ jobTitle j
+            , " - "
+            , T.pack . prettyDay . utctDay . jobPostedAt $ j
+            ], Just JobsR
+            )
     breadcrumb TeamsR = return ("Special Interest Groups", Just RootR)
     breadcrumb (TeamR tid) = do
         t <- runDB $ get404 tid
@@ -470,15 +398,16 @@ instance YesodAuth Haskellers where
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Nothing, Just (uid, _)) -> do
-                setMessage $ string "Identifier added to your account"
+                setMessage "Identifier added to your account"
                 _ <- runDB $ insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Just _, Just _) -> do
-                setMessage $ string "That identifier is already attached to an account. Please detach it from the other account first."
+                setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect RedirectTemporary ProfileR
 
-    showAuthId _ = showIntegral
-    readAuthId _ = readIntegral
+    showAuthId _ = toSinglePiece
+    readAuthId _ = fromSinglePiece
+
     authPlugins = [ authOpenId
                   , authFacebook "157813777573244"
                                  "327e6242e855954b16f9395399164eec"
@@ -486,7 +415,7 @@ instance YesodAuth Haskellers where
                   ]
 
     loginHandler = defaultLayout $ do
-        [$hamlet|\
+        [hamlet|\
 <div style="width:500px;margin:0 auto">^{login}
 |]
 
@@ -495,7 +424,7 @@ login = {-addCassius $(cassiusFile "login") >> -}$(hamletFile "login")
 
 userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
 userR (_, Just (Username _ un)) = UserR un
-userR ((uid, _), _) = UserR $ showIntegral uid
+userR ((uid, _), _) = UserR $ toSinglePiece uid
 
 debugInfo :: TVar (Map.Map (String, Int) (Int, Int))
 debugInfo = unsafePerformIO $ newTVarIO Map.empty
@@ -504,7 +433,7 @@ getDebugR :: Handler RepHtml
 getDebugR = do
     l <- Map.toList `fmap` liftIO (atomically $ readTVar debugInfo)
     defaultLayout $ do
-        [$hamlet|\
+        [hamlet|\
 <table>
     <thead>
         <tr>
@@ -527,7 +456,7 @@ prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"
 
-addTeamNews :: TeamId -> String -> Html -> HaskellersRoute -> SqlPersist (GGHandler Haskellers Haskellers IO) ()
+addTeamNews :: TeamId -> Text -> Html -> HaskellersRoute -> SqlPersist (GGHandler Haskellers Haskellers IO) ()
 addTeamNews tid title content url = do
     render <- lift getUrlRender
     now <- liftIO getCurrentTime
@@ -581,7 +510,7 @@ humanReadableTimeDiff curTime oldTime =
               | years d < 1    = thisYear
               | otherwise      = previousYears
 
-userFullName :: User -> String
+userFullName :: User -> Text
 userFullName =
     go . Model.userFullName
   where
