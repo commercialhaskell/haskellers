@@ -405,9 +405,6 @@ instance YesodAuth Haskellers where
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect RedirectTemporary ProfileR
 
-    showAuthId _ = toSinglePiece
-    readAuthId _ = fromSinglePiece
-
     authPlugins = [ authOpenId
                   , authFacebook "157813777573244"
                                  "327e6242e855954b16f9395399164eec"
