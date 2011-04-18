@@ -5,6 +5,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Controller
     ( withHaskellers
+    , withDevelApp
     ) where
 
 import Haskellers
@@ -20,6 +21,7 @@ import Control.Monad (forever)
 import Data.Maybe (catMaybes)
 import qualified Data.Set as Set
 import Data.ByteString (ByteString)
+import Data.Dynamic (Dynamic, toDyn)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -68,6 +70,9 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
     toWaiApp h >>= f
   where
     s = static Settings.staticdir
+
+withDevelApp :: Dynamic
+withDevelApp = toDyn (withHaskellers :: (Application -> IO ()) -> IO ())
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do
