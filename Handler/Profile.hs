@@ -36,7 +36,7 @@ screenNameFormlet uid = fieldsToTable $ ScreenName
     <*> selectField servopts "Service" Nothing
     <*> (stringField "Screen name" Nothing)
   where
-    servopts = map (id &&& show) [minBound..maxBound]
+    servopts = map (id &&& T.pack . show) [minBound..maxBound]
 
 userForm :: Int -> User -> Form s m User
 userForm maxY u = fieldsToTable $ User

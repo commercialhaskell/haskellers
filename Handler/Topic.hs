@@ -25,7 +25,7 @@ topicFormlet tid uid now = fieldsToTable $ Topic
     <*> pure (Just uid)
     <*> stringField "Title" Nothing
   where
-    opts = map (id &&& show) [minBound..maxBound]
+    opts = map (id &&& T.pack . show) [minBound..maxBound]
 
 getTopicsR :: TeamId -> Handler RepHtml
 getTopicsR tid = do
@@ -77,7 +77,7 @@ statusFormlet :: TopicStatus -> Form s m TopicStatus
 statusFormlet =
     fieldsToTable . selectField opts "New status" . Just
   where
-    opts = map (id &&& show) [minBound..maxBound]
+    opts = map (id &&& T.pack . show) [minBound..maxBound]
 
 messageForm :: Form s Haskellers Html
 messageForm = fieldsToTable $ nicHtmlField "Your message" Nothing
