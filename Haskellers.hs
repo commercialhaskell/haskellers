@@ -25,11 +25,13 @@ module Haskellers
     , addTeamNews
     , humanReadableTimeDiff
     , userFullName
+    , toSinglePiece
+    , fromSinglePiece
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
-import Yesod
+import Yesod hiding (Message)
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
@@ -63,6 +65,7 @@ import qualified Data.Text as T
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Data.Monoid (mappend)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
+import Web.Routes.Quasi (toSinglePiece, fromSinglePiece)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
