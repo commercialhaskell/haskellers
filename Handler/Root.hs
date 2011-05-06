@@ -6,6 +6,7 @@ module Handler.Root
     , gravatar
     , getLocationsR
     , yearField
+    , postLangR
     ) where
 
 import Haskellers hiding (Filter)
@@ -215,3 +216,11 @@ getLocationsR = do
 
 profileUserR :: Profile -> HaskellersRoute
 profileUserR p = userR ((profileUserId p, profileUser p), profileUsername p)
+
+postLangR :: Handler ()
+postLangR = do
+    runFormPost' (stringInput "lang") >>= setLanguage
+    md <- runFormPost' $ maybeStringInput "dest"
+    case md of
+        Nothing -> redirect RedirectTemporary RootR
+        Just d -> redirectText RedirectTemporary d

@@ -10,4 +10,8 @@ $(function(){
         return false;
     });
     $("#nav").css('height', $('html').height() + 'px');
+    $("#haskell_bar input[type=submit]").hide();
+    $("#haskell_bar select").change(function(){
+        $("#haskell_bar form").submit();
+    });
 });

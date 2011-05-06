@@ -11,6 +11,14 @@
         <div id="haskell_bar">
           <p .title>
             <a href="http://www.haskell.org/">Haskell
+            <form method=post action=@{LangR}>
+              $maybe cr <- current
+                <input type=hidden name=dest value=@{tm cr}>
+              <select name=lang>
+                <option>-- Language
+                $forall lang <- langs
+                  <option value=#{fst lang}>#{snd lang}
+              <input type=submit value="Change Language">
         <div id="heading_wrapper">
             <div id="heading">
                 <a href="@{RootR}" alt="Home">
@@ -55,24 +63,24 @@
         <div id="footer_wrapper">
             <div id="footer_content">
                 <p>
-                    \Developed by 
+                    Developed by 
                     <a href="http://www.snoyman.com/">Michael Snoyman
-                    \ and powered by the 
+                     and powered by the 
                     <a href="http://docs.yesodweb.com/">Yesod Web Framework
-                    \.
+                    .
                 <p>
-                    \Design by 
+                    Design by 
                       <a href="http://www.haskellers.com/user/nubis/">Nubis
                 <a href="http://github.com/snoyberg/haskellers">View Source
                 <div .addthis_toolbox .addthis_default_style>
                     <a href="http://www.addthis.com/bookmark.php?v=250&amp;username=snoyberg" .addthis_button_compact>Share
                     <span .addthis_separator>|
-                    \<a class="addthis_button_preferred_1"></a>
-                    \<a class="addthis_button_preferred_2"></a>
-                    \<a class="addthis_button_preferred_3"></a>
-                    \<a class="addthis_button_preferred_4"></a>
-                    \<script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
-                    \<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg"></script>
+                    <a class="addthis_button_preferred_1"></a>
+                    <a class="addthis_button_preferred_2"></a>
+                    <a class="addthis_button_preferred_3"></a>
+                    <a class="addthis_button_preferred_4"></a>
+                    <script type="text/javascript">var addthis_config = {"data_track_clickback":true};
+                    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg">
         <div id="login">
-            <h3>Login with
+          <h3>_{LoginWith}
             ^{login'}

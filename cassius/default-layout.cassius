@@ -277,3 +277,6 @@ form h2
     line-height: 22px
     text-decoration: none
     margin-right: 10px  
+
+#haskell_bar form, #haskell_bar p
+    display: inline

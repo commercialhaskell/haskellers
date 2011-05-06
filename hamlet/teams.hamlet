@@ -1,4 +1,4 @@
-<h1>Existing Special Interest Groups
+<h1>_{ExistingGroups}
 $forall team <- teams
   <div .team>
     <a href="@{TeamR (fst (fst team))}">
@@ -6,10 +6,10 @@ $forall team <- teams
 \
 $if cat
     <form method="post" action="@{TeamsR}" .big>
-        <h2>Add new special interest group
+        <h2>_{AddGroupLong}
         <table>
-            \^{form}
+            ^{form}
             <tr>
                 <td colspan="2">
-                    \#{nonce}
-                    <input type="submit" value="Add Group">
+                    #{nonce}
+                    <input type="submit" value=_{AddGroupShort}>

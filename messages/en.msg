@@ -1,3 +1,4 @@
+# default-layout
 TagLine: The meeting place for professional Haskell programmers
 Overview: Overview
 Groups: Groups
@@ -12,3 +13,9 @@ Logout: Logout
 Login: Login
 WelcomeUser name@Text: Welcome #{name}
 IAmAHaskeller: I'm a Haskeller!
+LoginWith: Login with
+
+#teams
+ExistingGroups: Existing Special Interest Groups
+AddGroupLong: Add new special interest group
+AddGroupShort: Add Group

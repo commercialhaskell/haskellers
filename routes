@@ -83,3 +83,5 @@
 /topics/#TopicId/message TopicMessageR POST
 
 /bling BlingR GET
+
+/lang LangR POST

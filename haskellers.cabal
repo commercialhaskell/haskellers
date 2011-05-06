@@ -47,6 +47,9 @@ library
 executable         haskellers
     if flag(production)
         cpp-options:   -DPRODUCTION
+        ghc-options:   -Wall -Werror -threaded
+    else
+        ghc-options:   -Wall -Werror -threaded -O0
     if flag(devel)
         Buildable:     False
     main-is:       simple-server.hs
@@ -88,4 +91,3 @@ executable         haskellers
                    blaze-html,
                    http-types,
                    blaze-builder
-    ghc-options:   -Wall -Werror -threaded

@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Haskellers
     ( Haskellers (..)
+    , HaskellersMessage (..)
     , HaskellersRoute (..)
     , resourcesHaskellers
     , Handler
@@ -195,6 +196,12 @@ instance Yesod Haskellers where
             addJulius $(Settings.juliusFile "default-layout")
             addWidget widget
         let login' = $(ihamletFile "hamlet/login.hamlet")
+        let langs :: [(Text, Text)]
+            langs =
+                [ ("en", "English")
+                , ("es", "Spanish")
+                , ("he", "Hebrew")
+                ]
         ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
 
     -- This is done to provide an optimization for serving static files from
@@ -362,6 +369,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb TeamUnadminR{} = return ("", Nothing)
     breadcrumb DeleteTeamPackageR{} = return ("", Nothing)
     breadcrumb TopicMessageR{} = return ("", Nothing)
+    breadcrumb LangR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where
