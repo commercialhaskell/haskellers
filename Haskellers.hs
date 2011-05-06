@@ -1,4 +1,5 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Haskellers
@@ -36,6 +37,7 @@ import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
+import Yesod.Message
 import Data.Char (isSpace)
 import qualified Settings
 import System.Directory
@@ -66,6 +68,7 @@ import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Data.Monoid (mappend)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Web.Routes.Quasi (toSinglePiece, fromSinglePiece)
+import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -87,6 +90,8 @@ data Profile = Profile
     , profileUsername :: Maybe Username
     }
   deriving Show
+
+mkMessage "Haskellers" "messages" "en"
 
 -- | A useful synonym; most of the handler functions in your application
 -- will need to be of this type.
@@ -175,8 +180,8 @@ instance Yesod Haskellers where
             isCurrent RootR = fmap tm current == Just RootR
             isCurrent x = Just x == fmap tm current || x `elem` map fst parents
         let navbarSection :: (String, [(String, HaskellersRoute)])
-                          -> Hamlet HaskellersRoute
-            navbarSection section = $(hamletFile "navbar-section")
+                          -> IHamlet HaskellersMessage HaskellersRoute
+            navbarSection section = $(ihamletFile "hamlet/navbar-section.hamlet")
         pc <- widgetToPageContent $ do
             case ma of
                 Nothing -> return ()
@@ -189,8 +194,8 @@ instance Yesod Haskellers where
             addJulius $(Settings.juliusFile "analytics")
             addJulius $(Settings.juliusFile "default-layout")
             addWidget widget
-        let login' = $(hamletFile "login")
-        hamletToRepHtml $(Settings.hamletFile "default-layout")
+        let login' = $(ihamletFile "hamlet/login.hamlet")
+        ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
 
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs

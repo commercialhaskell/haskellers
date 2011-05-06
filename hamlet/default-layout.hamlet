@@ -1,10 +1,10 @@
-\<!DOCTYPE html>
+!!!
 
 <html>
     <head>
         <title>#{title}
         <link rel="stylesheet" href="@{StaticR reset_css}">
-        \^{pageHead pc}
+        ^{const $ pageHead pc}
         <link href="@{NewsFeedR}" type="application/atom+xml" rel="alternate" title="Haskellers News">
         <link href="@{JobsFeedR}" type="application/atom+xml" rel="alternate" title="Haskellers Job Listings">
     <body .#{bodyClass}>
@@ -15,30 +15,30 @@
             <div id="heading">
                 <a href="@{RootR}" alt="Home">
                     <img src="@{StaticR logo_png}" alt="Haskellers" .logo>
-                    <span .tagline>The meeting place for professional Haskell programmers
+                    <span .tagline>_{TagLine}
                 <div id="main_menu">
-                    <a id="overview" href="@{RootR}">Overview
-                    <a id="teams" href="@{TeamsR}">Groups
-                    <a id="find_haskeller" href="@{UsersR}">Find a<br/>Haskeller
-                    <a id="find_job" href="@{JobsR}">Find a Job
+                    <a id="overview" href="@{RootR}">_{Overview}
+                    <a id="teams" href="@{TeamsR}">_{Groups}
+                    <a id="find_haskeller" href="@{UsersR}">_{FindAHaskeller}
+                    <a id="find_job" href="@{JobsR}">_{FindAJob}
                 <div id="secondary_menu">
-                    <a href=@{BlingR}>Bling
-                    <a href="@{FaqR}">FAQ
-                    <a href="@{NewsR}">News Archive
-                    <a href="@{AllSkillsR}">Browse Skills
+                    <a href=@{BlingR}>_{Bling}
+                    <a href="@{FaqR}">_{FAQ}
+                    <a href="@{NewsR}">_{NewsArchive}
+                    <a href="@{AllSkillsR}">_{BrowseSkills}
                     $maybe u <- ma
-                        <a href="@{ProfileR}">Your Profile
-                        <a href="@{AuthR LogoutR}">Logout
+                        <a href="@{ProfileR}">_{YourProfile}
+                        <a href="@{AuthR LogoutR}">_{Logout}
                         $if userAdmin (snd (fst u))
                             <a href="@{MessagesR}">Admin Messages
                             <a href="@{AdminUsersR}">Admin Users
                     $nothing
-                        <a href="@{AuthR LoginR}">Login
+                      <a href="@{AuthR LoginR}">_{Login}
                     <div id="im_a_haskeller">
                         $maybe u <- ma
-                            <a href="@{userR u}">Welcome #{userFullName (snd (fst u))}
+                          <a href="@{userR u}">Welcome _{WelcomeUser $ userFullName (snd (fst u))}
                         $nothing
-                            <a id="login-button" href="@{AuthR LoginR}">I'm a Haskeller!
+                          <a id="login-button" href="@{AuthR LoginR}">_{IAmAHaskeller}
         <div id="section_title">
             <div>
                 <ul id="breadcrumbs">
@@ -51,7 +51,7 @@
             <div id="main_content">
                 $maybe msg <- mmsg
                     <div id="message">#{msg}
-                \^{pageBody pc}
+                ^{const $ pageBody pc}
         <div id="footer_wrapper">
             <div id="footer_content">
                 <p>
@@ -75,4 +75,4 @@
                     \<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg"></script>
         <div id="login">
             <h3>Login with
-            \^{login'}
+            ^{login'}

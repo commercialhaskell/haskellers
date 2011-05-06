@@ -20,12 +20,11 @@ module Settings
     , staticdir
     ) where
 
-import qualified Text.Hamlet as H
 import qualified Text.Cassius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadControlIO, addWidget, addCassius, addJulius)
+import Yesod (MonadControlIO, addWidget, addCassius, addJulius, whamletFile)
 import Data.Monoid (mempty, mappend)
 import System.Directory (doesFileExist)
 import Data.Text (Text)
@@ -106,7 +105,7 @@ toCassiusFile x = "cassius/" ++ x ++ ".cassius"
 toJuliusFile x = "julius/" ++ x ++ ".julius"
 
 hamletFile :: FilePath -> Q Exp
-hamletFile = H.hamletFile . toHamletFile
+hamletFile = whamletFile . toHamletFile
 
 cassiusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
