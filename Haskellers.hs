@@ -196,6 +196,7 @@ instance Yesod Haskellers where
         let langs :: [(Text, Text)]
             langs =
                 [ ("en", "English")
+                , ("ja", "Japanese")
                 , ("es", "Spanish")
                 , ("he", "Hebrew")
                 ]

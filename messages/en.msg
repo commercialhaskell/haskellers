@@ -2,7 +2,7 @@
 TagLine: The meeting place for professional Haskell programmers
 Overview: Overview
 Groups: Groups
-FindAHaskeller: Find a<br>Haskeller
+FindAHaskeller: Find a Haskeller
 FindAJob: Find a Job
 Bling: Bling
 FAQ: FAQ
