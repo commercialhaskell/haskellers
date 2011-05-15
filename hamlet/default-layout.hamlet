@@ -23,30 +23,30 @@
             <div id="heading">
                 <a href="@{RootR}" alt="Home">
                     <img src="@{StaticR logo_png}" alt="Haskellers" .logo>
-                    <span .tagline>_{TagLine}
+                    <span .tagline>_{MsgTagLine}
                 <div id="main_menu">
-                    <a id="overview" href="@{RootR}">_{Overview}
-                    <a id="teams" href="@{TeamsR}">_{Groups}
-                    <a id="find_haskeller" href="@{UsersR}">_{FindAHaskeller}
-                    <a id="find_job" href="@{JobsR}">_{FindAJob}
+                    <a id="overview" href="@{RootR}">_{MsgOverview}
+                    <a id="teams" href="@{TeamsR}">_{MsgGroups}
+                    <a id="find_haskeller" href="@{UsersR}">_{MsgFindAHaskeller}
+                    <a id="find_job" href="@{JobsR}">_{MsgFindAJob}
                 <div id="secondary_menu">
-                    <a href=@{BlingR}>_{Bling}
-                    <a href="@{FaqR}">_{FAQ}
-                    <a href="@{NewsR}">_{NewsArchive}
-                    <a href="@{AllSkillsR}">_{BrowseSkills}
+                    <a href=@{BlingR}>_{MsgBling}
+                    <a href="@{FaqR}">_{MsgFAQ}
+                    <a href="@{NewsR}">_{MsgNewsArchive}
+                    <a href="@{AllSkillsR}">_{MsgBrowseSkills}
                     $maybe u <- ma
-                        <a href="@{ProfileR}">_{YourProfile}
-                        <a href="@{AuthR LogoutR}">_{Logout}
+                        <a href="@{ProfileR}">_{MsgYourProfile}
+                        <a href="@{AuthR LogoutR}">_{MsgLogout}
                         $if userAdmin (snd (fst u))
                             <a href="@{MessagesR}">Admin Messages
                             <a href="@{AdminUsersR}">Admin Users
                     $nothing
-                      <a href="@{AuthR LoginR}">_{Login}
+                      <a href="@{AuthR LoginR}">_{MsgLogin}
                     <div id="im_a_haskeller">
                         $maybe u <- ma
-                          <a href="@{userR u}">Welcome _{WelcomeUser $ userFullName (snd (fst u))}
+                          <a href="@{userR u}">Welcome _{MsgWelcomeUser $ userFullName (snd (fst u))}
                         $nothing
-                          <a id="login-button" href="@{AuthR LoginR}">_{IAmAHaskeller}
+                          <a id="login-button" href="@{AuthR LoginR}">_{MsgIAmAHaskeller}
         <div id="section_title">
             <div>
                 <ul id="breadcrumbs">
@@ -82,5 +82,5 @@
                     <script type="text/javascript">var addthis_config = {"data_track_clickback":true};
                     <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg">
         <div id="login">
-          <h3>_{LoginWith}
+          <h3>_{MsgLoginWith}
             ^{login'}

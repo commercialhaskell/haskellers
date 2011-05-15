@@ -27,13 +27,11 @@ module Haskellers
     , addTeamNews
     , humanReadableTimeDiff
     , userFullName
-    , toSinglePiece
-    , fromSinglePiece
     ) where
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
-import Yesod hiding (Message)
+import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
@@ -68,7 +66,6 @@ import qualified Data.Text as T
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Data.Monoid (mappend)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
-import Web.Routes.Quasi (toSinglePiece, fromSinglePiece)
 import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
 
 -- | The site argument for your application. This can be a good place to

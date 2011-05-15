@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Model where
 
-import Yesod hiding (Message)
+import Yesod
 import Database.Persist.Base
 import Text.Blaze (ToHtml (..))
 import Data.Time (UTCTime, Day)

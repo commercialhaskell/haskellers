@@ -1,7 +1,7 @@
 <form method="post" action="@{TeamR tid}">
     <table>
-        \^{form}
+        ^{form}
         <tr>
             <td colspan="2">
-                \#{nonce}
+                #{nonce}
                 <input type="submit" value="Update Group">
