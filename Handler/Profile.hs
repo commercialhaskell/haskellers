@@ -130,6 +130,7 @@ postDeleteAccountR = do
                     [TopicMessageCreator Nothing]
         deleteWhere [IdentUserEq uid]
         deleteWhere [UserSkillUserEq uid]
+        deleteWhere [PackageUserEq uid]
         delete uid
     setMessage "Your account has been deleted."
     redirect RedirectTemporary RootR
