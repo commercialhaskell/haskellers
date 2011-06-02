@@ -8,12 +8,13 @@ module Controller
     , withDevelApp
     ) where
 
-import Haskellers
+import Haskellers hiding (approot)
 import Settings
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
 import Data.IORef
+import Data.Text (Text)
 #if PRODUCTION
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad (forever)
@@ -55,8 +56,8 @@ getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: ByteString)
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withHaskellers :: (Application -> IO a) -> IO a
-withHaskellers f = Settings.withConnectionPool $ \p -> do
+withHaskellers :: Text -> (Application -> IO a) -> IO a
+withHaskellers approot f = Settings.withConnectionPool $ \p -> do
     flip runConnectionPool p $ runMigration migrateAll
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
@@ -66,13 +67,13 @@ withHaskellers f = Settings.withConnectionPool $ \p -> do
 #else
     fillProfs p hprofs pprofs
 #endif
-    let h = Haskellers s p hprofs pprofs
+    let h = Haskellers s p hprofs pprofs approot
     toWaiApp h >>= f
   where
     s = static Settings.staticdir
 
 withDevelApp :: Dynamic
-withDevelApp = toDyn (withHaskellers :: (Application -> IO ()) -> IO ())
+withDevelApp = toDyn (withHaskellers "http://localhost:3000" :: (Application -> IO ()) -> IO ())
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do

@@ -131,8 +131,10 @@ postDeleteAccountR = do
         deleteWhere [IdentUserEq uid]
         deleteWhere [UserSkillUserEq uid]
         deleteWhere [PackageUserEq uid]
+        {- FIXME
         updateWhere [MessageFrom Nothing] [MessageFromEq $ Just uid]
         updateWhere [MessageRegarding Nothing] [MessageRegardingEq $ Just uid]
+        -}
         delete uid
     setMessage "Your account has been deleted."
     redirect RedirectTemporary RootR

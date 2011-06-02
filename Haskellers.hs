@@ -77,6 +77,7 @@ data Haskellers = Haskellers
     , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
     , homepageProfiles :: IORef ([Profile], Int)
     , publicProfiles :: IORef [Profile]
+    , theApproot :: Text
     }
 
 data Profile = Profile
@@ -151,7 +152,7 @@ instance Yesod Haskellers where
       where
         corrected = filter (not . T.null) s
 
-    approot _ = Settings.approot
+    approot = theApproot
 
     defaultLayout widget = do
         mmsg <- getMessage
@@ -205,7 +206,7 @@ instance Yesod Haskellers where
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a Settings.staticroot) $ renderRoute s
+        Just $ uncurry (joinPath a $ Settings.staticroot $ theApproot a) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
