@@ -38,8 +38,8 @@ Package
 Message
     closed Bool Update Eq
     when UTCTime Asc
-    from UserId Maybe
-    regarding UserId Maybe
+    from UserId Maybe Eq Update
+    regarding UserId Maybe Eq Update
     text Textarea
 News
     when UTCTime Desc
