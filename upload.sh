@@ -1,0 +1,1 @@
+cabal clean && cabal configure -fproduction && cabal build && rm -rf static/tmp && strip dist/build/haskellers/haskellers && bzip2 dist/build/haskellers/haskellers && scp favicon.ico -i ~/.ec2/ec2-keypair.pem -r static dist/build/haskellers/haskellers.bz2 ubuntu@50.16.170.145:/home/ubuntu/haskellers
