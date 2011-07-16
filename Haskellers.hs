@@ -67,6 +67,8 @@ import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Data.Monoid (mappend)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
+import qualified Data.Text.Read
+import Data.Maybe (fromJust)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -142,7 +144,7 @@ instance Yesod Haskellers where
       where
         qs = map (\(x, y) -> (x, if T.null y then Nothing else Just y)) qs'
         pieces'
-            | pieces == ["page", "openid", "complete"] = ["page", "openid", "complete", ""]
+            | pieces == ["auth", "page", "openid", "complete"] = ["auth", "page", "openid", "complete", ""] -- For Google, it remembers the old OpenIDs
             | otherwise = pieces
     cleanPath _ ["page", "openid", "complete", ""] = Right ["page", "openid", "complete"]
     cleanPath _ s =
@@ -289,9 +291,9 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ toSinglePiece uid)
     breadcrumb (UserR str) = do
         u <- runDB $
-            case fromSinglePiece str of
-                Just uid -> get404 uid
-                Nothing -> do
+            case Data.Text.Read.decimal str :: Either String (Int, Text) of
+                Right (_, "") -> get404 $ fromJust $ fromSinglePiece str
+                _ -> do
                     x <- getBy $ UniqueUsername str
                     case x of
                         Nothing -> lift notFound

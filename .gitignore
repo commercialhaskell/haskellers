@@ -5,3 +5,4 @@ client_session_key.aes
 devel-server
 dist
 static/tmp
+SESCreds.hs

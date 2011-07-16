@@ -9,11 +9,14 @@ module Handler.Email
 import Haskellers
 import Control.Monad (when)
 import Network.Mail.Mime
+import Network.Mail.Mime.SES
 import System.Random (newStdGen)
 import Data.Maybe (isJust)
 import qualified Data.ByteString.Lazy.UTF8 as LU
 import StaticFiles (logo_png)
 import Data.Text (Text, pack, unpack)
+import SESCreds (access, secret)
+import Data.Text.Encoding (encodeUtf8)
 
 postResetEmailR :: Handler ()
 postResetEmailR = do
@@ -55,9 +58,15 @@ postSendVerifyR = do
                                ]
             render <- getUrlRender
             let url = render $ VerifyEmailR verkey
-            liftIO $ renderSendMail Mail
+            let ses = SES
+                    { sesFrom = "webmaster@haskellers.com"
+                    , sesTo = [encodeUtf8 email]
+                    , sesAccessKey = access
+                    , sesSecretKey = secret
+                    }
+            liftIO $ renderSendMailSES ses Mail
                 { mailHeaders =
-                    [ ("From", "noreply@haskellers.com")
+                    [ ("From", "webmaster@haskellers.com")
                     , ("To", email)
                     , ("Subject", "Verify your email address")
                     ]

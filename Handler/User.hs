@@ -25,6 +25,8 @@ import Data.Time (getCurrentTime)
 import Data.Monoid (mappend)
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.Read
+import Data.Maybe (fromJust)
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
@@ -41,15 +43,17 @@ getByIdentR = do
 getUserR :: Text -> Handler RepHtmlJson
 getUserR input = do
     (uid, u) <-
-        case fromSinglePiece input of
-            Just uid -> runDB $ do
+        case Data.Text.Read.decimal input :: Either String (Int, Text) of
+            Right (x, "") -> runDB $ do
+                let uid = fromJust $ fromSinglePiece input
+                liftIO $ print $ "Looking for: " ++ show x ++ ", uid == " ++ show uid
                 u <- get404 uid
                 mun <- getBy $ UniqueUsernameUser uid
                 case mun of
                     Nothing -> return (uid, u)
                     Just (_, Username _ un) ->
                         lift $ redirect RedirectPermanent $ UserR un
-            Nothing -> runDB $ do
+            _ -> runDB $ do
                 mun <- getBy $ UniqueUsername input
                 case mun of
                     Nothing -> lift notFound
