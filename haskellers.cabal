@@ -42,6 +42,7 @@ library
                    Handler.Team
                    Handler.Topic
                    Handler.User
+                   SESCreds
     ghc-options:   -Wall -Werror -O0
 
 executable         haskellers
