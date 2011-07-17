@@ -397,7 +397,9 @@ instance YesodAuth Haskellers where
         muid <- maybeAuth
         x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
-            (Just (_, i), Nothing) -> return $ Just $ identUser i
+            (Just (_, i), Nothing) -> do
+                runDB $ addBIDEmail (identUser i)
+                return $ Just $ identUser i
             (Nothing, Nothing) -> runDB $ do
                 uid <- insert $ User
                     { Model.userFullName = ""
@@ -418,15 +420,23 @@ instance YesodAuth Haskellers where
                     , userLongitude = Nothing
                     , userLatitude = Nothing
                     }
+                addBIDEmail uid
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Nothing, Just (uid, _)) -> do
+                runDB $ addBIDEmail uid
                 setMessage "Identifier added to your account"
                 _ <- runDB $ insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Just _, Just _) -> do
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect RedirectTemporary ProfileR
+      where
+        addBIDEmail uid
+            | credsPlugin creds == "browserid" = do
+                u <- get404 uid
+                unless (userVerifiedEmail u) $ update uid [UserEmail $ Just $ credsIdent creds, UserVerifiedEmail True]
+            | otherwise = return ()
 
     authPlugins = [ authOpenId
                   , authFacebook "157813777573244"
