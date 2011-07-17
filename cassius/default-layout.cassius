@@ -280,3 +280,6 @@ form h2
 
 #haskell_bar form, #haskell_bar p
     display: inline
+
+#browserid
+    cursor: pointer

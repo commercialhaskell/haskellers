@@ -86,9 +86,11 @@ executable         haskellers
                    warp,
                    yesod-core >= 0.8.2,
                    yesod-form,
-                   yesod-newsfeed,
+                   yesod-newsfeed >= 0.1 && < 0.2,
                    yesod-static,
                    monad-control,
                    blaze-html,
                    http-types,
+                   aeson >= 0.3 && < 0.4,
+                   attoparsec >= 0.8 && < 0.9,
                    blaze-builder

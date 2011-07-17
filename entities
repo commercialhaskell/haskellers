@@ -1,7 +1,7 @@
 User
     fullName Text Asc id=full-name
     website Text Maybe id=website
-    email Text Maybe toFormField=maybeEmailField id=email Update
+    email Text Maybe toFormField=maybeEmailField id=email Update Eq
     verifiedEmail Bool default=false Eq Update
     verkey Text Maybe Update
     haskellSince Int Maybe Asc

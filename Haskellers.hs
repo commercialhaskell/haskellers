@@ -42,11 +42,11 @@ import qualified Settings
 import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
-import Settings (hamletFile, cassiusFile, juliusFile, widgetFile)
+import Settings (hamletFile, cassiusFile, juliusFile, widgetFile, hostname)
 import Model hiding (userFullName)
 import qualified Model
 import StaticFiles (logo_png, jquery_ui_css, google_gif, yahoo_gif,
-                    facebook_gif, background_png,
+                    facebook_gif, background_png, browserid_png,
                     buttons_png, reset_css, hslogo_16_png)
 import Yesod.Form.Jquery
 import Yesod.Form.Nic
@@ -69,6 +69,10 @@ import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
 import qualified Data.Text.Read
 import Data.Maybe (fromJust)
+import Network.HTTP.Enumerator (simpleHttp)
+import qualified Data.ByteString.Lazy.Char8 as L8
+import Data.Aeson (json, Value (Object, String))
+import Data.Attoparsec.Lazy (parse, maybeResult)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -194,6 +198,7 @@ instance Yesod Haskellers where
             addStylesheetEither $ urlJqueryUiCss y
             addJulius $(Settings.juliusFile "analytics")
             addJulius $(Settings.juliusFile "default-layout")
+            addScriptRemote "https://browserid.org/include.js"
             addWidget widget
         let login' = $(ihamletFile "hamlet/login.hamlet")
         let langs :: [(Text, Text)]
@@ -388,6 +393,7 @@ instance YesodAuth Haskellers where
     logoutDest _ = RootR
 
     getAuthId creds = do
+        fixBrowserId creds
         muid <- maybeAuth
         x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
@@ -426,6 +432,7 @@ instance YesodAuth Haskellers where
                   , authFacebook "157813777573244"
                                  "327e6242e855954b16f9395399164eec"
                                  []
+                  , authBrowserId hostname
                   ]
 
     loginHandler = defaultLayout $ do
@@ -530,3 +537,52 @@ userFullName =
   where
     go "" = "<Unnamed user>"
     go x = x
+
+browserIdDest :: AuthRoute
+browserIdDest = PluginR "browserid" []
+
+authBrowserId :: YesodAuth master => Text -> AuthPlugin master
+authBrowserId host = AuthPlugin
+    { apName = "browserid"
+    , apDispatch = \method pieces ->
+        case (method, pieces) of
+            ("GET", [assertion]) -> do
+                lbs <- liftIO $ simpleHttp $ concat
+                    [ "https://browserid.org/verify?assertion="
+                    , unpack assertion
+                    , "&audience="
+                    , unpack host
+                    ]
+                let getEmail (Object o) =
+                        case (Map.lookup "status" o, Map.lookup "email" o) of
+                            (Just (String "okay"), Just (String e)) -> Just e
+                            _ -> Nothing
+                    getEmail _ = Nothing
+                case maybeResult (parse json lbs) >>= getEmail of
+                    Nothing -> permissionDenied $ "Invalid BrowserID assertion: " `T.append` (T.pack $ L8.unpack lbs)
+                    Just email -> setCreds True Creds
+                        { credsPlugin = "browserid"
+                        , credsIdent = email
+                        , credsExtra = []
+                        }
+                error $ L8.unpack lbs
+            (_, _) -> notFound
+    , apLogin = const $ return ()
+    }
+
+fixBrowserId :: Creds Haskellers -> GHandler sub Haskellers ()
+fixBrowserId creds
+    | credsPlugin creds == "browserid" = runDB $ do
+        liftIO $ putStrLn "here i am"
+        let email = credsIdent creds
+        x <- getBy $ UniqueIdent email
+        case x of
+            Just _ -> return ()
+            Nothing -> do
+                mu <- selectList [UserEmailEq $ Just email, UserVerifiedEmailEq True] [] 1 0
+                case mu of
+                    [(uid, _)] -> do
+                        _ <- insert $ Ident email uid
+                        return ()
+                    _ -> return ()
+    | otherwise = return ()

@@ -17,6 +17,7 @@ module Settings
     , runConnectionPool
     , staticroot
     , staticdir
+    , hostname
     ) where
 
 import qualified Text.Cassius as H
@@ -56,6 +57,13 @@ connStr :: Text
 connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers"
 #else
 connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers"
+#endif
+
+hostname :: Text
+#ifdef PRODUCTION
+hostname = "www.haskellers.com"
+#else
+hostname = "localhost:3000"
 #endif
 
 -- | Your application will keep a connection pool and take connections from

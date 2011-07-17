@@ -117,6 +117,7 @@ getProfileR = do
   where
     notOne [_] = False
     notOne _ = True
+    isWeb t = "http://" `T.isPrefixOf` t || "https://" `T.isPrefixOf` t
 
 postProfileR :: Handler RepHtml
 postProfileR = getProfileR

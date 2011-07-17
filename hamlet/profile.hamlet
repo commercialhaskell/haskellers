@@ -109,7 +109,10 @@ $elseif not (userVisible u)
     <ul>
         $forall ident <- idents
             <li>
-                <a href="#{identIdent (snd ident)}">#{identIdent (snd ident)}
+                $if isWeb $ identIdent $ snd ident
+                    <a href="#{identIdent (snd ident)}">#{identIdent (snd ident)}
+                $else
+                    #{identIdent (snd ident)}
                 $if notOne idents
                     <form method="post" action="@{DeleteIdentR (fst ident)}" .delete-ident>
                         <input type="submit" value="Remove">
