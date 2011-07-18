@@ -44,7 +44,7 @@
                       <a href="@{AuthR LoginR}">_{MsgLogin}
                     <div id="im_a_haskeller">
                         $maybe u <- ma
-                          <a href="@{userR u}">Welcome _{MsgWelcomeUser $ userFullName (snd (fst u))}
+                          <a href="@{userR u}">_{MsgWelcomeUser $ userFullName (snd (fst u))}
                         $nothing
                           <a id="login-button" href="@{AuthR LoginR}">_{MsgIAmAHaskeller}
         <div id="section_title">
