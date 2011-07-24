@@ -69,10 +69,7 @@ import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
 import qualified Data.Text.Read
 import Data.Maybe (fromJust)
-import Network.HTTP.Enumerator (simpleHttp)
-import qualified Data.ByteString.Lazy.Char8 as L8
-import Data.Aeson (json, Value (Object, String))
-import Data.Attoparsec.Lazy (parse, maybeResult)
+import Web.Authenticate.BrowserId (checkAssertion)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -557,25 +554,14 @@ authBrowserId host = AuthPlugin
     , apDispatch = \method pieces ->
         case (method, pieces) of
             ("GET", [assertion]) -> do
-                lbs <- liftIO $ simpleHttp $ concat
-                    [ "https://browserid.org/verify?assertion="
-                    , unpack assertion
-                    , "&audience="
-                    , unpack host
-                    ]
-                let getEmail (Object o) =
-                        case (Map.lookup "status" o, Map.lookup "email" o) of
-                            (Just (String "okay"), Just (String e)) -> Just e
-                            _ -> Nothing
-                    getEmail _ = Nothing
-                case maybeResult (parse json lbs) >>= getEmail of
-                    Nothing -> permissionDenied $ "Invalid BrowserID assertion: " `T.append` (T.pack $ L8.unpack lbs)
+                memail <- liftIO $ checkAssertion host assertion
+                case memail of
+                    Nothing -> permissionDenied $ "Invalid BrowserID assertion"
                     Just email -> setCreds True Creds
                         { credsPlugin = "browserid"
                         , credsIdent = email
                         , credsExtra = []
                         }
-                error $ L8.unpack lbs
             (_, _) -> notFound
     , apLogin = const $ return ()
     }

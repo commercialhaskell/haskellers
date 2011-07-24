@@ -29,6 +29,7 @@ import Control.Arrow ((&&&))
 import Data.Time
 import Data.Text (pack)
 import qualified Data.Text as T
+import Data.Char (isDigit)
 
 screenNameFormlet :: UserId -> Form s y ScreenName
 screenNameFormlet uid = fieldsToTable $ ScreenName
@@ -264,7 +265,7 @@ postSetUsernameR = do
     let musername =
             case res of
                 FormSuccess x ->
-                    if T.all validChar x && fromSinglePiece x == (Nothing :: Maybe UserId)
+                    if T.all validChar x && not (T.all isDigit x)
                         then Just x
                         else Nothing
                 _ -> Nothing
