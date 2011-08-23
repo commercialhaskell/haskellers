@@ -10,8 +10,8 @@ module Controller
 
 import Haskellers hiding (approot)
 import Settings
-import Yesod.Helpers.Static
-import Yesod.Helpers.Auth
+import Yesod.Static
+import Yesod.Auth
 import Database.Persist.GenericSql
 import Data.IORef
 import Data.Text (Text)
@@ -67,7 +67,8 @@ withHaskellers approot f = Settings.withConnectionPool $ \p -> do
 #else
     fillProfs p hprofs pprofs
 #endif
-    let h = Haskellers s p hprofs pprofs approot
+    s' <- s
+    let h = Haskellers s' p hprofs pprofs approot
     toWaiApp h >>= f
   where
     s = static Settings.staticdir
@@ -78,25 +79,25 @@ withDevelApp = toDyn (withHaskellers "http://localhost:3000" :: (Application -> 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do
     users <-
-        selectList [ UserVerifiedEmailEq True
-                   , UserVisibleEq True
-                   , UserRealEq True
-                   , UserBlockedEq False
+        selectList [ UserVerifiedEmail ==. True
+                   , UserVisible ==. True
+                   , UserReal ==. True
+                   , UserBlocked ==. False
                    -- FIXME , UserRealPicEq True
-                   ] [] 0 0
+                   ] []
     fmap catMaybes $ mapM userToProfile users
 
 getPublicProfs :: ConnectionPool -> IO [Profile]
 getPublicProfs pool = flip runConnectionPool pool $ do
     users <-
-        selectList [ UserVerifiedEmailEq True
-                   , UserVisibleEq True
-                   , UserBlockedEq False
+        selectList [ UserVerifiedEmail ==. True
+                   , UserVisible ==. True
+                   , UserBlocked ==. False
                    ]
-                   [ UserRealDesc
-                   , UserHaskellSinceAsc
-                   , UserFullNameAsc
-                   ] 0 0
+                   [ Desc UserReal
+                   , Asc UserHaskellSince
+                   , Asc UserFullName
+                   ]
     fmap catMaybes $ mapM userToProfile users
 
 fillProfs :: ConnectionPool -> IORef ([Profile], Int) -> IORef [Profile] -> IO ()
@@ -106,7 +107,7 @@ fillProfs pool hprofs pprofs = do
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
 
-userToProfile :: (Functor m, PersistBackend m) => (UserId, User) -> m (Maybe Profile)
+userToProfile :: (Functor (b m), PersistBackend b m) => (UserId, User) -> b m (Maybe Profile)
 userToProfile (uid, u) =
     case userEmail u of
         Nothing -> return Nothing

@@ -11,5 +11,4 @@ $if cat
             ^{form}
             <tr>
                 <td colspan="2">
-                    #{nonce}
                     <input type="submit" value=_{MsgAddGroupShort}>

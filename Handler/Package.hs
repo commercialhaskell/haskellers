@@ -20,10 +20,10 @@ postDeletePackageR pid = do
 postPackagesR :: Handler ()
 postPackagesR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPostNoNonce $ stringInput "name"
+    res <- runInputPost $ iopt textField "name"
     case res of
-        FormSuccess name -> do
+        Just name -> do
             _ <- runDB $ insert $ Package uid name
             setMessage "Package added"
-        _ -> setMessage "Invalid package name"
+        Nothing -> setMessage "Invalid package name"
     redirect RedirectTemporary ProfileR

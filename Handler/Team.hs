@@ -19,7 +19,7 @@ module Handler.Team
     ) where
 
 import Haskellers
-import Yesod.Helpers.Feed
+import Yesod.Feed
 import Data.List (sortBy)
 import Data.Ord (comparing)
 import Control.Applicative
@@ -27,8 +27,9 @@ import Yesod.Form.Nic
 import Control.Monad (unless)
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
+import Text.Hamlet (shamlet)
 
-loginStatus :: Maybe (UserId, User) -> Widget ()
+loginStatus :: Maybe (UserId, User) -> Widget
 loginStatus ma = do
     addCassius $(cassiusFile "login-status")
     addWidget $(hamletFile "login-status")
@@ -39,28 +40,28 @@ canAddTeam ma = do
         Nothing -> return False
         Just (_, u) -> return $ userVerifiedEmail u && userReal u && not (userBlocked u)
 
-teamFormlet :: Formlet s Haskellers Team
-teamFormlet mt = fieldsToTable $ Team
-    <$> stringField "Name" (fmap teamName mt)
-    <*> nicHtmlField "Description"
-            { ffsId = Just "team-desc"
+teamFormlet :: Maybe Team -> Html -> Form Haskellers Haskellers (FormResult Team, Widget)
+teamFormlet mt = renderTable $ Team
+    <$> areq textField "Name" (fmap teamName mt)
+    <*> areq nicHtmlField "Description"
+            { fsId = Just "team-desc"
             } (fmap teamDesc mt)
 
-packageFormlet :: TeamId -> Formlet s Haskellers TeamPackage
-packageFormlet tid mtp = fieldsToTable $ TeamPackage
+packageFormlet :: TeamId -> Maybe TeamPackage -> Html -> Form Haskellers Haskellers (FormResult TeamPackage, Widget)
+packageFormlet tid mtp = renderTable $ TeamPackage
     <$> pure tid
-    <*> stringField "Name" (fmap teamPackageName mtp)
-    <*> boolField "Available from Hackage?" (fmap teamPackageHackage mtp)
-    <*> maybeStringField "Description" (fmap teamPackageDesc mtp)
-    <*> maybeUrlField "Homepage" (fmap teamPackageHomepage mtp)
+    <*> areq textField "Name" (fmap teamPackageName mtp)
+    <*> areq boolField "Available from Hackage?" (fmap teamPackageHackage mtp)
+    <*> aopt textField "Description" (fmap teamPackageDesc mtp)
+    <*> aopt urlField "Homepage" (fmap teamPackageHomepage mtp)
 
 getTeamsR :: Handler RepHtml
 getTeamsR = do
     ma <- maybeAuth
     cat <- canAddTeam ma
-    (form, enctype, nonce) <- generateForm $ teamFormlet Nothing
-    teams' <- runDB $ selectList [] [] 0 0 >>= mapM (\(tid, t) -> do
-        users <- count [TeamUserTeamEq tid]
+    ((_, form), enctype) <- runFormPost $ teamFormlet Nothing
+    teams' <- runDB $ selectList [] [] >>= mapM (\(tid, t) -> do
+        users <- count [TeamUserTeam ==. tid]
         return ((tid, t), users)
         )
     let teams = reverse $ sortBy (comparing snd) teams'
@@ -74,7 +75,7 @@ postTeamsR = do
     u@(uid, _) <- requireAuth
     cat <- canAddTeam $ Just u
     unless cat $ permissionDenied "Only unblocked, verified users may create special interest groups"
-    (res, form, enctype, nonce) <- runFormPost $ teamFormlet Nothing
+    ((res, form), enctype) <- runFormPost $ teamFormlet Nothing
     case res of
         FormSuccess team -> runDB $ do
             tid <- insert team
@@ -106,7 +107,7 @@ getTeamR tid = do
     let isUnapprovedMember = status == Just UnapprovedMember
     let isMember = isApprovedMember || isUnapprovedMember
     let isWatching = status == Just Watching
-    users <- runDB $ selectList [TeamUserTeamEq tid] [] 0 0 >>= mapM (\(_, tu) -> do
+    users <- runDB $ selectList [TeamUserTeam ==. tid] [] >>= mapM (\(_, tu) -> do
         let uid = teamUserUser tu
         u <- get404 uid
         return (teamUserStatus tu, (uid, u))
@@ -115,9 +116,9 @@ getTeamR tid = do
     let amembers = map snd $ filter (\(x, _) -> x == ApprovedMember) users
     let umembers = map snd $ filter (\(x, _) -> x == UnapprovedMember) users
     let notMe x = Just x /= fmap fst ma
-    packages <- runDB $ selectList [TeamPackageTeamEq tid] [TeamPackageNameAsc] 0 0
-    (form, enctype, nonce) <- generateForm $ teamFormlet $ Just t
-    (addPackage, _, nonce2) <- generateForm $ packageFormlet tid Nothing
+    packages <- runDB $ selectList [TeamPackageTeam ==. tid] [Asc TeamPackageName]
+    ((_, form), enctype) <- runFormPost $ teamFormlet $ Just t
+    ((_, addPackage), _) <- runFormPost $ packageFormlet tid Nothing
     defaultLayout $ do
         addWidget $ loginStatus ma
         addCassius $(cassiusFile "teams")
@@ -131,7 +132,7 @@ postTeamR tid = do
     t <- runDB $ get404 tid
     (cet, _) <- canEditTeam tid
     unless cet $ permissionDenied "You are not an administrator of this group"
-    (res, form, enctype, nonce) <- runFormPost $ teamFormlet $ Just t
+    ((res, form), enctype) <- runFormPost $ teamFormlet $ Just t
     case res of
         FormSuccess t' -> do
             runDB $ replace tid t'
@@ -160,7 +161,7 @@ postWatchTeamR tid = do
     (uid, _) <- requireAuth
     t <- runDB $ get404 tid
     _ <- runDB $ insertBy $ TeamUser tid uid Watching
-    setMessage [hamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
+    setMessage [shamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
 |]
     redirect RedirectTemporary $ TeamR tid
 
@@ -201,10 +202,10 @@ postApproveTeamR tid uid = do
                 t <- get404 tid
                 u <- get404 uid
                 addTeamNews tid (T.concat ["New member of ", teamName t, " group"])
-                            [hamlet|\
+                            [shamlet|\
 <p>#{userFullName u} is now a member of the #{teamName t} special interest group.
 |] $ TeamR tid
-                update tuid [TeamUserStatus ApprovedMember]
+                update tuid [TeamUserStatus =. ApprovedMember]
             setMessage "Membership approved"
         _ -> notFound
     redirect RedirectTemporary $ TeamR tid
@@ -215,7 +216,7 @@ postTeamAdminR tid uid = do
     y <- runDB $ getBy $ UniqueTeamUser tid uid
     case y of
         Just (tuid, TeamUser { teamUserStatus = ApprovedMember }) -> do
-            runDB $ update tuid [TeamUserStatus Admin]
+            runDB $ update tuid [TeamUserStatus =. Admin]
             setMessage "User promoted to group admin"
         _ -> notFound
     redirect RedirectTemporary $ TeamR tid
@@ -226,7 +227,7 @@ postTeamUnadminR tid uid = do
     y <- runDB $ getBy $ UniqueTeamUser tid uid
     case y of
         Just (tuid, TeamUser { teamUserStatus = Admin }) -> do
-            runDB $ update tuid [TeamUserStatus ApprovedMember]
+            runDB $ update tuid [TeamUserStatus =. ApprovedMember]
             setMessage "User no longer an admin"
         _ -> notFound
     redirect RedirectTemporary $ TeamR tid
@@ -234,7 +235,7 @@ postTeamUnadminR tid uid = do
 getTeamFeedR :: TeamId -> Handler RepAtomRss
 getTeamFeedR tid = runDB $ do
     t <- get404 tid
-    news <- selectList [TeamNewsTeamEq tid] [TeamNewsWhenDesc] 20 0
+    news <- selectList [TeamNewsTeam ==. tid] [Desc TeamNewsWhen, LimitTo 20]
     updated <-
         case news of
             [] -> liftIO getCurrentTime
@@ -252,8 +253,8 @@ getTeamFeedR tid = runDB $ do
 getUserFeedR :: UserId -> Handler RepAtomRss
 getUserFeedR uid = runDB $ do
     _ <- get404 uid
-    tids <- fmap (map $ teamUserTeam . snd) $ selectList [TeamUserUserEq uid] [] 0 0
-    news <- selectList [TeamNewsTeamIn tids] [TeamNewsWhenDesc] 20 0
+    tids <- fmap (map $ teamUserTeam . snd) $ selectList [TeamUserUser ==. uid] []
+    news <- selectList [TeamNewsTeam <-. tids] [Desc TeamNewsWhen, LimitTo 20]
     updated <-
         case news of
             [] -> liftIO getCurrentTime
@@ -285,12 +286,12 @@ postTeamPackagesR :: TeamId -> Handler RepHtml
 postTeamPackagesR tid = do
     requireGroupAdmin tid
     t <- runDB $ get404 tid
-    (res, form, _, nonce) <- runFormPost $ packageFormlet tid Nothing
+    ((res, form), _) <- runFormPost $ packageFormlet tid Nothing
     case res of
         FormSuccess tp -> do
             runDB $ do
                 _ <- insert tp
-                addTeamNews tid (T.concat ["New package for ", teamName t, " group"]) [hamlet|\
+                addTeamNews tid (T.concat ["New package for ", teamName t, " group"]) [shamlet|\
             \setMessage "Package added"
 <p>A new package, #{teamPackageName tp}, has been added to #{teamName t}.
 $maybe d <- teamPackageDesc tp
@@ -300,13 +301,12 @@ $maybe u <- teamPackageHomepage tp
         <a href="#{u}">Visit the homepage.
 |] $ TeamR tid
             redirect RedirectTemporary $ TeamR tid
-        _ -> defaultLayout [hamlet|\
+        _ -> defaultLayout [whamlet|\
 <form method="post" action="@{TeamPackagesR tid}">
     <table>
         \^{form}
         <tr>
             <td colspan="2">
-                \#{nonce}
                 <input type="submit" value="Add Package">
 |]
 

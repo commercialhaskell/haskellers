@@ -15,28 +15,29 @@ import Control.Applicative
 import Control.Arrow
 import Control.Monad (unless)
 import qualified Data.Text as T
+import Text.Hamlet (shamlet)
 
-topicFormlet :: TeamId -> UserId -> UTCTime -> Form s m Topic
-topicFormlet tid uid now = fieldsToTable $ Topic
+topicFormlet :: TeamId -> UserId -> UTCTime -> Html -> Form Haskellers Haskellers (FormResult Topic, Widget)
+topicFormlet tid uid now = renderTable $ Topic
     <$> pure tid
     <*> pure now
-    <*> selectField opts "Topic type" Nothing
+    <*> areq (selectField opts) "Topic type" Nothing
     <*> pure Open
     <*> pure (Just uid)
-    <*> stringField "Title" Nothing
+    <*> areq textField "Title" Nothing
   where
-    opts = map (id &&& T.pack . show) [minBound..maxBound]
+    opts = map (T.pack . show &&& id) [minBound..maxBound]
 
 getTopicsR :: TeamId -> Handler RepHtml
 getTopicsR tid = do
-    topics <- runDB $ selectList [TopicTeamEq tid] [TopicCreatedDesc] 0 0
+    topics <- runDB $ selectList [TopicTeam ==. tid] [Desc TopicCreated]
     ma <- maybeAuth
     mf <-
         case ma of
             Just (uid, User { userVerifiedEmail = True, userBlocked = False }) -> do
                 now <- liftIO getCurrentTime
-                (form, _, nonce) <- generateForm $ topicFormlet tid uid now
-                return $ Just (form, nonce)
+                ((_, form), _) <- runFormPost $ topicFormlet tid uid now
+                return $ Just form
             _ -> return Nothing
     defaultLayout $ do
         addWidget $ loginStatus ma
@@ -49,38 +50,37 @@ postTopicsR tid = do
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
         "You must have a verified email address and not be blocked."
     now <- liftIO getCurrentTime
-    (res, form, _, nonce) <- runFormPost $ topicFormlet tid uid now
+    ((res, form), _) <- runFormPost $ topicFormlet tid uid now
     case res of
         FormSuccess to -> do
             toid <- runDB $ do
                 t <- get404 tid
                 toid <- insert to
                 addTeamNews tid ("New topic started for " `T.append` teamName t)
-                    [hamlet|\
+                    [shamlet|\
 <p>#{topicTitle to}
 <p>Created by #{userFullName u}. Discussion type: #{show (topicType to)}.
 |] $ TopicR toid
                 return toid
             setMessage "Topic started"
             redirect RedirectTemporary $ TopicR toid
-        _ -> defaultLayout [hamlet|\
+        _ -> defaultLayout [whamlet|\
 <form method="post" action="@{TopicsR tid}">
     <table>
         \^{form}
         <tr>
             <td colspan="2">
-                \#{nonce}
                 <input type="submit" value="Create topic">
 |]
 
-statusFormlet :: TopicStatus -> Form s m TopicStatus
+statusFormlet :: TopicStatus -> Html -> Form Haskellers Haskellers (FormResult TopicStatus, Widget)
 statusFormlet =
-    fieldsToTable . selectField opts "New status" . Just
+    renderTable . areq (selectField opts) "New status" . Just
   where
-    opts = map (id &&& T.pack . show) [minBound..maxBound]
+    opts = map (T.pack . show &&& id) [minBound..maxBound]
 
-messageForm :: Form s Haskellers Html
-messageForm = fieldsToTable $ nicHtmlField "Your message" Nothing
+messageForm :: Html -> Form Haskellers Haskellers (FormResult Html, Widget)
+messageForm = renderTable $ areq nicHtmlField "Your message" Nothing
 
 getTopicR :: TopicId -> Handler RepHtml
 getTopicR toid = do
@@ -95,13 +95,13 @@ getTopicR toid = do
                            map Just [Admin, ApprovedMember]
                 return (True, im)
             _ -> return (False, False)
-    (changeStatus, _, nonce) <- generateForm $ statusFormlet $ topicStatus to
-    (form, _, _) <- generateForm messageForm
+    ((_, changeStatus), _) <- runFormPost $ statusFormlet $ topicStatus to
+    ((_, form), _) <- runFormPost messageForm
     mcreator <- case topicCreator to of
                     Nothing -> return Nothing
                     Just uid -> runDB $ get uid
-    messages <- runDB $ selectList [TopicMessageTopicEq toid]
-                        [TopicMessageCreatedAsc] 0 0
+    messages <- runDB $ selectList [TopicMessageTopic ==. toid]
+                        [Asc TopicMessageCreated]
                     >>= mapM (\(mid, m) -> do
         mu <- case topicMessageCreator m of
                 Nothing -> return Nothing
@@ -122,14 +122,14 @@ postTopicR toid = do
         "You must have a verified email address and not be blocked."
     x <- runDB $ getBy $ UniqueTeamUser tid uid
     unless (fmap (teamUserStatus . snd) x `elem` map Just [Admin, ApprovedMember]) $ permissionDenied "You must be an approved member."
-    (res, _, _, _) <- runFormPost $ statusFormlet $ topicStatus to
+    ((res, _), _) <- runFormPost $ statusFormlet $ topicStatus to
     case res of
         FormSuccess s -> runDB $ do
-            update toid [TopicStatus s]
+            update toid [TopicStatus =. s]
             t <- get404 tid
             lift $ setMessage "Status updated"
             addTeamNews tid ("Topic status update for " `T.append` teamName t)
-                [hamlet|\
+                [shamlet|\
 <p>The status of the topic "#{topicTitle to}" has been updated to #{show s}.
 |] $ TopicR toid
         _ -> setMessage "Invalid input"
@@ -142,7 +142,7 @@ postTopicMessageR toid = do
     (uid, u) <- requireAuth
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
         "You must have a verified email address and not be blocked."
-    (res, _, _, _) <- runFormPost messageForm
+    ((res, _), _) <- runFormPost messageForm
     html <-
         case res of
             FormSuccess x -> return x
@@ -160,7 +160,7 @@ postTopicMessageR toid = do
                 ]
         t <- get404 tid
         let title = "Message added for " `T.append` teamName t
-        let content = [hamlet|\
+        let content = [shamlet|\
 <p>#{userFullName u} wrote regarding #{topicTitle to}
 <blockquote>#{html}
 |]

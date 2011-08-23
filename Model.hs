@@ -3,6 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GADTs #-}
 module Model where
 
 import Yesod
@@ -43,7 +44,7 @@ instance ToHtml Employment where toHtml = toHtml . prettyEmployment
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-share2 mkPersist (mkMigrate "migrateAll") $(persistFile "entities")
+share2 (mkPersist sqlSettings) (mkMigrate "migrateAll") $(persistFile "entities")
 
 userFullName' :: User -> Text
 userFullName' u =

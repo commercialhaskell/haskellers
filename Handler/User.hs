@@ -30,13 +30,13 @@ import Data.Maybe (fromJust)
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
-    identS <- runFormGet' $ stringInput "ident"
+    identS <- runInputGet $ ireq textField "ident"
     x <- runDB $ getBy $ UniqueIdent identS
     render <- getUrlRender
     case x of
         Nothing -> notFound
         Just (_, Ident { identUser = uid }) -> jsonToRepJson $ jsonMap
-            [ ("id", jsonScalar $ T.unpack $ toSinglePiece uid)
+            [ ("id", jsonScalar $ T.unpack $ toSinglePiece (uid :: UserId))
             , ("url", jsonScalar $ T.unpack $ render $ UserR $ toSinglePiece uid)
             ]
 
@@ -64,16 +64,16 @@ getUserR input = do
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
 
     skills <- runDB $ do
-        x <- selectList [UserSkillUserEq uid] [] 0 0 >>= mapM (\(_, y) -> do
+        x <- selectList [UserSkillUser ==. uid] [] >>= mapM (\(_, y) -> do
             let sid = userSkillSkill y
             s <- get404 sid
             return (sid, T.unpack $ skillName s))
         return $ sortBy (comparing snd) x
     packages <- runDB
               $ fmap (map $ T.unpack . packageName . snd)
-              $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
-    screenNames <- runDB $ selectList [ScreenNameUserEq uid]
-                    [ScreenNameServiceAsc, ScreenNameNameAsc] 0 0
+              $ selectList [PackageUser ==. uid] [Asc PackageName]
+    screenNames <- runDB $ selectList [ScreenNameUser ==. uid]
+                    [Asc ScreenNameService, Asc ScreenNameName]
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
     let json = jsonMap
@@ -153,7 +153,7 @@ getFlagR uid = do
 postFlagR :: UserId -> Handler ()
 postFlagR uid = do
     mvid <- fmap (fmap fst) maybeAuth
-    mmsg <- runFormPost' $ maybeStringInput "message"
+    mmsg <- runInputPost $ iopt textField "message"
     let msg = fromMaybe "" mmsg
 
     u <- runDB $ do
@@ -170,7 +170,7 @@ postFlagR uid = do
     setMessage "The user has been reported to the admins. Thanks!"
     redirect RedirectTemporary $ userR ((uid, u), Nothing)
 
-adminControls :: UserId -> User -> Widget ()
+adminControls :: UserId -> User -> Widget
 adminControls uid u = do
     addCassius $(cassiusFile "admin-controls")
     $(hamletFile "admin-controls")

@@ -12,24 +12,24 @@ import Data.Maybe (fromMaybe)
 import Data.Time
 import Yesod.Form.Jquery
 import Control.Monad (unless)
-import Yesod.Helpers.Feed
+import Yesod.Feed
 
-jobFormlet :: UserId -> UTCTime -> Formlet s Haskellers Job
-jobFormlet uid now mj = fieldsToTable $ Job
+jobFormlet :: UserId -> UTCTime -> Maybe Job -> Html -> Form Haskellers Haskellers (FormResult Job, Widget)
+jobFormlet uid now mj = renderTable $ Job
     <$> pure (fromMaybe uid (fmap jobPostedBy mj))
     <*> pure (fromMaybe now (fmap jobPostedAt mj))
-    <*> stringField "Title"
-            { ffsId = Just "title"
+    <*> areq textField "Title"
+            { fsId = Just "title"
             } (fmap jobTitle mj)
-    <*> stringField "Location"
-            { ffsTooltip = "If this is a telecommuting position, specify here"
-            , ffsId = Just "location"
+    <*> areq textField "Location"
+            { fsTooltip = Just "If this is a telecommuting position, specify here"
+            , fsId = Just "location"
             } (fmap jobLocation mj)
-    <*> jqueryDayField def "Filling by" (fmap jobFillingBy mj)
-    <*> boolField "Full time option?" (fmap jobFullTime mj)
-    <*> boolField "Part time option?" (fmap jobPartTime mj)
-    <*> textareaField "Description"
-            { ffsId = Just "desc"
+    <*> areq (jqueryDayField def) "Filling by" (fmap jobFillingBy mj)
+    <*> areq boolField "Full time option?" (fmap jobFullTime mj)
+    <*> areq boolField "Part time option?" (fmap jobPartTime mj)
+    <*> areq textareaField "Description"
+            { fsId = Just "desc"
             } (fmap jobDesc mj)
 
 getJobsR :: Handler RepHtml
@@ -37,14 +37,14 @@ getJobsR = do
     mu <- maybeAuth
     now <- liftIO getCurrentTime
     let today = utctDay now
-    jobs <- runDB $ selectList [JobFillingByGt today] [JobPostedAtDesc] 0 0
+    jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt]
     mform <-
         case mu of
             Nothing -> return Nothing
             Just (uid, u) ->
                 if userReal u
                     then do
-                        (_, form, _) <- runFormGet $ jobFormlet uid now Nothing
+                        ((_, form), _) <- runFormGet $ jobFormlet uid now Nothing
                         return $ Just form
                     else return Nothing
     defaultLayout $ do
@@ -57,7 +57,7 @@ postJobsR = do
     (uid, u) <- requireAuth
     unless (userReal u) $ permissionDenied "Only verified users can add job listings"
     now <- liftIO getCurrentTime
-    (res, form, _) <- runFormPostNoNonce $ jobFormlet uid now Nothing
+    ((res, form), _) <- runFormPostNoNonce $ jobFormlet uid now Nothing
     let mform = Just form
     case res of
         FormSuccess job -> do
@@ -83,7 +83,7 @@ getJobsFeedR = do
     cacheSeconds 7200
     now <- liftIO getCurrentTime
     let today = utctDay now
-    jobs <- runDB $ selectList [JobFillingByGt today] [JobPostedAtDesc] 10 0
+    jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt, LimitTo 10]
     let updated =
             case jobs of
                 (_, newest):_ -> jobPostedAt newest

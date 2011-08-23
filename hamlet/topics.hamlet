@@ -22,8 +22,7 @@ $maybe f <- mf
     <form method="post" action="@{TopicsR tid}" .big>
         <h2>Create a new topic
         <table>
-            \^{fst f}
+            \^{f}
             <tr>
                 <td colspan="2">
-                    \#{snd f}
                     <input type="submit" value="Create topic">

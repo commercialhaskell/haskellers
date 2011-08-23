@@ -17,14 +17,16 @@ import StaticFiles (logo_png)
 import Data.Text (Text, pack, unpack)
 import SESCreds (access, secret)
 import Data.Text.Encoding (encodeUtf8)
+import Text.Blaze.Renderer.Utf8 (renderHtml)
+import Text.Hamlet (shamlet)
 
 postResetEmailR :: Handler ()
 postResetEmailR = do
     (uid, _) <- requireAuth
     runDB $ update uid
-        [ UserVerifiedEmail False
-        , UserEmail Nothing
-        , UserVerkey Nothing
+        [ UserVerifiedEmail =. False
+        , UserEmail =. Nothing
+        , UserVerkey =. Nothing
         ]
     setMessage "Email address reset. Please verify a new address."
     redirect RedirectTemporary ProfileR
@@ -35,8 +37,8 @@ getVerifyEmailR verkey = do
     if Just verkey == userVerkey u && isJust (userEmail u)
         then do
             runDB $ update uid
-                [ UserVerifiedEmail True
-                , UserVerkey Nothing
+                [ UserVerifiedEmail =. True
+                , UserVerkey =. Nothing
                 ]
             setMessage "Your email address has been verified."
         else setMessage "Invalid verification key"
@@ -48,13 +50,13 @@ postSendVerifyR = do
     when (userVerifiedEmail u) $ do
         setMessage "You already have a verified email address."
         redirect RedirectTemporary ProfileR
-    (res, _, _) <- runFormPostNoNonce $ emailInput "email"
+    res <- runInputPost $ iopt emailField "email"
     case res of
-        FormSuccess email -> do
+        Just email -> do
             stdgen <- liftIO newStdGen
             let verkey = pack $ fst $ randomString 10 stdgen
-            runDB $ update uid [ UserEmail $ Just email
-                               , UserVerkey $ Just verkey
+            runDB $ update uid [ UserEmail =. Just email
+                               , UserVerkey =. Just verkey
                                ]
             render <- getUrlRender
             let url = render $ VerifyEmailR verkey
@@ -76,7 +78,7 @@ postSendVerifyR = do
                         , ""
                         , unpack url
                         ]
-                    , Part "text/html" None Nothing [] $ renderHtml [hamlet|\
+                    , Part "text/html" None Nothing [] $ renderHtml [shamlet|\
 <img src="#{render (StaticR logo_png)}" alt="Haskellers">
 <p>Please go to the URL below to verify your email address.
 <p>
@@ -85,5 +87,5 @@ postSendVerifyR = do
                     ]
                 }
             setMessage "A confirmation link has been sent."
-        _ -> setMessage "You entered an invalid email address."
+        Nothing -> setMessage "You entered an invalid email address."
     redirect RedirectTemporary ProfileR

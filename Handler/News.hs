@@ -8,26 +8,26 @@ module Handler.News
     ) where
 
 import Haskellers
-import Yesod.Helpers.Feed
+import Yesod.Feed
 import Control.Applicative
 import Yesod.Form.Nic
 import Handler.Admin (requireAdmin)
 import Data.Time (getCurrentTime)
 import Data.Text (Text)
 
-newsForm :: Form s Haskellers (Text, Html)
-newsForm = fieldsToTable $ (,)
-    <$> stringField "Title" Nothing
-    <*> nicHtmlField "Content"
-        { ffsId = Just "content"
+newsForm :: Html -> Form Haskellers Haskellers (FormResult (Text, Html), Widget)
+newsForm = renderTable $ (,)
+    <$> areq textField "Title" Nothing
+    <*> areq nicHtmlField "Content"
+        { fsId = Just "content"
         } Nothing
 
 getNewsR :: Handler RepHtml
 getNewsR = do
     mu <- maybeAuth
     cacheSeconds 3600
-    news <- runDB $ selectList [] [NewsWhenDesc] 0 0
-    (_, form, _) <- runFormGet newsForm
+    news <- runDB $ selectList [] [Desc NewsWhen]
+    ((_, form), _) <- runFormGet newsForm
 
     now <- liftIO getCurrentTime
     let fuzzyDiffTime = humanReadableTimeDiff now
@@ -41,7 +41,7 @@ getNewsR = do
 postNewsR :: Handler RepHtml
 postNewsR = do
     requireAdmin
-    (res, form, _) <- runFormPostNoNonce newsForm
+    ((res, form), _) <- runFormPostNoNonce newsForm
     case res of
         FormSuccess (title, content) -> do
             now <- liftIO getCurrentTime
@@ -51,7 +51,7 @@ postNewsR = do
         _ -> return ()
     defaultLayout $ do
         setTitle "Add news item"
-        [hamlet|\
+        [whamlet|\
 <form method="post" action="@{NewsR}">
     <table>
         \^{form}
@@ -72,7 +72,7 @@ getNewsItemR nid = do
 getNewsFeedR :: Handler RepAtomRss
 getNewsFeedR = do
     cacheSeconds 7200
-    news@(newest:_) <- runDB $ selectList [] [NewsWhenDesc] 10 0
+    news@(newest:_) <- runDB $ selectList [] [Desc NewsWhen, LimitTo 10]
     newsFeed Feed
         { feedTitle = "Haskellers News"
         , feedLinkSelf = NewsFeedR

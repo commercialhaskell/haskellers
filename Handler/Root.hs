@@ -11,7 +11,7 @@ module Handler.Root
 
 import Haskellers hiding (Filter)
 import qualified Model
-import Yesod.Form.Core
+import Yesod.Form
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace, isMark)
@@ -38,11 +38,11 @@ getRootR = do
     y <- getYesod
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
     gen <- liftIO newStdGen
-    news <- runDB $ selectList [] [NewsWhenDesc] 1 0
+    news <- runDB $ selectList [] [Desc NewsWhen, LimitTo 1]
     now <- liftIO getCurrentTime
     let minus24h = addUTCTime ((-1) * 60 * 60 * 24) now
-    job <- runDB $ selectList [JobPostedAtGt minus24h]
-                                   [JobPostedAtDesc] 1 0
+    job <- runDB $ selectList [JobPostedAt >. minus24h]
+                                   [Desc JobPostedAt, LimitTo 1]
     let profs =
             if null allProfs
                 then []
@@ -50,13 +50,13 @@ getRootR = do
     mu <- maybeAuth
     let fuzzyDiffTime = humanReadableTimeDiff now
     (public, private) <- runDB $ do
-        public <- count [ UserVerifiedEmailEq True
-                        , UserVisibleEq True
-                        , UserBlockedEq False
+        public <- count [ UserVerifiedEmail ==. True
+                        , UserVisible ==. True
+                        , UserBlocked ==. False
                         ]
-        private <- count [ UserVerifiedEmailEq True
-                         , UserVisibleEq False
-                         , UserBlockedEq False
+        private <- count [ UserVerifiedEmail ==. True
+                         , UserVisible ==. False
+                         , UserBlocked ==. False
                          ]
         return (public, private)
     defaultLayout $ do
@@ -115,28 +115,29 @@ applyFilter f p = and
             Just FullPartTime -> True
             _ -> False
 
-filterForm :: Int -> Form s y Filter
-filterForm my = fieldsToTable $ Filter
-    <$> maybeStringField "Name" Nothing
-    <*> yearField 1980 my "Started using Haskell no earlier than" Nothing
-    <*> yearField 1980 my "Started using Haskell no later than" Nothing
-    <*> boolField "Interested in full-time positions" Nothing
-    <*> boolField "Interested in part-time positions" Nothing
+filterForm :: Int -> Html -> Form Haskellers Haskellers (FormResult Filter, Widget)
+filterForm my = renderTable $ Filter
+    <$> aopt textField "Name" Nothing
+    <*> aopt (yearField 1980 my) "Started using Haskell no earlier than" Nothing
+    <*> aopt (yearField 1980 my) "Started using Haskell no later than" Nothing
+    <*> areq boolField "Interested in full-time positions" Nothing
+    <*> areq boolField "Interested in part-time positions" Nothing
 
-yearField :: Int -> Int -> FormFieldSettings -> FormletField s m (Maybe Int)
-yearField x y = optionalFieldHelper $ yearFieldProfile x y
-
-yearFieldProfile :: Int -> Int -> FieldProfile sub y Int
-yearFieldProfile minY maxY = FieldProfile
-    { fpParse = \s ->
-        case readIntegral $ T.unpack s of
-            Nothing -> Left "Invalid integer"
-            Just i
-                | i < minY -> Left $ T.pack $ "Value must be at least " ++ show minY
-                | i > maxY -> Left $ T.pack $ "Value must be at most " ++ show maxY
-                | otherwise -> Right i
-    , fpRender = T.pack . showIntegral
-    , fpWidget = \theId name val isReq -> addHamlet [hamlet|
+yearField :: Int -> Int -> Field sub master Int
+yearField minY maxY = Field
+    { fieldParse = \ss -> return $
+        case ss of
+            [s] ->
+                case readIntegral $ T.unpack s of
+                    Nothing -> Left "Invalid integer"
+                    Just i
+                        | i < minY -> Left $ SomeMessage $ T.pack $ "Value must be at least " ++ show minY
+                        | i > maxY -> Left $ SomeMessage $ T.pack $ "Value must be at most " ++ show maxY
+                        | otherwise -> Right $ Just i
+            _ -> Right Nothing
+    , fieldView = \theId name eval isReq ->
+        let val = either id (T.pack . showIntegral) eval
+         in toWidget [hamlet|
 <input id="#{theId}" name="#{name}" type="number" min="#{show minY}" max="#{show maxY}" step="1" :isReq:required="" value="#{val}">
 |]
     }
@@ -147,13 +148,13 @@ getUsersR = do
     allProfs <- liftIO $ readIORef $ publicProfiles y
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
-    (res, form, enctype) <- runFormGet $ filterForm $ fromInteger maxY
+    ((res, form), enctype) <- runFormGet $ filterForm $ fromInteger maxY
     let filteredProfs =
             case res of
                 FormSuccess filt -> filter (applyFilter filt) allProfs
                 _ -> allProfs
     let public = length filteredProfs
-    mpage <- runFormGet' $ maybeIntInput "page"
+    mpage <- runInputGet $ iopt intField "page"
     let page = fromMaybe 0 mpage
     let perPage = 32
     let hasPrev = page > 0
@@ -193,12 +194,12 @@ gravatar s x = T.concat
 getLocationsR :: Handler RepJson
 getLocationsR = do
     render <- getUrlRender
-    users <- runDB $ selectList [ UserLongitudeNe Nothing
-                                , UserLatitudeNe Nothing
-                                , UserVerifiedEmailEq True
-                                , UserVisibleEq True
-                                , UserBlockedEq False
-                                ] [] 0 0
+    users <- runDB $ selectList [ UserLongitude !=. Nothing
+                                , UserLatitude !=. Nothing
+                                , UserVerifiedEmail ==. True
+                                , UserVisible ==. True
+                                , UserBlocked ==. False
+                                ] []
     cacheSeconds 3600
     jsonToRepJson $ jsonMap [("locations", jsonList $ map (go render) users)]
   where
@@ -219,8 +220,8 @@ profileUserR p = userR ((profileUserId p, profileUser p), profileUsername p)
 
 postLangR :: Handler ()
 postLangR = do
-    runFormPost' (stringInput "lang") >>= setLanguage
-    md <- runFormPost' $ maybeStringInput "dest"
+    runInputPost (ireq textField "lang") >>= setLanguage
+    md <- runInputPost $ iopt textField "dest"
     case md of
         Nothing -> redirect RedirectTemporary RootR
         Just d -> redirectText RedirectTemporary d

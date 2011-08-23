@@ -13,7 +13,6 @@ $if isMember
             \^{changeStatus}
             <tr>
                 <td colspan="2">
-                    \#{nonce}
                     <input type="submit" value="Update status">
 $if null messages
     <h2>No messages on this topic.
@@ -36,5 +35,4 @@ $if canMessage
             \^{form}
             <tr>
                 <td colspan="2">
-                    \#{nonce}
                     <input type="submit" value="Post message">

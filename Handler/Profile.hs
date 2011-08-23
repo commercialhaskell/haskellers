@@ -24,70 +24,70 @@ import Yesod.Form.Jquery
 import StaticFiles (jquery_cookie_js, badge_png)
 import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
-import Yesod.Form.Core
+import Yesod.Form
 import Control.Arrow ((&&&))
 import Data.Time
 import Data.Text (pack)
 import qualified Data.Text as T
 import Data.Char (isDigit)
 
-screenNameFormlet :: UserId -> Form s y ScreenName
-screenNameFormlet uid = fieldsToTable $ ScreenName
+screenNameFormlet :: UserId -> Html -> Form Haskellers Haskellers (FormResult ScreenName, Widget)
+screenNameFormlet uid = renderTable $ ScreenName
     <$> pure uid
-    <*> selectField servopts "Service" Nothing
-    <*> (stringField "Screen name" Nothing)
+    <*> areq (selectField servopts) "Service" Nothing
+    <*> areq textField "Screen name" Nothing
   where
-    servopts = map (id &&& T.pack . show) [minBound..maxBound]
+    servopts = map (T.pack . show &&& id) [minBound..maxBound]
 
-userForm :: Int -> User -> Form s m User
-userForm maxY u = fieldsToTable $ User
-    <$> stringField "Full name"
-            { ffsId = Just "full-name"
+userForm :: Int -> User -> Html -> Form Haskellers Haskellers (FormResult User, Widget)
+userForm maxY u = renderTable $ User
+    <$> areq textField "Full name"
+            { fsId = Just "full-name"
             } (Just $ userFullName u)
-    <*> maybeUrlField "Website"
-            { ffsId = Just "website"
+    <*> aopt urlField "Website"
+            { fsId = Just "website"
             } (Just $ userWebsite u)
     <*> pure (userEmail u)
     <*> pure (userVerifiedEmail u)
     <*> pure (userVerkey u)
-    <*> yearField 1985 maxY "Using Haskell since"
-            { ffsTooltip = "Don't worry if you took breaks from Haskell, just put the year you wrote your first Haskell code"
+    <*> aopt (yearField 1985 maxY) "Using Haskell since"
+            { fsTooltip = Just "Don't worry if you took breaks from Haskell, just put the year you wrote your first Haskell code"
             } (Just $ userHaskellSince u)
-    <*> maybeTextareaField "Description"
-            { ffsId = Just "desc"
+    <*> aopt textareaField "Description"
+            { fsId = Just "desc"
             } (Just $ userDesc u)
-    <*> boolField "Visible?"
-            { ffsTooltip = "Do you want your profile to be displayed on the homepage?"
+    <*> areq boolField "Visible?"
+            { fsTooltip = Just "Do you want your profile to be displayed on the homepage?"
             } (Just $ userVisible u)
     <*> pure (userReal u)
     <*> pure (userRealPic u)
     <*> pure (userAdmin u)
-    <*> maybeSelectField empOpts "Employment status"
-            { ffsTooltip = "Just remember, this information will be public, meaning your current employer will be able to see it!"
+    <*> aopt (selectField empOpts) "Employment status"
+            { fsTooltip = Just "Just remember, this information will be public, meaning your current employer will be able to see it!"
             } (Just $ userEmployment u)
     <*> pure (userBlocked u)
-    <*> boolField "Public email address?"
-            { ffsTooltip = "Selecting this will allow anyone to see your email address, without passing a captcha. May lead to spam."
+    <*> areq boolField "Public email address?"
+            { fsTooltip = Just "Selecting this will allow anyone to see your email address, without passing a captcha. May lead to spam."
             } (Just $ userEmailPublic u)
-    <*> maybeStringField "Location"
-            { ffsTooltip = "This should be a human-readable string"
-            , ffsId = Just "location"
+    <*> aopt textField "Location"
+            { fsTooltip = Just "This should be a human-readable string"
+            , fsId = Just "location"
             } (Just $ userLocation u)
-    <*> maybeDoubleField "Longitude"
-            { ffsId = Just "longitude"
+    <*> aopt doubleField "Longitude"
+            { fsId = Just "longitude"
             } (Just $ userLongitude u)
-    <*> maybeDoubleField "Latitude"
-            { ffsId = Just "latitude"
+    <*> aopt doubleField "Latitude"
+            { fsId = Just "latitude"
             } (Just $ userLatitude u)
   where
-    empOpts = map (id &&& pack . prettyEmployment) [minBound..maxBound]
+    empOpts = map (pack . prettyEmployment &&& id) [minBound..maxBound]
 
 getProfileR :: Handler RepHtml
 getProfileR = do
     (uid, u) <- requireAuth
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
-    (res, form, enctype) <- runFormPostNoNonce $ userForm (fromInteger maxY) u
+    ((res, form), enctype) <- runFormPostNoNonce $ userForm (fromInteger maxY) u
     musername <- fmap (fmap snd) $ runDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
@@ -96,15 +96,15 @@ getProfileR = do
             redirect RedirectTemporary ProfileR
         _ -> return ()
     y <- getYesod
-    skills <- runDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
+    skills <- runDB $ selectList [] [Asc SkillName] >>= mapM (\(sid, s) -> do
         x <- getBy $ UniqueUserSkill uid sid
         return $ ((sid, s), isJust x)
         )
-    packages <- runDB $ selectList [PackageUserEq uid] [PackageNameAsc] 0 0
-    idents <- runDB $ selectList [IdentUserEq uid] [IdentIdentAsc] 0 0
-    screenNames <- runDB $ selectList [ScreenNameUserEq uid]
-                    [ScreenNameServiceAsc, ScreenNameNameAsc] 0 0
-    (_, screenNameForm, _) <- runFormGet $ screenNameFormlet uid
+    packages <- runDB $ selectList [PackageUser ==. uid] [Asc PackageName]
+    idents <- runDB $ selectList [IdentUser ==. uid] [Asc IdentIdent]
+    screenNames <- runDB $ selectList [ScreenNameUser ==. uid]
+                    [Asc ScreenNameService, Asc ScreenNameName]
+    ((_, screenNameForm), _) <- runFormGet $ screenNameFormlet uid
     defaultLayout $ do
         addScriptEither $ urlJqueryJs y
         addScript $ StaticR jquery_cookie_js
@@ -127,12 +127,12 @@ postDeleteAccountR :: Handler ()
 postDeleteAccountR = do
     (uid, _) <- requireAuth
     runDB $ do
-        updateWhere [TopicCreatorEq $ Just uid] [TopicCreator Nothing]
-        updateWhere [TopicMessageCreatorEq $ Just uid]
-                    [TopicMessageCreator Nothing]
-        deleteWhere [IdentUserEq uid]
-        deleteWhere [UserSkillUserEq uid]
-        deleteWhere [PackageUserEq uid]
+        updateWhere [TopicCreator ==. Just uid] [TopicCreator =. Nothing]
+        updateWhere [TopicMessageCreator ==. Just uid]
+                    [TopicMessageCreator =. Nothing]
+        deleteWhere [IdentUser ==. uid]
+        deleteWhere [UserSkillUser ==. uid]
+        deleteWhere [PackageUser ==. uid]
         {- FIXME
         updateWhere [MessageFrom Nothing] [MessageFromEq $ Just uid]
         updateWhere [MessageRegarding Nothing] [MessageRegardingEq $ Just uid]
@@ -144,11 +144,11 @@ postDeleteAccountR = do
 postSkillsR :: Handler ()
 postSkillsR = do
     (uid, _) <- requireAuth
-    allSkills <- fmap (map fst) $ runDB $ selectList [] [] 0 0
+    allSkills <- fmap (map fst) $ runDB $ selectList [] []
     skills <- flip filterM allSkills $ \sid ->
-        runFormPost' (boolInput $ toSinglePiece sid)
+        runInputPost (ireq boolField $ toSinglePiece sid)
     runDB $ do
-        deleteWhere [UserSkillUserEq uid]
+        deleteWhere [UserSkillUser ==. uid]
         forM_ skills $ \sid -> insert (UserSkill uid sid)
     setMessage "Your skills have been updated"
     redirect RedirectTemporary ProfileR
@@ -158,7 +158,7 @@ postDeleteIdentR iid = do
     (uid, _) <- requireAuth
     i <- runDB $ get404 iid
     unless (uid == identUser i) notFound
-    idents <- runDB $ count [IdentUserEq uid]
+    idents <- runDB $ count [IdentUser ==. uid]
     if idents > 1
         then do
             runDB $ delete iid
@@ -232,9 +232,9 @@ postRequestUnblockR = do
 postRequestSkillR :: Handler ()
 postRequestSkillR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPostNoNonce $ stringInput "skill"
+    res <- runInputPost $ iopt textField "skill"
     case res of
-        FormSuccess skill -> do
+        Just skill -> do
             now <- liftIO getCurrentTime
             _ <- runDB $ insert $ Message
                 { messageClosed = False
@@ -248,7 +248,7 @@ postRequestSkillR = do
                     ]
                 }
             setMessage "Your skill request has been logged."
-        _ -> setMessage "Invalid skill entered."
+        Nothing -> setMessage "Invalid skill entered."
     redirect RedirectTemporary ProfileR
 
 postClearUsernameR :: Handler ()
@@ -261,10 +261,10 @@ postClearUsernameR = do
 postSetUsernameR :: Handler ()
 postSetUsernameR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPostNoNonce $ stringInput "username"
+    res <- runInputPost $ iopt textField "username"
     let musername =
             case res of
-                FormSuccess x ->
+                Just x ->
                     if T.all validChar x && not (T.all isDigit x)
                         then Just x
                         else Nothing
@@ -289,7 +289,7 @@ postSetUsernameR = do
 postScreenNamesR :: Handler ()
 postScreenNamesR = do
     (uid, _) <- requireAuth
-    (res, _, _) <- runFormPostNoNonce $ screenNameFormlet uid
+    ((res, _), _) <- runFormPostNoNonce $ screenNameFormlet uid
     case res of
         FormSuccess sn -> do
             _ <- runDB $ insert sn

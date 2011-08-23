@@ -26,11 +26,11 @@ requireAdmin = do
     (_, admin) <- requireAuth
     unless (userAdmin admin) $ permissionDenied "You are not an admin"
 
-adminHelper :: (Bool -> Update User) -> Bool -> Html -> UserId -> Handler ()
+adminHelper :: EntityField User Bool -> Bool -> Html -> UserId -> Handler ()
 adminHelper constr bool msg uid = do
     requireAdmin
     u <- runDB $ get404 uid
-    runDB $ update uid [constr bool]
+    runDB $ update uid [constr =. bool]
     setMessage msg
     redirect RedirectTemporary $ userR ((uid, u), Nothing)
 
@@ -61,7 +61,7 @@ postUnblockR = adminHelper UserBlocked False "User has been unblocked"
 getMessagesR :: Handler RepHtml
 getMessagesR = do
     requireAdmin
-    messages <- runDB $ selectList [MessageClosedEq False] [MessageWhenAsc] 0 0 >>= mapM (\(mid, m) -> do
+    messages <- runDB $ selectList [MessageClosed ==. False] [Asc MessageWhen] >>= mapM (\(mid, m) -> do
         let go uid = do
                 u <- get404 uid
                 return $ Just (uid, u)
@@ -77,13 +77,13 @@ getMessagesR = do
 postCloseMessageR :: MessageId -> Handler ()
 postCloseMessageR mid = do
     requireAdmin
-    runDB $ update mid [MessageClosed True]
+    runDB $ update mid [MessageClosed =. True]
     setMessage "Message has been closed"
     redirect RedirectTemporary MessagesR
 
 getAdminUsersR :: Handler RepHtml
 getAdminUsersR = do
-    users <- runDB $ selectList [UserVerifiedEmailEq True] [UserFullNameAsc] 0 0
+    users <- runDB $ selectList [UserVerifiedEmail ==. True] [Asc UserFullName]
     y <- getYesod
     defaultLayout $ do
         setTitle "Admin list of users"

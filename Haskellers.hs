@@ -32,10 +32,10 @@ module Haskellers
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
 import Yesod
-import Yesod.Helpers.Static
-import Yesod.Helpers.Auth
-import Yesod.Helpers.Auth.OpenId
-import Yesod.Helpers.Auth.Facebook
+import Yesod.Static
+import Yesod.Auth
+import Yesod.Auth.OpenId
+import Yesod.Auth.Facebook
 import Yesod.Message
 import Data.Char (isSpace)
 import qualified Settings
@@ -66,7 +66,7 @@ import qualified Data.Text as T
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Data.Monoid (mappend)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
-import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
+import Text.Hamlet (HtmlUrlI18n, ihamletFile)
 import qualified Data.Text.Read
 import Data.Maybe (fromJust)
 import Web.Authenticate.BrowserId (checkAssertion)
@@ -94,11 +94,6 @@ data Profile = Profile
   deriving Show
 
 mkMessage "Haskellers" "messages" "en"
-
--- | A useful synonym; most of the handler functions in your application
--- will need to be of this type.
-type Handler = GHandler Haskellers Haskellers
-type Widget = GWidget Haskellers Haskellers
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -182,7 +177,7 @@ instance Yesod Haskellers where
             isCurrent RootR = fmap tm current == Just RootR
             isCurrent x = Just x == fmap tm current || x `elem` map fst parents
         let navbarSection :: (String, [(String, HaskellersRoute)])
-                          -> IHamlet HaskellersMessage HaskellersRoute
+                          -> HtmlUrlI18n HaskellersMessage HaskellersRoute
             navbarSection section = $(ihamletFile "hamlet/navbar-section.hamlet")
         pc <- widgetToPageContent $ do
             case ma of
@@ -376,12 +371,15 @@ instance YesodBreadcrumbs Haskellers where
 
 -- How to run database actions.
 instance YesodPersist Haskellers where
-    type YesodDB Haskellers = SqlPersist
+    type YesodPersistBackend Haskellers = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= Settings.runConnectionPool db
 
 instance YesodJquery Haskellers where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
 instance YesodNic Haskellers
+
+instance RenderMessage Haskellers FormMessage where
+    renderMessage _ _ = defaultFormMessage
 
 instance YesodAuth Haskellers where
     type AuthId Haskellers = UserId
@@ -432,7 +430,7 @@ instance YesodAuth Haskellers where
         addBIDEmail uid
             | credsPlugin creds == "browserid" = do
                 u <- get404 uid
-                unless (userVerifiedEmail u) $ update uid [UserEmail $ Just $ credsIdent creds, UserVerifiedEmail True]
+                unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
 
     authPlugins = [ authOpenId
@@ -443,7 +441,7 @@ instance YesodAuth Haskellers where
                   ]
 
     loginHandler = defaultLayout $ do
-        [hamlet|\
+        [whamlet|\
 <div style="width:500px;margin:0 auto">^{login}
 |]
 
@@ -461,7 +459,7 @@ getDebugR :: Handler RepHtml
 getDebugR = do
     l <- Map.toList `fmap` liftIO (atomically $ readTVar debugInfo)
     defaultLayout $ do
-        [hamlet|\
+        toWidget [hamlet|\
 <table>
     <thead>
         <tr>
@@ -575,7 +573,7 @@ fixBrowserId creds
         case x of
             Just _ -> return ()
             Nothing -> do
-                mu <- selectList [UserEmailEq $ Just email, UserVerifiedEmailEq True] [] 1 0
+                mu <- selectList [UserEmail ==. Just email, UserVerifiedEmail ==. True] [LimitTo 1]
                 case mu of
                     [(uid, _)] -> do
                         _ <- insert $ Ident email uid

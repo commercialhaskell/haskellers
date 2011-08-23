@@ -11,14 +11,14 @@ import Handler.Admin (requireAdmin)
 import Control.Applicative
 import Data.Text (unpack)
 
-skillFormlet :: Form s m Skill
-skillFormlet = fieldsToTable $ Skill
-    <$> stringField "Skill name" { ffsId = Just "skill-name" } Nothing
+skillFormlet :: Html -> Form Haskellers Haskellers (FormResult Skill, Widget)
+skillFormlet = renderTable $ Skill
+    <$> areq textField "Skill name" { fsId = Just "skill-name" } Nothing
 
 postAllSkillsR :: Handler ()
 postAllSkillsR = do
     requireAdmin
-    (res, _, _) <- runFormPostNoNonce skillFormlet
+    ((res, _), _) <- runFormPostNoNonce skillFormlet
     case res of
         FormSuccess skill -> do
             _ <- runDB $ insert skill
@@ -29,12 +29,12 @@ postAllSkillsR = do
 getAllSkillsR :: Handler RepHtmlJson
 getAllSkillsR = do
     mu <- maybeAuth
-    skills' <- runDB $ selectList [] [SkillNameAsc] 0 0 >>= mapM (\(sid, s) -> do
-        users <- count [UserSkillSkillEq sid]
+    skills' <- runDB $ selectList [] [Asc SkillName] >>= mapM (\(sid, s) -> do
+        users <- count [UserSkillSkill ==. sid]
         return ((sid, s), users)
         )
-    showall <- runFormGet' $ boolInput "show-all"
-    (_, form, _) <- runFormGet skillFormlet
+    showall <- fmap (maybe False id) $ runInputGet $ iopt boolField "show-all"
+    ((_, form), _) <- runFormGet skillFormlet
     let threshhold = 10
     let skills =
             if showall
@@ -63,8 +63,8 @@ getSkillR sid = do
     skill <- runDB $ get404 sid
     users <- runDB $ do
         uids <- fmap (map $ userSkillUser . snd)
-              $ selectList [ UserSkillSkillEq sid
-                           ] [] 0 0
+              $ selectList [ UserSkillSkill ==. sid
+                           ] []
         us <- mapM get404 uids
         flip mapM (filter go $ zip uids us) $ \(uid, u) -> do
             mun <- fmap (fmap snd) $ getBy $ UniqueUsernameUser uid

@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module StaticFiles where
 
-import Yesod.Helpers.Static
+import Yesod.Static
 
 staticFiles "static"

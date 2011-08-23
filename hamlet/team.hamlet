@@ -101,7 +101,6 @@ $if cet
             \^{form}
             <tr>
                 <td colspan="2">
-                    \#{nonce}
                     <input type="submit" value="Update Group">
     <form method="post" action="@{TeamPackagesR tid}" .big>
         <h2>Add Package
@@ -109,5 +108,4 @@ $if cet
             \^{addPackage}
             <tr>
                 <td colspan="2">
-                    \#{nonce2}
                     <input type="submit" value="Add Package">
