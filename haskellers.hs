@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP #-}
-import Controller (withHaskellers)
+import Application (withHaskellers)
 import Network.Wai.Handler.Warp (run)
 import Data.Text (pack)
 

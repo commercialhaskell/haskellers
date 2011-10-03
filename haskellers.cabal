@@ -24,7 +24,7 @@ library
         Buildable: True
     else
         Buildable: False
-    exposed-modules: Controller
+    exposed-modules: Application
     other-modules: Haskellers
                    Model
                    Settings
