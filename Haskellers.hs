@@ -422,6 +422,7 @@ instance YesodAuth Haskellers where
                     , userLocation = Nothing
                     , userLongitude = Nothing
                     , userLatitude = Nothing
+                    , userGooglePlus = Nothing
                     }
                 addBIDEmail uid
                 _ <- insert $ Ident (credsIdent creds) uid

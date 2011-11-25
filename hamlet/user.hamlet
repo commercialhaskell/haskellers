@@ -27,6 +27,9 @@ $if viewerIsAdmin
     $maybe w <- userWebsite u
         <div .website>
             <a href="#{w}">#{w}
+    $maybe gp <- userGooglePlus u
+        <div .googleplus>
+            <a href=#{gp}>Google+ Profile
     $maybe e <- userEmployment u
         <div .employment>#{e}
     $maybe l <- userLocation u

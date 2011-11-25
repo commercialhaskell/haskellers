@@ -16,6 +16,7 @@ User
     location Text Maybe
     longitude Double Maybe Ne
     latitude Double Maybe Ne
+    googlePlus Text Maybe
 Username
     user UserId
     username Text
