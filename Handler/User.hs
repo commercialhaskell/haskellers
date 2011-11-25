@@ -17,8 +17,6 @@ import Data.Maybe (fromMaybe)
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as S8
 import qualified Data.ByteString.UTF8 as SU
-import OpenSSL.Cipher
-import OpenSSL.EVP.Base64
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 import Data.Time (getCurrentTime)
@@ -27,6 +25,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Read
 import Data.Maybe (fromJust)
+import qualified Data.ByteString.Base64 as B64
+import Crypto.Cipher.AES (initKey128, encryptCBC)
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
@@ -122,7 +122,7 @@ emailLink email = unsafePerformIO $ do
 
 encryptAddress :: Text -> IO Text
 encryptAddress =
-    fmap (T.pack . map b64Url . S8.unpack . encodeBase64BS) . encrypt . pad . T.unpack
+    fmap (T.pack . map b64Url . S8.unpack . B64.encode) . encrypt . pad . T.unpack
   where
     b64Url '+' = '-'
     b64Url '/' = '_'
@@ -138,8 +138,9 @@ pad s =
 
 encrypt :: S.ByteString -> IO S.ByteString
 encrypt bs = do
-    ctx <- newAESCtx Encrypt mailhidePrivate $ S.replicate 16 0
-    aesCBC ctx bs
+    key <- either error return $ initKey128 mailhidePrivate
+    let iv = S.replicate 16 0
+    return $ encryptCBC key iv bs
 
 getFlagR :: UserId -> Handler RepHtml
 getFlagR uid = do
