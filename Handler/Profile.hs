@@ -148,8 +148,9 @@ postSkillsR :: Handler ()
 postSkillsR = do
     (uid, _) <- requireAuth
     allSkills <- fmap (map fst) $ runDB $ selectList [] []
+    let toBool = maybe False (const True)
     skills <- flip filterM allSkills $ \sid ->
-        runInputPost (ireq boolField $ toSinglePiece sid)
+        fmap toBool $ runInputPost (iopt textField $ toSinglePiece sid)
     runDB $ do
         deleteWhere [UserSkillUser ==. uid]
         forM_ skills $ \sid -> insert (UserSkill uid sid)
