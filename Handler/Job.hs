@@ -38,6 +38,7 @@ getJobsR = do
     now <- liftIO getCurrentTime
     let today = utctDay now
     jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt]
+    let isUnver = Just False == fmap (userReal . snd) mu
     mform <-
         case mu of
             Nothing -> return Nothing
@@ -66,6 +67,7 @@ postJobsR = do
             redirect RedirectTemporary $ JobR jid
         _ -> return ()
     let jobs = []
+    let isUnver = False
     defaultLayout $ do
         addCassius $(cassiusFile "jobs")
         $(hamletFile "jobs")
