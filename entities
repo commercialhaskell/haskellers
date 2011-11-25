@@ -95,3 +95,16 @@ TopicMessage
     creator UserId Maybe Update Eq
     content Html
     deriving
+Poll
+    question Text
+    created UTCTime
+PollOption
+    poll PollId
+    answer Text
+    priority Int
+PollAnswer
+    poll PollId
+    option PollOptionId
+    user UserId
+    real Bool
+    UniquePollAnswer poll user

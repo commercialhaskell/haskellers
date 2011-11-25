@@ -1,0 +1,20 @@
+<h1>_{MsgPolls}
+$if null polls
+    <p>_{MsgNoPolls}
+<ul>
+    $forall p <- polls
+        $with pollid <- fst p, poll <- snd p
+            <li>
+                <a href=@{PollR pollid}>#{pollQuestion poll}
+                \ #
+                <span .asked>_{MsgPollAsked $ pollCreated poll}
+$if isAdmin
+    <form method=post>
+        <p>Create a new poll. Put the question on the first line, and each answer on succeeding lines.
+        <textarea name=poll>
+        <input type=submit value="Add poll">
+$else
+    <p>
+        Want to create a new poll? Just #
+        <a href="mailto:michael@snoyman.com?subject=New%20Haskellers.com%20poll">email Michael and ask
+        .

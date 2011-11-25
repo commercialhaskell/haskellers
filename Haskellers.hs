@@ -12,6 +12,7 @@ module Haskellers
     , maybeAuth
     , requireAuth
     , maybeAuth'
+    , maybeAuthId
     , requireAuth'
     , module Yesod
     , module Settings
@@ -92,6 +93,9 @@ data Profile = Profile
     , profileUsername :: Maybe Username
     }
   deriving Show
+
+prettyTime :: UTCTime -> String
+prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
 
 mkMessage "Haskellers" "messages" "en"
 
@@ -302,6 +306,10 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb MessagesR = return ("Messages- Admin", Nothing)
     breadcrumb (AuthR LoginR) = return ("Log in to Haskellers", Just RootR)
     breadcrumb DebugR = return ("Database pool debug info", Just RootR)
+    breadcrumb PollsR = return ("Polls", Just RootR)
+    breadcrumb (PollR pollid) = do
+        poll <- runDB $ get404 pollid
+        return (pollQuestion poll, Just PollsR)
 
     breadcrumb JobsR = return ("Job Listings", Just RootR)
     breadcrumb (JobR jid) = do
@@ -475,9 +483,6 @@ getDebugR = do
                 <td>#{show (fst (snd p))}
                 <td>#{show (snd (snd p))}
 |]
-
-prettyTime :: UTCTime -> String
-prettyTime = formatTime defaultTimeLocale "%B %e, %Y %r"
 
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"

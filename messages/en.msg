@@ -19,3 +19,8 @@ LoginWith: Login with
 ExistingGroups: Existing Special Interest Groups
 AddGroupLong: Add new special interest group
 AddGroupShort: Add Group
+
+#polls
+Polls: Polls
+NoPolls: No polls have been created.
+PollAsked time@UTCTime: Asked on #{prettyTime time}

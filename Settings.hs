@@ -21,6 +21,7 @@ module Settings
     ) where
 
 import qualified Text.Cassius as H
+import qualified Text.Lucius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
@@ -92,13 +93,21 @@ connectionCount = 100
 --
 -- You can see an example of how to call these functions in Handler/Root.hs
 
-toHamletFile, toCassiusFile, toJuliusFile :: String -> FilePath
+toHamletFile, toCassiusFile, toLuciusFile, toJuliusFile :: String -> FilePath
 toHamletFile x = "hamlet/" ++ x ++ ".hamlet"
 toCassiusFile x = "cassius/" ++ x ++ ".cassius"
+toLuciusFile x = "lucius/" ++ x ++ ".lucius"
 toJuliusFile x = "julius/" ++ x ++ ".julius"
 
 hamletFile :: FilePath -> Q Exp
 hamletFile = whamletFile . toHamletFile
+
+luciusFile :: FilePath -> Q Exp
+#ifdef PRODUCTION
+luciusFile = H.luciusFile . toLuciusFile
+#else
+luciusFile = H.luciusFileDebug . toLuciusFile
+#endif
 
 cassiusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
@@ -119,7 +128,8 @@ widgetFile x = do
     let h = unlessExists toHamletFile hamletFile
     let c = unlessExists toCassiusFile cassiusFile
     let j = unlessExists toJuliusFile juliusFile
-    [|addWidget $h >> addCassius $c >> addJulius $j|]
+    let l = unlessExists toLuciusFile luciusFile
+    [|addWidget $h >> addCassius $c >> addJulius $j >> addCassius $l|]
   where
     unlessExists tofn f = do
         e <- qRunIO $ doesFileExist $ tofn x

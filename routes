@@ -85,3 +85,6 @@
 /bling BlingR GET
 
 /lang LangR POST
+
+/poll PollsR GET POST
+/poll/#PollId PollR GET POST
