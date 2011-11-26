@@ -376,6 +376,7 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb DeleteTeamPackageR{} = return ("", Nothing)
     breadcrumb TopicMessageR{} = return ("", Nothing)
     breadcrumb LangR{} = return ("", Nothing)
+    breadcrumb PollCloseR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist Haskellers where

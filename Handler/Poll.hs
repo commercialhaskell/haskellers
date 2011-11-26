@@ -5,12 +5,14 @@ module Handler.Poll
     , postPollsR
     , getPollR
     , postPollR
+    , postPollCloseR
     ) where
 
 import Haskellers
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import qualified Data.Text as T
 import Data.Time (getCurrentTime)
+import Data.Maybe (isJust)
 
 getPollsR :: Handler RepHtml
 getPollsR = do
@@ -29,7 +31,7 @@ postPollsR = do
     let (q:as) = ls
     now <- liftIO getCurrentTime
     pollid <- runDB $ do
-        pollid <- insert $ Poll q now
+        pollid <- insert $ Poll q now False
         mapM_ (\(a, i) -> insert $ PollOption pollid a i) $ zip as [1..]
         return pollid
     setMessage "Poll created"
@@ -57,7 +59,9 @@ toOI (poid, po) = do
 
 getPollR :: PollId -> Handler RepHtml
 getPollR pollid = do
-    muid <- maybeAuthId
+    mu' <- maybeAuth
+    let muid = fmap fst mu'
+    let mu = fmap snd mu'
     (poll, ois, options, manswer) <- runDB $ do
         poll <- get404 pollid
         options <- selectList [PollOptionPoll ==. pollid] [Asc PollOptionPriority]
@@ -73,11 +77,15 @@ getPollR pollid = do
                             po <- get404 $ pollAnswerOption pa
                             return $ Just $ pollOptionAnswer po
         return (poll, ois, options, manswer)
+    let isAdmin = fmap userAdmin mu == Just True
+        showResults = pollClosed poll || isJust manswer
     defaultLayout $(widgetFile "poll")
 
 postPollR :: PollId -> Handler RepHtml
 postPollR pollid = do
     (uid, u) <- requireAuth
+    poll <- runDB $ get404 pollid
+    when (pollClosed poll) $ permissionDenied "Poll has already been closed"
     oidText <- runInputPost $ ireq textField "option"
     oid <-
         case fromSinglePiece oidText of
@@ -87,4 +95,14 @@ postPollR pollid = do
     unless (pollOptionPoll o == pollid) $ invalidArgs ["Poll mismatch"]
     res <- runDB $ insertBy $ PollAnswer pollid oid uid (userReal u)
     setMessage $ either (const "You already voted") (const "Vote cast") res
+    redirect RedirectTemporary $ PollR pollid
+
+postPollCloseR :: PollId -> Handler ()
+postPollCloseR pollid = do
+    (_, u) <- requireAuth
+    unless (userAdmin u) $ permissionDenied "Must be an admin to close a poll"
+    runDB $ do
+        _ <- get404 pollid
+        update pollid [PollClosed =. True]
+    setMessage "Poll closed"
     redirect RedirectTemporary $ PollR pollid

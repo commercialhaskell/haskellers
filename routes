@@ -88,3 +88,4 @@
 
 /poll PollsR GET POST
 /poll/#PollId PollR GET POST
+/poll/#PollId/close PollCloseR POST

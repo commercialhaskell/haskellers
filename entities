@@ -99,6 +99,7 @@ TopicMessage
 Poll
     question Text
     created UTCTime
+    closed Bool default=false
 PollOption
     poll PollId
     answer Text
