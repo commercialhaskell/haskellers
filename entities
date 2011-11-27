@@ -109,4 +109,5 @@ PollAnswer
     option PollOptionId
     user UserId
     real Bool
+    answered UTCTime default=now()
     UniquePollAnswer poll user

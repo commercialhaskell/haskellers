@@ -11,7 +11,7 @@ module Handler.Poll
 import Haskellers
 import Control.Monad (unless, when)
 import qualified Data.Text as T
-import Data.Time (getCurrentTime)
+import Data.Time (getCurrentTime, addUTCTime)
 import Data.Maybe (isJust)
 
 getPollsR :: Handler RepHtml
@@ -77,8 +77,19 @@ getPollR pollid = do
                             po <- get404 $ pollAnswerOption pa
                             return $ Just $ pollOptionAnswer po
         return (poll, ois, options, manswer)
-    let isAdmin = fmap userAdmin mu == Just True
-        showResults = pollClosed poll || isJust manswer
+    let showResults = pollClosed poll || isJust manswer
+    mrecentAnswers <-
+        if fmap userAdmin mu == Just True
+            then do
+                now <- liftIO getCurrentTime
+                let oneDay = 60 * 60 * 24
+                let yesterday = negate oneDay `addUTCTime` now
+                liftIO $ print (yesterday, now)
+                fmap Just $ runDB $ count
+                    [ PollAnswerPoll ==. pollid
+                    , PollAnswerAnswered >=. yesterday
+                    ]
+            else return Nothing
     defaultLayout $(widgetFile "poll")
 
 postPollR :: PollId -> Handler RepHtml
@@ -93,7 +104,8 @@ postPollR pollid = do
             Just x -> return x
     o <- runDB $ get404 oid
     unless (pollOptionPoll o == pollid) $ invalidArgs ["Poll mismatch"]
-    res <- runDB $ insertBy $ PollAnswer pollid oid uid (userReal u)
+    now <- liftIO getCurrentTime
+    res <- runDB $ insertBy $ PollAnswer pollid oid uid (userReal u) now
     setMessage $ either (const "You already voted") (const "Vote cast") res
     redirect RedirectTemporary $ PollR pollid
 

@@ -34,7 +34,8 @@ $if showResults
                         (#{show p}%)
 $else
     <p>Poll is still open, and you have not provided an answer.
-$if isAdmin
+$maybe recent <- mrecentAnswers
+    <p>Answers in past 24 hours: #{show recent}
     $if not $ pollClosed poll
         <form method=post action=@{PollCloseR pollid}>
             <input type=submit value="Close Poll">
