@@ -40,14 +40,14 @@ canAddTeam ma = do
         Nothing -> return False
         Just (_, u) -> return $ userVerifiedEmail u && userReal u && not (userBlocked u)
 
-teamFormlet :: Maybe Team -> Html -> Form Haskellers Haskellers (FormResult Team, Widget)
+teamFormlet :: Maybe Team -> Html -> MForm Haskellers Haskellers (FormResult Team, Widget)
 teamFormlet mt = renderTable $ Team
     <$> areq textField "Name" (fmap teamName mt)
     <*> areq nicHtmlField "Description"
             { fsId = Just "team-desc"
             } (fmap teamDesc mt)
 
-packageFormlet :: TeamId -> Maybe TeamPackage -> Html -> Form Haskellers Haskellers (FormResult TeamPackage, Widget)
+packageFormlet :: TeamId -> Maybe TeamPackage -> Html -> MForm Haskellers Haskellers (FormResult TeamPackage, Widget)
 packageFormlet tid mtp = renderTable $ TeamPackage
     <$> pure tid
     <*> areq textField "Name" (fmap teamPackageName mtp)

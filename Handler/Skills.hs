@@ -11,7 +11,7 @@ import Handler.Admin (requireAdmin)
 import Control.Applicative
 import Data.Text (unpack)
 
-skillFormlet :: Html -> Form Haskellers Haskellers (FormResult Skill, Widget)
+skillFormlet :: Html -> MForm Haskellers Haskellers (FormResult Skill, Widget)
 skillFormlet = renderTable $ Skill
     <$> areq textField "Skill name" { fsId = Just "skill-name" } Nothing
 

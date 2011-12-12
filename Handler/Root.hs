@@ -115,7 +115,7 @@ applyFilter f p = and
             Just FullPartTime -> True
             _ -> False
 
-filterForm :: Int -> Html -> Form Haskellers Haskellers (FormResult Filter, Widget)
+filterForm :: Int -> Html -> MForm Haskellers Haskellers (FormResult Filter, Widget)
 filterForm my = renderTable $ Filter
     <$> aopt textField "Name" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no earlier than" Nothing

@@ -14,7 +14,7 @@ import Yesod.Form.Jquery
 import Control.Monad (unless)
 import Yesod.Feed
 
-jobFormlet :: UserId -> UTCTime -> Maybe Job -> Html -> Form Haskellers Haskellers (FormResult Job, Widget)
+jobFormlet :: UserId -> UTCTime -> Maybe Job -> Html -> MForm Haskellers Haskellers (FormResult Job, Widget)
 jobFormlet uid now mj = renderTable $ Job
     <$> pure (fromMaybe uid (fmap jobPostedBy mj))
     <*> pure (fromMaybe now (fmap jobPostedAt mj))

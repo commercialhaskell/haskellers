@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
 -- In addition, you can configure a number of different aspects of Yesod
@@ -25,10 +26,11 @@ import qualified Text.Lucius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadControlIO, addWidget, addCassius, addJulius, whamletFile)
+import Yesod (MonadBaseControl, addWidget, addCassius, addJulius, whamletFile)
 import Data.Monoid (mempty, mappend)
 import System.Directory (doesFileExist)
 import Data.Text (Text)
+import Control.Monad.IO.Class (MonadIO)
 
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
@@ -139,8 +141,8 @@ widgetFile x = do
 -- database actions using a pool, respectively. It is used internally
 -- by the scaffolded application, and therefore you will rarely need to use
 -- them yourself.
-withConnectionPool :: MonadControlIO m => (ConnectionPool -> m a) -> m a
+withConnectionPool :: (MonadIO m, MonadBaseControl IO m) => (ConnectionPool -> m a) -> m a
 withConnectionPool = withPostgresqlPool connStr connectionCount
 
-runConnectionPool :: MonadControlIO m => SqlPersist m a -> ConnectionPool -> m a
+runConnectionPool :: (MonadIO m, MonadBaseControl IO m) => SqlPersist m a -> ConnectionPool -> m a
 runConnectionPool = runSqlPool

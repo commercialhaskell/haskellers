@@ -15,7 +15,7 @@ import Handler.Admin (requireAdmin)
 import Data.Time (getCurrentTime)
 import Data.Text (Text)
 
-newsForm :: Html -> Form Haskellers Haskellers (FormResult (Text, Html), Widget)
+newsForm :: Html -> MForm Haskellers Haskellers (FormResult (Text, Html), Widget)
 newsForm = renderTable $ (,)
     <$> areq textField "Title" Nothing
     <*> areq nicHtmlField "Content"

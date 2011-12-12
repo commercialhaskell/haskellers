@@ -68,10 +68,12 @@ postSendVerifyR = do
                     }
             liftIO $ renderSendMailSES ses Mail
                 { mailHeaders =
-                    [ ("From", "webmaster@haskellers.com")
-                    , ("To", email)
-                    , ("Subject", "Verify your email address")
+                    [ ("Subject", "Verify your email address")
                     ]
+                , mailFrom = Address Nothing "webmaster@haskellers.com"
+                , mailTo = [Address Nothing email]
+                , mailCc = []
+                , mailBcc = []
                 , mailParts = return
                     [ Part "text/plain" None Nothing [] $ LU.fromString $ unlines
                         [ "Please go to the URL below to verify your email address."
