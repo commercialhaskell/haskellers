@@ -203,6 +203,8 @@ instance Yesod Haskellers where
                 , ("ja", "Japanese")
                 , ("es", "Spanish")
                 , ("he", "Hebrew")
+                , ("ru", "Russian")
+                , ("ua", "Ukrainian")
                 ]
         ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
 
