@@ -2,10 +2,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Haskellers
+module Foundation
     ( Haskellers (..)
     , HaskellersMessage (..)
-    , HaskellersRoute (..)
+    , Route (..)
     , resourcesHaskellers
     , Handler
     , Widget
@@ -17,8 +17,6 @@ module Haskellers
     , module Yesod
     , module Settings
     , module Model
-    , StaticRoute (..)
-    , AuthRoute (..)
     , login
     , Profile (..)
     , userR
@@ -32,7 +30,7 @@ module Haskellers
 
 #define debugRunDB debugRunDBInner __FILE__ __LINE__
 
-import Yesod
+import Yesod hiding (Route)
 import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.OpenId
@@ -71,6 +69,9 @@ import Text.Hamlet (HtmlUrlI18n, ihamletFile)
 import qualified Data.Text.Read
 import Data.Maybe (fromJust)
 import Web.Authenticate.BrowserId (checkAssertion)
+import Network.HTTP.Conduit (Manager)
+import Data.Conduit (runResourceT)
+import Facebook (Credentials (..))
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -82,6 +83,7 @@ data Haskellers = Haskellers
     , homepageProfiles :: IORef ([Profile], Int)
     , publicProfiles :: IORef [Profile]
     , theApproot :: Text
+    , httpManager :: Manager
     }
 
 data Profile = Profile
@@ -105,10 +107,10 @@ mkMessage "Haskellers" "messages" "en"
 --
 -- This function does three things:
 --
--- * Creates the route datatype HaskellersRoute. Every valid URL in your
+-- * Creates the route datatype Route Haskellers. Every valid URL in your
 --   application can be represented as a value of this type.
 -- * Creates the associated type:
---       type instance Route Haskellers = HaskellersRoute
+--       type instance Route Haskellers = Route Haskellers
 -- * Creates the value resourcesHaskellers which contains information on the
 --   resources declared below. This is used in Controller.hs by the call to
 --   mkYesodDispatch
@@ -116,7 +118,7 @@ mkMessage "Haskellers" "messages" "en"
 -- What this function does *not* do is create a YesodSite instance for
 -- Haskellers. Creating that instance requires all of the handler functions
 -- for our application to be in scope. However, the handler functions
--- usually require access to the HaskellersRoute datatype. Therefore, we
+-- usually require access to the Route Haskellers datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
 mkYesodData "Haskellers" $(parseRoutesFile "routes")
 
@@ -127,13 +129,13 @@ maybeAuth' = do
         Nothing -> return Nothing
         Just (uid, u) -> do
             y <- runDB $ getBy $ UniqueUsernameUser uid
-            return $ Just ((uid, u), fmap snd y)
+            return $ Just ((uid, u), fmap entityVal y)
 
 requireAuth' :: GHandler s Haskellers ((UserId, User), Maybe Username)
 requireAuth' = do
     (uid, u) <- requireAuth
     y <- runDB $ getBy $ UniqueUsernameUser uid
-    return ((uid, u), fmap snd y)
+    return ((uid, u), fmap entityVal y)
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
@@ -177,11 +179,11 @@ instance Yesod Haskellers where
         let title = if fmap tm current == Just RootR
                         then "Haskellers"
                         else title'
-        let isCurrent :: HaskellersRoute -> Bool
+        let isCurrent :: Route Haskellers -> Bool
             isCurrent RootR = fmap tm current == Just RootR
             isCurrent x = Just x == fmap tm current || x `elem` map fst parents
-        let navbarSection :: (String, [(String, HaskellersRoute)])
-                          -> HtmlUrlI18n HaskellersMessage HaskellersRoute
+        let navbarSection :: (String, [(String, Route Haskellers)])
+                          -> HtmlUrlI18n HaskellersMessage (Route Haskellers)
             navbarSection section = $(ihamletFile "hamlet/navbar-section.hamlet")
         pc <- widgetToPageContent $ do
             case ma of
@@ -238,7 +240,7 @@ instance Yesod Haskellers where
 
     clientSessionDuration _ = 60 * 24 * 14 -- 2 weeks
 
-navbar :: [(String, [(String, HaskellersRoute)])]
+navbar :: [(String, [(String, Route Haskellers)])]
 navbar =
     [ ("General",
         [ ("Homepage", RootR)
@@ -262,7 +264,7 @@ navbar =
     ]
 
 userbar :: ((UserId, User), Maybe Username)
-        -> [(String, [(String, HaskellersRoute)])]
+        -> [(String, [(String, Route Haskellers)])]
 userbar ((uid, u), a) = (:) ("Your Profile",
     [ ("Edit Profile", ProfileR)
     , ("View Profile", userR ((uid, u), a))
@@ -275,7 +277,7 @@ userbar ((uid, u), a) = (:) ("Your Profile",
                 ])]
         else []
 
-loginbar :: (String, [(String, HaskellersRoute)])
+loginbar :: (String, [(String, Route Haskellers)])
 loginbar = ("Account", [("Login", AuthR LoginR)])
 
 instance YesodBreadcrumbs Haskellers where
@@ -291,16 +293,16 @@ instance YesodBreadcrumbs Haskellers where
     breadcrumb (SkillR sid) = do
         s <- runDB $ get404 sid
         return (skillName s, Just AllSkillsR)
-    breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ toSinglePiece uid)
+    breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ toPathPiece uid)
     breadcrumb (UserR str) = do
         u <- runDB $
             case Data.Text.Read.decimal str :: Either String (Int, Text) of
-                Right (_, "") -> get404 $ fromJust $ fromSinglePiece str
+                Right (_, "") -> get404 $ fromJust $ fromPathPiece str
                 _ -> do
                     x <- getBy $ UniqueUsername str
                     case x of
                         Nothing -> lift notFound
-                        Just (_, un) -> get404 $ usernameUser un
+                        Just (Entity _ un) -> get404 $ usernameUser un
         return (userFullName u, Nothing)
     breadcrumb ProfileR = return ("Edit Your Profile", Just RootR)
     breadcrumb VerifyEmailR{} = return ("Verify Your Email Address", Nothing)
@@ -383,7 +385,7 @@ instance YesodBreadcrumbs Haskellers where
 -- How to run database actions.
 instance YesodPersist Haskellers where
     type YesodPersistBackend Haskellers = SqlPersist
-    runDB db = liftIOHandler $ fmap connPool getYesod >>= Settings.runConnectionPool db
+    runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
 
 instance YesodJquery Haskellers where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
@@ -403,7 +405,7 @@ instance YesodAuth Haskellers where
         muid <- maybeAuth
         x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
-            (Just (_, i), Nothing) -> do
+            (Just (Entity _ i), Nothing) -> do
                 runDB $ addBIDEmail (identUser i)
                 return $ Just $ identUser i
             (Nothing, Nothing) -> runDB $ do
@@ -437,7 +439,7 @@ instance YesodAuth Haskellers where
                 return $ Just uid
             (Just _, Just _) -> do
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
-                redirect RedirectTemporary ProfileR
+                redirect ProfileR
       where
         addBIDEmail uid
             | credsPlugin creds == "browserid" = do
@@ -445,12 +447,17 @@ instance YesodAuth Haskellers where
                 unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
 
-    authPlugins = [ authOpenId
-                  , authFacebook "157813777573244"
-                                 "327e6242e855954b16f9395399164eec"
-                                 []
+    authPlugins _ = [ authOpenId
+                  , authFacebook
+                        (Credentials
+                            "Haskellers.com"
+                            "157813777573244"
+                            "327e6242e855954b16f9395399164eec")
+                        []
                   , authBrowserId hostname
                   ]
+
+    authHttpManager = httpManager
 
     loginHandler = defaultLayout $ do
         [whamlet|\
@@ -460,9 +467,9 @@ instance YesodAuth Haskellers where
 login :: GWidget s Haskellers ()
 login = {-addCassius $(cassiusFile "login") >> -}$(hamletFile "login")
 
-userR :: ((UserId, User), Maybe Username) -> HaskellersRoute
+userR :: ((UserId, User), Maybe Username) -> Route Haskellers
 userR (_, Just (Username _ un)) = UserR un
-userR ((uid, _), _) = UserR $ toSinglePiece uid
+userR ((uid, _), _) = UserR $ toPathPiece uid
 
 debugInfo :: TVar (Map.Map (String, Int) (Int, Int))
 debugInfo = unsafePerformIO $ newTVarIO Map.empty
@@ -491,7 +498,7 @@ getDebugR = do
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"
 
-addTeamNews :: TeamId -> Text -> Html -> HaskellersRoute -> SqlPersist (GGHandler Haskellers Haskellers IO) ()
+addTeamNews :: TeamId -> Text -> Html -> Route Haskellers -> SqlPersist Handler ()
 addTeamNews tid title content url = do
     render <- lift getUrlRender
     now <- liftIO getCurrentTime
@@ -561,7 +568,8 @@ authBrowserId host = AuthPlugin
     , apDispatch = \method pieces ->
         case (method, pieces) of
             ("GET", [assertion]) -> do
-                memail <- liftIO $ checkAssertion host assertion
+                h <- getYesod
+                memail <- runResourceT $ checkAssertion host assertion (authHttpManager h)
                 case memail of
                     Nothing -> permissionDenied $ "Invalid BrowserID assertion"
                     Just email -> setCreds True Creds
@@ -584,7 +592,7 @@ fixBrowserId creds
             Nothing -> do
                 mu <- selectList [UserEmail ==. Just email, UserVerifiedEmail ==. True] [LimitTo 1]
                 case mu of
-                    [(uid, _)] -> do
+                    [Entity uid _] -> do
                         _ <- insert $ Ident email uid
                         return ()
                     _ -> return ()

@@ -7,12 +7,11 @@ $nothing
     $else
         $maybe _ <- muid
             <form method=post>
-                $forall option <- options
-                    $with oid <- fst option, o <- snd option
+                $forall Entity oid o <- options
                         <div>
-                            <input type=radio name=option id=#{toSinglePiece oid} value=#{toSinglePiece oid}>
+                            <input type=radio name=option id=#{toPathPiece oid} value=#{toPathPiece oid}>
                             \ #
-                            <label for=#{toSinglePiece oid}>#{pollOptionAnswer o}
+                            <label for=#{toPathPiece oid}>#{pollOptionAnswer o}
                 <input type=submit value=Vote>
         $nothing
             <p>You must be logged in to submit an answer.

@@ -4,11 +4,11 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( withHaskellers
-    , withDevelApp
+    ( getApplication
+    , getApplicationDev
     ) where
 
-import Haskellers hiding (approot)
+import Foundation hiding (approot)
 import Settings
 import Yesod.Static
 import Yesod.Auth
@@ -22,7 +22,7 @@ import Control.Monad (forever)
 import Data.Maybe (catMaybes)
 import qualified Data.Set as Set
 import Data.ByteString (ByteString)
-import Data.Dynamic (Dynamic, toDyn)
+import Network.HTTP.Conduit (newManager, def)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -57,8 +57,10 @@ getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: ByteString)
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withHaskellers :: Text -> (Application -> IO a) -> IO a
-withHaskellers approot f = Settings.withConnectionPool $ \p -> do
+getApplication :: Text -> IO Application
+getApplication approot = do
+    p <- Settings.createConnectionPool
+    manager <- newManager def
     flip runConnectionPool p $ runMigration migrateAll
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
@@ -69,13 +71,13 @@ withHaskellers approot f = Settings.withConnectionPool $ \p -> do
     fillProfs p hprofs pprofs
 #endif
     s' <- s
-    let h = Haskellers s' p hprofs pprofs approot
-    toWaiApp h >>= f
+    let h = Haskellers s' p hprofs pprofs approot manager
+    toWaiApp h
   where
     s = static Settings.staticdir
 
-withDevelApp :: Dynamic
-withDevelApp = toDyn (withHaskellers "http://localhost:3000" :: (Application -> IO ()) -> IO ())
+getApplicationDev :: IO Application
+getApplicationDev = getApplication "http://localhost:3000"
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do
@@ -108,12 +110,12 @@ fillProfs pool hprofs pprofs = do
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
 
-userToProfile :: (Functor (b m), PersistBackend b m) => (UserId, User) -> b m (Maybe Profile)
-userToProfile (uid, u) =
+userToProfile :: (Functor (b m), PersistUnique b m) => (Entity SqlPersist User) -> b m (Maybe Profile)
+userToProfile (Entity uid u) =
     case userEmail u of
         Nothing -> return Nothing
         Just e -> do
-            mun <- fmap (fmap snd) $ getBy $ UniqueUsernameUser uid
+            mun <- fmap (fmap entityVal) $ getBy $ UniqueUsernameUser uid
             return $ Just Profile
                 { profileUserId = uid
                 , profileName = userFullName u

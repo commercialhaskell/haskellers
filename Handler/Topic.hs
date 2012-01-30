@@ -7,7 +7,7 @@ module Handler.Topic
     , postTopicMessageR
     ) where
 
-import Haskellers
+import Foundation
 import Handler.Team (loginStatus)
 import Yesod.Form.Nic
 import Data.Time
@@ -21,7 +21,7 @@ topicFormlet :: TeamId -> UserId -> UTCTime -> Html -> MForm Haskellers Haskelle
 topicFormlet tid uid now = renderTable $ Topic
     <$> pure tid
     <*> pure now
-    <*> areq (selectField opts) "Topic type" Nothing
+    <*> areq (selectFieldList opts) "Topic type" Nothing
     <*> pure Open
     <*> pure (Just uid)
     <*> areq textField "Title" Nothing
@@ -63,7 +63,7 @@ postTopicsR tid = do
 |] $ TopicR toid
                 return toid
             setMessage "Topic started"
-            redirect RedirectTemporary $ TopicR toid
+            redirect $ TopicR toid
         _ -> defaultLayout [whamlet|\
 <form method="post" action="@{TopicsR tid}">
     <table>
@@ -75,7 +75,7 @@ postTopicsR tid = do
 
 statusFormlet :: TopicStatus -> Html -> MForm Haskellers Haskellers (FormResult TopicStatus, Widget)
 statusFormlet =
-    renderTable . areq (selectField opts) "New status" . Just
+    renderTable . areq (selectFieldList opts) "New status" . Just
   where
     opts = map (T.pack . show &&& id) [minBound..maxBound]
 
@@ -91,7 +91,7 @@ getTopicR toid = do
         case ma of
             Just (uid, User { userVerifiedEmail = True, userBlocked = False }) -> do
                 x <- runDB $ getBy $ UniqueTeamUser tid uid
-                let im = fmap (teamUserStatus . snd) x `elem`
+                let im = fmap (teamUserStatus . entityVal) x `elem`
                            map Just [Admin, ApprovedMember]
                 return (True, im)
             _ -> return (False, False)
@@ -102,7 +102,7 @@ getTopicR toid = do
                     Just uid -> runDB $ get uid
     messages <- runDB $ selectList [TopicMessageTopic ==. toid]
                         [Asc TopicMessageCreated]
-                    >>= mapM (\(mid, m) -> do
+                    >>= mapM (\(Entity mid m) -> do
         mu <- case topicMessageCreator m of
                 Nothing -> return Nothing
                 Just c -> get c
@@ -121,7 +121,7 @@ postTopicR toid = do
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
         "You must have a verified email address and not be blocked."
     x <- runDB $ getBy $ UniqueTeamUser tid uid
-    unless (fmap (teamUserStatus . snd) x `elem` map Just [Admin, ApprovedMember]) $ permissionDenied "You must be an approved member."
+    unless (fmap (teamUserStatus . entityVal) x `elem` map Just [Admin, ApprovedMember]) $ permissionDenied "You must be an approved member."
     ((res, _), _) <- runFormPost $ statusFormlet $ topicStatus to
     case res of
         FormSuccess s -> runDB $ do
@@ -133,7 +133,7 @@ postTopicR toid = do
 <p>The status of the topic "#{topicTitle to}" has been updated to #{show s}.
 |] $ TopicR toid
         _ -> setMessage "Invalid input"
-    redirect RedirectTemporary $ TopicR toid
+    redirect $ TopicR toid
 
 postTopicMessageR :: TopicId -> Handler RepHtml
 postTopicMessageR toid = do
@@ -148,7 +148,7 @@ postTopicMessageR toid = do
             FormSuccess x -> return x
             _ -> do
                 setMessage "Invalid message"
-                redirect RedirectTemporary $ TopicR toid
+                redirect $ TopicR toid
     now <- liftIO getCurrentTime
     render <- getUrlRender
     dest <- runDB $ do
@@ -156,7 +156,7 @@ postTopicMessageR toid = do
         let dest = T.concat
                 [ render (TopicR toid)
                 , "#message-"
-                , toSinglePiece mid
+                , toPathPiece mid
                 ]
         t <- get404 tid
         let title = "Message added for " `T.append` teamName t
@@ -166,4 +166,4 @@ postTopicMessageR toid = do
 |]
         _ <- insert $ TeamNews tid now title content dest
         return dest
-    redirectText RedirectTemporary dest
+    redirect dest

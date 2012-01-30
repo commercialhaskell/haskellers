@@ -9,7 +9,7 @@ module Handler.User
     , adminControls
     ) where
 
-import Haskellers
+import Foundation
 import Handler.Root (gravatar)
 import Data.List (sortBy, intercalate)
 import Data.Ord (comparing)
@@ -24,9 +24,9 @@ import Data.Monoid (mappend)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Read
-import Data.Maybe (fromJust)
 import qualified Data.ByteString.Base64 as B64
 import Crypto.Cipher.AES (initKey128, encryptCBC)
+import Network.HTTP.Types (status301)
 
 getByIdentR :: Handler RepJson
 getByIdentR = do
@@ -35,9 +35,9 @@ getByIdentR = do
     render <- getUrlRender
     case x of
         Nothing -> notFound
-        Just (_, Ident { identUser = uid }) -> jsonToRepJson $ jsonMap
-            [ ("id", jsonScalar $ T.unpack $ toSinglePiece (uid :: UserId))
-            , ("url", jsonScalar $ T.unpack $ render $ UserR $ toSinglePiece uid)
+        Just (Entity _ (Ident { identUser = uid })) -> jsonToRepJson $ object
+            [ "id"  .= toPathPiece (uid :: UserId)
+            , "url" .= render (UserR $ toPathPiece uid)
             ]
 
 getUserR :: Text -> Handler RepHtmlJson
@@ -45,50 +45,50 @@ getUserR input = do
     (uid, u) <-
         case Data.Text.Read.decimal input :: Either String (Int, Text) of
             Right (x, "") -> runDB $ do
-                let uid = fromJust $ fromSinglePiece input
+                Just uid <- return $ fromPathPiece input
                 liftIO $ print $ "Looking for: " ++ show x ++ ", uid == " ++ show uid
                 u <- get404 uid
                 mun <- getBy $ UniqueUsernameUser uid
                 case mun of
                     Nothing -> return (uid, u)
-                    Just (_, Username _ un) ->
-                        lift $ redirect RedirectPermanent $ UserR un
+                    Just (Entity _(Username _ un)) ->
+                        lift $ redirectWith status301 $ UserR un
             _ -> runDB $ do
                 mun <- getBy $ UniqueUsername input
                 case mun of
                     Nothing -> lift notFound
-                    Just (_, Username uid _) -> do
+                    Just (Entity _ (Username uid _)) -> do
                         u <- get404 uid
                         return (uid, u)
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . snd) mv
 
     skills <- runDB $ do
-        x <- selectList [UserSkillUser ==. uid] [] >>= mapM (\(_, y) -> do
+        x <- selectList [UserSkillUser ==. uid] [] >>= mapM (\(Entity _ y) -> do
             let sid = userSkillSkill y
             s <- get404 sid
             return (sid, T.unpack $ skillName s))
         return $ sortBy (comparing snd) x
     packages <- runDB
-              $ fmap (map $ T.unpack . packageName . snd)
+              $ fmap (map $ T.unpack . packageName . entityVal)
               $ selectList [PackageUser ==. uid] [Asc PackageName]
     screenNames <- runDB $ selectList [ScreenNameUser ==. uid]
                     [Asc ScreenNameService, Asc ScreenNameName]
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
-    let json = jsonMap
-            $ ((:) ("id", jsonScalar $ T.unpack $ toSinglePiece uid))
-            . ((:) ("name", jsonScalar $ T.unpack $ userFullName u))
+    let json = object
+            $ ((:) ("id" .= toPathPiece uid))
+            . ((:) ("name" .= userFullName u))
             . (case userWebsite u of
                 Nothing -> id
-                Just w -> (:) ("website", jsonScalar $ T.unpack w))
+                Just w -> (:) ("website" .= w))
             . (case userHaskellSince u of
                 Nothing -> id
-                Just e -> (:) ("haskell-since", jsonScalar $ show e))
+                Just e -> (:) ("haskell-since" .= show e))
             . (case userDesc u of
                 Nothing -> id
-                Just d -> (:) ("description", jsonScalar $ T.unpack $ unTextarea d))
-            . ((:) ("skills", jsonList $ map (jsonScalar . snd) skills))
+                Just d -> (:) ("description" .= unTextarea d))
+            . ((:) ("skills", array $ map snd skills))
             $ []
     let percentEncode = id -- FIXME
     let packdeps = "http://packdeps.haskellers.com/specific/?" ++
@@ -169,7 +169,7 @@ postFlagR uid = do
             }
         return u
     setMessage "The user has been reported to the admins. Thanks!"
-    redirect RedirectTemporary $ userR ((uid, u), Nothing)
+    redirect $ userR ((uid, u), Nothing)
 
 adminControls :: UserId -> User -> Widget
 adminControls uid u = do

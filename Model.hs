@@ -8,7 +8,7 @@
 module Model where
 
 import Yesod
-import Database.Persist.Base
+import Database.Persist.Store
 import Text.Blaze (ToHtml (..))
 import Data.Time (UTCTime, Day)
 import Data.Text (Text)
@@ -45,7 +45,7 @@ instance ToHtml Employment where toHtml = toHtml . prettyEmployment
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-share2 (mkPersist sqlSettings) (mkMigrate "migrateAll") $(persistFile "entities")
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFile "entities")
 
 userFullName' :: User -> Text
 userFullName' u =

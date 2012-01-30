@@ -38,10 +38,10 @@ $if viewerIsAdmin
   $if not (null screenNames)
       <div .screen-names>
           <table>
-              $forall sn <- screenNames
+              $forall Entity _ sn <- screenNames
                   <tr>
-                      <th>#{show (screenNameService (snd sn))}
-                      <td>#{screenNameName (snd sn)}
+                      <th>#{show (screenNameService sn)}
+                      <td>#{screenNameName sn}
 \
 $maybe d <- userDesc u
     <div id="about" .user-info-box>

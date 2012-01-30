@@ -8,11 +8,12 @@ module Handler.Poll
     , postPollCloseR
     ) where
 
-import Haskellers
+import Foundation
 import Control.Monad (unless, when)
 import qualified Data.Text as T
 import Data.Time (getCurrentTime, addUTCTime)
 import Data.Maybe (isJust)
+import Database.Persist.Postgresql (SqlPersist)
 
 getPollsR :: Handler RepHtml
 getPollsR = do
@@ -35,7 +36,7 @@ postPollsR = do
         mapM_ (\(a, i) -> insert $ PollOption pollid a i) $ zip as [1..]
         return pollid
     setMessage "Poll created"
-    redirect RedirectTemporary $ PollR pollid
+    redirect $ PollR pollid
 
 data OptInfo = OptInfo
     { oiAnswer :: T.Text
@@ -51,8 +52,8 @@ oiPercent real oi ois
     total = sum $ map f ois
     f = if real then oiRealCount else oiCount
 
-toOI :: (PollOptionId, PollOption) -> YesodDB Haskellers Haskellers OptInfo
-toOI (poid, po) = do
+toOI :: (Entity SqlPersist PollOption) -> YesodDB Haskellers Haskellers OptInfo
+toOI (Entity poid po) = do
     x <- count [PollAnswerOption ==. poid]
     y <- count [PollAnswerOption ==. poid, PollAnswerReal ==. True]
     return $ OptInfo (pollOptionAnswer po) x y
@@ -73,7 +74,7 @@ getPollR pollid = do
                     ma <- getBy $ UniquePollAnswer pollid uid
                     case ma of
                         Nothing -> return Nothing
-                        Just (_, pa) -> do
+                        Just (Entity _ pa) -> do
                             po <- get404 $ pollAnswerOption pa
                             return $ Just $ pollOptionAnswer po
         return (poll, ois, options, manswer)
@@ -99,7 +100,7 @@ postPollR pollid = do
     when (pollClosed poll) $ permissionDenied "Poll has already been closed"
     oidText <- runInputPost $ ireq textField "option"
     oid <-
-        case fromSinglePiece oidText of
+        case fromPathPiece oidText of
             Nothing -> invalidArgs ["Invalid selection"]
             Just x -> return x
     o <- runDB $ get404 oid
@@ -107,7 +108,7 @@ postPollR pollid = do
     now <- liftIO getCurrentTime
     res <- runDB $ insertBy $ PollAnswer pollid oid uid (userReal u) now
     setMessage $ either (const "You already voted") (const "Vote cast") res
-    redirect RedirectTemporary $ PollR pollid
+    redirect $ PollR pollid
 
 postPollCloseR :: PollId -> Handler ()
 postPollCloseR pollid = do
@@ -117,4 +118,4 @@ postPollCloseR pollid = do
         _ <- get404 pollid
         update pollid [PollClosed =. True]
     setMessage "Poll closed"
-    redirect RedirectTemporary $ PollR pollid
+    redirect $ PollR pollid

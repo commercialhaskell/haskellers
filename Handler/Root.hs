@@ -9,7 +9,7 @@ module Handler.Root
     , postLangR
     ) where
 
-import Haskellers hiding (Filter)
+import Foundation hiding (Filter)
 import qualified Model
 import Yesod.Form
 import qualified Data.ByteString.Lazy.UTF8 as L
@@ -135,7 +135,7 @@ yearField minY maxY = Field
                         | i > maxY -> Left $ SomeMessage $ T.pack $ "Value must be at most " ++ show maxY
                         | otherwise -> Right $ Just i
             _ -> Right Nothing
-    , fieldView = \theId name eval isReq ->
+    , fieldView = \theId name _ eval isReq ->
         let val = either id (T.pack . showIntegral) eval
          in toWidget [hamlet|
 <input id="#{theId}" name="#{name}" type="number" min="#{show minY}" max="#{show maxY}" step="1" :isReq:required="" value="#{val}">
@@ -173,11 +173,11 @@ getUsersR = do
         setTitle "Browsing Haskellers"
         $(widgetFile "users")
   where
-    json r users = jsonMap [("users", jsonList $ map (json' r) users)]
-    json' r prof = jsonMap
-        [ ("id", jsonScalar $ T.unpack $ toSinglePiece $ profileUserId prof)
-        , ("name", jsonScalar $ T.unpack $ userFullName $ profileUser prof)
-        , ("url", jsonScalar $ T.unpack $ r $ profileUserR prof)
+    json r users = object ["users" .= array (map (json' r) users)]
+    json' r prof = object
+        [ "id"   .= toPathPiece (profileUserId prof)
+        , "name" .= userFullName (profileUser prof)
+        , "url"  .= r (profileUserR prof)
         ]
 
 gravatar :: Int -> Text -> Text
@@ -201,21 +201,22 @@ getLocationsR = do
                                 , UserBlocked ==. False
                                 ] []
     cacheSeconds 3600
-    jsonToRepJson $ jsonMap [("locations", jsonList $ map (go render) users)]
+    jsonToRepJson $ object
+        ["locations" .= array (map (go render) users)]
   where
-    go r (uid, u@User
+    go r (Entity uid u@User
                 { userLongitude = Just lng
                 , userLatitude = Just lat
                 , Model.userFullName = n
-                }) = jsonMap
-        [ ("lng", jsonScalar $ show lng)
-        , ("lat", jsonScalar $ show lat)
-        , ("name", jsonScalar $ T.unpack n)
-        , ("url", jsonScalar $ T.unpack $ r $ userR ((uid, u), Nothing))
+                }) = object
+        [ "lng"  .= show lng
+        , "lat"  .= show lat
+        , "name" .= n
+        , "url"  .= r (userR ((uid, u), Nothing))
         ]
     go _ _ = error "getLocationsR"
 
-profileUserR :: Profile -> HaskellersRoute
+profileUserR :: Profile -> Route Haskellers
 profileUserR p = userR ((profileUserId p, profileUser p), profileUsername p)
 
 postLangR :: Handler ()
@@ -223,5 +224,5 @@ postLangR = do
     runInputPost (ireq textField "lang") >>= setLanguage
     md <- runInputPost $ iopt textField "dest"
     case md of
-        Nothing -> redirect RedirectTemporary RootR
-        Just d -> redirectText RedirectTemporary d
+        Nothing -> redirect RootR
+        Just d -> redirect d

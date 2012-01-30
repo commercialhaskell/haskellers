@@ -6,7 +6,7 @@
     <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
         <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
         <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
-    <a href="@{AuthR facebookUrl}" .button .facebook>
+    <a href="@{AuthR facebookLogin}" .button .facebook>
         <img src="@{StaticR facebook_gif}" value="Login via Facebook">
     <h3>&mdash; OR &mdash;
     <form method="get" action="@{AuthR forwardUrl}">

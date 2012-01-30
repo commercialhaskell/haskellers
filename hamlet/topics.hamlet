@@ -10,14 +10,14 @@ $else
                 <th>Type
                 <th>Status
         <tbody>
-            $forall t <- topics
+            $forall Entity tid t <- topics
                 <tr>
                     <td>
-                        <a href="@{TopicR (fst t)}">#{topicTitle (snd t)}
+                        <a href="@{TopicR tid}">#{topicTitle t}
                     <td>
-                        \#{show (topicType (snd t))}
+                        \#{show (topicType t)}
                     <td>
-                        \#{show (topicStatus (snd t))}
+                        \#{show (topicStatus t)}
 $maybe f <- mf
     <form method="post" action="@{TopicsR tid}" .big>
         <h2>Create a new topic

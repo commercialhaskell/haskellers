@@ -6,11 +6,11 @@
 $if null jobs
     <p>There are no active job listings.
 $else
-    $forall j <- jobs
+    $forall Entity key j <- jobs
         <div .job>
-            <a href="@{JobR (fst j)}">#{jobTitle (snd j)} in #{jobLocation (snd j)}
+            <a href="@{JobR key}">#{jobTitle j} in #{jobLocation j}
             <span .time>
-                \ #{prettyTime (jobPostedAt (snd j))}
+                \ #{prettyTime (jobPostedAt j)}
 \
 <p>
     \You can find more Haskell jobs from 

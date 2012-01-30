@@ -15,7 +15,7 @@ module Handler.Admin
     , requireAdmin
     ) where
 
-import Haskellers
+import Foundation
 import Control.Monad (unless)
 import Handler.User (adminControls) -- FIXME includes style too many times
 import Handler.Root (gravatar)
@@ -32,7 +32,7 @@ adminHelper constr bool msg uid = do
     u <- runDB $ get404 uid
     runDB $ update uid [constr =. bool]
     setMessage msg
-    redirect RedirectTemporary $ userR ((uid, u), Nothing)
+    redirect $ userR ((uid, u), Nothing)
 
 postAdminR :: UserId -> Handler ()
 postAdminR = adminHelper UserAdmin True "User is now an admin"
@@ -61,7 +61,7 @@ postUnblockR = adminHelper UserBlocked False "User has been unblocked"
 getMessagesR :: Handler RepHtml
 getMessagesR = do
     requireAdmin
-    messages <- runDB $ selectList [MessageClosed ==. False] [Asc MessageWhen] >>= mapM (\(mid, m) -> do
+    messages <- runDB $ selectList [MessageClosed ==. False] [Asc MessageWhen] >>= mapM (\(Entity mid m) -> do
         let go uid = do
                 u <- get404 uid
                 return $ Just (uid, u)
@@ -79,7 +79,7 @@ postCloseMessageR mid = do
     requireAdmin
     runDB $ update mid [MessageClosed =. True]
     setMessage "Message has been closed"
-    redirect RedirectTemporary MessagesR
+    redirect MessagesR
 
 getAdminUsersR :: Handler RepHtml
 getAdminUsersR = do

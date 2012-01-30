@@ -6,7 +6,7 @@ module Handler.Email
     , getVerifyEmailR
     ) where
 
-import Haskellers
+import Foundation
 import Control.Monad (when)
 import Network.Mail.Mime
 import Network.Mail.Mime.SES
@@ -29,7 +29,7 @@ postResetEmailR = do
         , UserVerkey =. Nothing
         ]
     setMessage "Email address reset. Please verify a new address."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 getVerifyEmailR :: Text -> Handler ()
 getVerifyEmailR verkey = do
@@ -42,14 +42,14 @@ getVerifyEmailR verkey = do
                 ]
             setMessage "Your email address has been verified."
         else setMessage "Invalid verification key"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postSendVerifyR :: Handler ()
 postSendVerifyR = do
     (uid, u) <- requireAuth
     when (userVerifiedEmail u) $ do
         setMessage "You already have a verified email address."
-        redirect RedirectTemporary ProfileR
+        redirect ProfileR
     res <- runInputPost $ iopt emailField "email"
     case res of
         Just email -> do
@@ -66,7 +66,8 @@ postSendVerifyR = do
                     , sesAccessKey = access
                     , sesSecretKey = secret
                     }
-            liftIO $ renderSendMailSES ses Mail
+            h <- getYesod
+            lift $ renderSendMailSES (httpManager h) ses Mail
                 { mailHeaders =
                     [ ("Subject", "Verify your email address")
                     ]
@@ -90,4 +91,4 @@ postSendVerifyR = do
                 }
             setMessage "A confirmation link has been sent."
         Nothing -> setMessage "You entered an invalid email address."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR

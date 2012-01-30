@@ -1,8 +1,8 @@
-$forall item <- news
+$forall Entity key item <- news
     <div .news>
-        <a href="@{NewsItemR (fst item)}">#{newsTitle (snd item)}
+        <a href="@{NewsItemR key}">#{newsTitle item}
         <span .time>
-            \ #{fuzzyDiffTime (newsWhen (snd item))}
+            \ #{fuzzyDiffTime (newsWhen item)}
 $maybe u <- mu
     $if userAdmin (snd u)
         \^{addCassius newsAdmin}

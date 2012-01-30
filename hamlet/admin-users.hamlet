@@ -7,20 +7,20 @@
             <th>Info
             <th>Controls
     <tbody>
-        $forall u <- users
+        $forall Entity uid u <- users
             <tr>
                 <td>
-                    $maybe e <- userEmail (snd u)
+                    $maybe e <- userEmail u
                         <img src="#{gravatar 100 e}">
                     $nothing
                         \Bug in the system...
                 <td .info>
-                    \#{userFullName (snd u)}
+                    \#{userFullName u}
                     <br>
-                    $maybe e <- userEmail (snd u)
+                    $maybe e <- userEmail u
                         \#{e}
                     <br>
-                    $maybe w <- userWebsite (snd u)
+                    $maybe w <- userWebsite u
                         <a href="#{w}">#{w}
                 <td>
-                    \^{adminControls (fst u) (snd u)}
+                    \^{adminControls uid u}

@@ -7,7 +7,7 @@ module Handler.News
     , getNewsFeedR
     ) where
 
-import Haskellers
+import Foundation
 import Yesod.Feed
 import Control.Applicative
 import Yesod.Form.Nic
@@ -47,7 +47,7 @@ postNewsR = do
             now <- liftIO getCurrentTime
             nid <- runDB $ insert $ News now title content
             setMessage "News item posted"
-            redirect RedirectTemporary $ NewsItemR nid
+            redirect $ NewsItemR nid
         _ -> return ()
     defaultLayout $ do
         setTitle "Add news item"
@@ -77,13 +77,13 @@ getNewsFeedR = do
         { feedTitle = "Haskellers News"
         , feedLinkSelf = NewsFeedR
         , feedLinkHome = RootR
-        , feedUpdated = newsWhen $ snd newest
+        , feedUpdated = newsWhen $ entityVal newest
         , feedEntries = map go news
         , feedDescription = "Haskellers news feed"
         , feedLanguage = "en"
         }
   where
-    go (nid, n) = FeedEntry
+    go (Entity nid n) = FeedEntry
         { feedEntryLink = NewsItemR nid
         , feedEntryUpdated = newsWhen n
         , feedEntryTitle = newsTitle n

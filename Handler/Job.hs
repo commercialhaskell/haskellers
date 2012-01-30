@@ -6,13 +6,14 @@ module Handler.Job
     , getJobsFeedR
     ) where
 
-import Haskellers
+import Foundation
 import Control.Applicative
 import Data.Maybe (fromMaybe)
 import Data.Time
 import Yesod.Form.Jquery
 import Control.Monad (unless)
 import Yesod.Feed
+import Yesod.Auth
 
 jobFormlet :: UserId -> UTCTime -> Maybe Job -> Html -> MForm Haskellers Haskellers (FormResult Job, Widget)
 jobFormlet uid now mj = renderTable $ Job
@@ -64,7 +65,7 @@ postJobsR = do
         FormSuccess job -> do
             jid <- runDB $ insert job
             setMessage "Job posted"
-            redirect RedirectTemporary $ JobR jid
+            redirect $ JobR jid
         _ -> return ()
     let jobs = []
     let isUnver = False
@@ -88,7 +89,7 @@ getJobsFeedR = do
     jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt, LimitTo 10]
     let updated =
             case jobs of
-                (_, newest):_ -> jobPostedAt newest
+                (Entity _ newest):_ -> jobPostedAt newest
                 [] -> now
     newsFeed Feed
         { feedTitle = "Haskellers Job Listings"
@@ -100,7 +101,7 @@ getJobsFeedR = do
         , feedLanguage = "en"
         }
   where
-    go (jid, j) = FeedEntry
+    go (Entity jid j) = FeedEntry
         { feedEntryLink = JobR jid
         , feedEntryUpdated = jobPostedAt j
         , feedEntryTitle = jobTitle j

@@ -1,14 +1,14 @@
-$forall item <- news
+$forall Entity key val <- news
     <div .news>
-        <a href="@{NewsItemR (fst item)}">#{newsTitle (snd item)}
+        <a href="@{NewsItemR key}">#{newsTitle val}
         <span .time>
-            \ #{fuzzyDiffTime (newsWhen (snd item))}
+            \ #{fuzzyDiffTime (newsWhen val)}
 $forall item <- job
     <div .job>
         <b>Newest job: 
-        <a href="@{JobR (fst item)}">#{jobTitle (snd item)}
+        <a href="@{JobR (entityKey item)}">#{jobTitle (entityVal item)}
         <span .time>
-            \ #{fuzzyDiffTime (jobPostedAt (snd item))}
+            \ #{fuzzyDiffTime (jobPostedAt (entityVal item))}
 <div id="map_canvas">
 <div id="users" .users>
     <div .counts>

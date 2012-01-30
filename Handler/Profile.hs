@@ -16,7 +16,7 @@ module Handler.Profile
     , postDeleteScreenNameR
     ) where
 
-import Haskellers
+import Foundation
 import Handler.Root (yearField)
 import Control.Applicative
 import Handler.Root (gravatar)
@@ -30,11 +30,12 @@ import Data.Time
 import Data.Text (pack)
 import qualified Data.Text as T
 import Data.Char (isDigit)
+import Yesod.Static
 
 screenNameFormlet :: UserId -> Html -> MForm Haskellers Haskellers (FormResult ScreenName, Widget)
 screenNameFormlet uid = renderTable $ ScreenName
     <$> pure uid
-    <*> areq (selectField servopts) "Service" Nothing
+    <*> areq (selectFieldList servopts) "Service" Nothing
     <*> areq textField "Screen name" Nothing
   where
     servopts = map (T.pack . show &&& id) [minBound..maxBound]
@@ -62,7 +63,7 @@ userForm maxY u = renderTable $ User
     <*> pure (userReal u)
     <*> pure (userRealPic u)
     <*> pure (userAdmin u)
-    <*> aopt (selectField empOpts) "Employment status"
+    <*> aopt (selectFieldList empOpts) "Employment status"
             { fsTooltip = Just "Just remember, this information will be public, meaning your current employer will be able to see it!"
             } (Just $ userEmployment u)
     <*> pure (userBlocked u)
@@ -91,15 +92,15 @@ getProfileR = do
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
     ((res, form), enctype) <- runFormPostNoNonce $ userForm (fromInteger maxY) u
-    musername <- fmap (fmap snd) $ runDB $ getBy $ UniqueUsernameUser uid
+    musername <- fmap (fmap entityVal) $ runDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
             runDB $ replace uid u'
             setMessage "Updated your profile"
-            redirect RedirectTemporary ProfileR
+            redirect ProfileR
         _ -> return ()
     y <- getYesod
-    skills <- runDB $ selectList [] [Asc SkillName] >>= mapM (\(sid, s) -> do
+    skills <- runDB $ selectList [] [Asc SkillName] >>= mapM (\(Entity sid s) -> do
         x <- getBy $ UniqueUserSkill uid sid
         return $ ((sid, s), isJust x)
         )
@@ -142,20 +143,20 @@ postDeleteAccountR = do
         -}
         delete uid
     setMessage "Your account has been deleted."
-    redirect RedirectTemporary RootR
+    redirect RootR
 
 postSkillsR :: Handler ()
 postSkillsR = do
     (uid, _) <- requireAuth
-    allSkills <- fmap (map fst) $ runDB $ selectList [] []
+    allSkills <- fmap (map entityKey) $ runDB $ selectList [] []
     let toBool = maybe False (const True)
     skills <- flip filterM allSkills $ \sid ->
-        fmap toBool $ runInputPost (iopt textField $ toSinglePiece sid)
+        fmap toBool $ runInputPost (iopt textField $ toPathPiece sid)
     runDB $ do
         deleteWhere [UserSkillUser ==. uid]
         forM_ skills $ \sid -> insert (UserSkill uid sid)
     setMessage "Your skills have been updated"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postDeleteIdentR :: IdentId -> Handler ()
 postDeleteIdentR iid = do
@@ -168,9 +169,9 @@ postDeleteIdentR iid = do
             runDB $ delete iid
             setMessage "Identifier deleted"
         else setMessage "You cannot delete your last identifier"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
-badge_png_plain :: StaticRoute
+badge_png_plain :: Route Static
 badge_png_plain = StaticRoute ["badge.png"] []
 
 postRequestRealR :: Handler ()
@@ -190,7 +191,7 @@ postRequestRealR = do
                     }
                 setMessage "Your request has been logged. Good luck!"
             else setMessage "Before requesting verified user status, please enter your name and verify your email address."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 hasGoodName :: String -> Bool
 hasGoodName "" = False
@@ -214,7 +215,7 @@ postRequestRealPicR = do
                     }
                 setMessage "Your request has been logged. Good luck!"
             else setMessage "Before requesting real picture status, please enter your name and verify your email address."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postRequestUnblockR :: Handler ()
 postRequestUnblockR = do
@@ -231,7 +232,7 @@ postRequestUnblockR = do
                 }
             setMessage "Your request has been logged. Good luck!"
         else setMessage "Your account isn't blocked."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postRequestSkillR :: Handler ()
 postRequestSkillR = do
@@ -253,14 +254,14 @@ postRequestSkillR = do
                 }
             setMessage "Your skill request has been logged."
         Nothing -> setMessage "Invalid skill entered."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postClearUsernameR :: Handler ()
 postClearUsernameR = do
     (uid, _) <- requireAuth
     runDB $ deleteBy $ UniqueUsernameUser uid
     setMessage "Your username has been cleared."
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postSetUsernameR :: Handler ()
 postSetUsernameR = do
@@ -280,7 +281,7 @@ postSetUsernameR = do
             case x of
                 Left _ -> setMessage "Username already in use"
                 Right _ -> setMessage "Your username is set!"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
   where
     validChar '-' = True
     validChar '_' = True
@@ -299,7 +300,7 @@ postScreenNamesR = do
             _ <- runDB $ insert sn
             setMessage "Screen name added"
         _ -> setMessage "Invalid screen name"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postDeleteScreenNameR :: ScreenNameId -> Handler ()
 postDeleteScreenNameR snid = do
@@ -308,4 +309,4 @@ postDeleteScreenNameR snid = do
     unless (screenNameUser sn == uid) notFound
     runDB $ delete snid
     setMessage "Screen name deleted"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR

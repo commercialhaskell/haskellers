@@ -3,7 +3,7 @@ module Handler.Faq
     ( getFaqR
     ) where
 
-import Haskellers
+import Foundation
 import Text.Hamlet (shamlet)
 
 data Faq = Faq

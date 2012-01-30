@@ -3,7 +3,7 @@ module Handler.Bling
     ( getBlingR
     ) where
 
-import Haskellers
+import Foundation
 import StaticFiles (bling_monads_in_disguise_png)
 
 getBlingR :: Handler RepHtml

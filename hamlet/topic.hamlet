@@ -19,7 +19,7 @@ $if null messages
 $else
     <h2>Messages
     $forall m <- messages
-        <div id="message-#{toSinglePiece (fst (fst m))}" .message>
+        <div id="message-#{toPathPiece (fst (fst m))}" .message>
             <div .header>
                 \By 
                 $maybe u <- snd m

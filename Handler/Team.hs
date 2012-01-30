@@ -18,7 +18,7 @@ module Handler.Team
     , loginStatus
     ) where
 
-import Haskellers
+import Foundation
 import Yesod.Feed
 import Data.List (sortBy)
 import Data.Ord (comparing)
@@ -28,6 +28,9 @@ import Control.Monad (unless)
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
 import Text.Hamlet (shamlet)
+import Network.HTTP.Types (status301)
+import Yesod.Auth
+import Database.Persist.Postgresql (SqlPersist)
 
 loginStatus :: Maybe (UserId, User) -> Widget
 loginStatus ma = do
@@ -60,7 +63,7 @@ getTeamsR = do
     ma <- maybeAuth
     cat <- canAddTeam ma
     ((_, form), enctype) <- runFormPost $ teamFormlet Nothing
-    teams' <- runDB $ selectList [] [] >>= mapM (\(tid, t) -> do
+    teams' <- runDB $ selectList [] [] >>= mapM (\(Entity tid t) -> do
         users <- count [TeamUserTeam ==. tid]
         return ((tid, t), users)
         )
@@ -81,7 +84,7 @@ postTeamsR = do
             tid <- insert team
             _ <- insert $ TeamUser tid uid Admin
             lift $ setMessage "Your new group has been created"
-            lift $ redirect RedirectTemporary $ TeamR tid
+            lift $ redirect $ TeamR tid
         _ -> defaultLayout $ do
             addCassius $(cassiusFile "teams")
             addWidget $(hamletFile "teams-form")
@@ -94,7 +97,7 @@ canEditTeam tid = do
         Just (uid, _) -> do
             x <- runDB $ getBy $ UniqueTeamUser tid uid
             case x of
-                Just (_, TeamUser _ _ y) -> return (y == Admin, Just y)
+                Just (Entity _ (TeamUser _ _ y)) -> return (y == Admin, Just y)
                 _ -> return (False, Nothing)
 
 getTeamR :: TeamId -> Handler RepHtml
@@ -107,7 +110,7 @@ getTeamR tid = do
     let isUnapprovedMember = status == Just UnapprovedMember
     let isMember = isApprovedMember || isUnapprovedMember
     let isWatching = status == Just Watching
-    users <- runDB $ selectList [TeamUserTeam ==. tid] [] >>= mapM (\(_, tu) -> do
+    users <- runDB $ selectList [TeamUserTeam ==. tid] [] >>= mapM (\(Entity _ tu) -> do
         let uid = teamUserUser tu
         u <- get404 uid
         return (teamUserStatus tu, (uid, u))
@@ -137,7 +140,7 @@ postTeamR tid = do
         FormSuccess t' -> do
             runDB $ replace tid t'
             setMessage "Group information updated"
-            redirect RedirectTemporary $ TeamR tid
+            redirect $ TeamR tid
         _ -> defaultLayout $ do
             addCassius $(cassiusFile "teams")
             addWidget $(hamletFile "team-form")
@@ -149,12 +152,12 @@ postLeaveTeamR tid = do
     x <- runDB $ getBy $ UniqueTeamUser tid uid
     case x of
         Nothing -> setMessage "You are not in that group"
-        Just (_, TeamUser{teamUserStatus = Admin}) ->
+        Just (Entity _ TeamUser{teamUserStatus = Admin}) ->
             setMessage "Admins may not leave a group. Have another admin remove your admin rights first."
-        Just (tuid, _) -> do
+        Just (Entity tuid _) -> do
             runDB $ delete tuid
             setMessage $ toHtml $ "You have left " `T.append` teamName t
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid
 
 postWatchTeamR :: TeamId -> Handler ()
 postWatchTeamR tid = do
@@ -163,7 +166,7 @@ postWatchTeamR tid = do
     _ <- runDB $ insertBy $ TeamUser tid uid Watching
     setMessage [shamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
 |]
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid
 
 postJoinTeamR :: TeamId -> Handler ()
 postJoinTeamR tid = do
@@ -173,7 +176,7 @@ postJoinTeamR tid = do
     toJoin <-
         case x of
             Nothing -> return True
-            Just (tuid, TeamUser{teamUserStatus = Watching}) -> do
+            Just (Entity tuid (TeamUser{teamUserStatus = Watching})) -> do
                 runDB $ delete tuid
                 return True
             _ -> return False
@@ -182,14 +185,14 @@ postJoinTeamR tid = do
             _ <- runDB $ insert $ TeamUser tid uid UnapprovedMember
             setMessage "You have been added as an unapproved member. A group admin must approve your membership for it to become active."
         else setMessage "You are already a member of this group."
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid
 
 requireGroupAdmin :: TeamId -> Handler ()
 requireGroupAdmin tid = do
     (uid', _) <- requireAuth
     x <- runDB $ getBy $ UniqueTeamUser tid uid'
-    case x of
-        Just (_, TeamUser { teamUserStatus = Admin }) -> return ()
+    case fmap entityVal x of
+        Just (TeamUser { teamUserStatus = Admin }) -> return ()
         _ -> notFound
 
 postApproveTeamR :: TeamId -> UserId -> Handler ()
@@ -197,7 +200,7 @@ postApproveTeamR tid uid = do
     requireGroupAdmin tid
     y <- runDB $ getBy $ UniqueTeamUser tid uid
     case y of
-        Just (tuid, TeamUser { teamUserStatus = UnapprovedMember }) -> do
+        Just (Entity tuid (TeamUser { teamUserStatus = UnapprovedMember })) -> do
             runDB $ do
                 t <- get404 tid
                 u <- get404 uid
@@ -208,29 +211,29 @@ postApproveTeamR tid uid = do
                 update tuid [TeamUserStatus =. ApprovedMember]
             setMessage "Membership approved"
         _ -> notFound
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid
 
 postTeamAdminR :: TeamId -> UserId -> Handler ()
 postTeamAdminR tid uid = do
     requireGroupAdmin tid
     y <- runDB $ getBy $ UniqueTeamUser tid uid
     case y of
-        Just (tuid, TeamUser { teamUserStatus = ApprovedMember }) -> do
+        Just (Entity tuid (TeamUser { teamUserStatus = ApprovedMember })) -> do
             runDB $ update tuid [TeamUserStatus =. Admin]
             setMessage "User promoted to group admin"
         _ -> notFound
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid
 
 postTeamUnadminR :: TeamId -> UserId -> Handler ()
 postTeamUnadminR tid uid = do
     requireGroupAdmin tid
     y <- runDB $ getBy $ UniqueTeamUser tid uid
     case y of
-        Just (tuid, TeamUser { teamUserStatus = Admin }) -> do
+        Just (Entity tuid (TeamUser { teamUserStatus = Admin })) -> do
             runDB $ update tuid [TeamUserStatus =. ApprovedMember]
             setMessage "User no longer an admin"
         _ -> notFound
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid
 
 getTeamFeedR :: TeamId -> Handler RepAtomRss
 getTeamFeedR tid = runDB $ do
@@ -239,7 +242,7 @@ getTeamFeedR tid = runDB $ do
     updated <-
         case news of
             [] -> liftIO getCurrentTime
-            (_, n):_ -> return $ teamNewsWhen n
+            (Entity _ n):_ -> return $ teamNewsWhen n
     lift $ newsFeed Feed
         { feedTitle = teamName t `T.append` " on Haskellers"
         , feedLinkSelf = TeamFeedR tid
@@ -253,24 +256,24 @@ getTeamFeedR tid = runDB $ do
 getUserFeedR :: UserId -> Handler RepAtomRss
 getUserFeedR uid = runDB $ do
     _ <- get404 uid
-    tids <- fmap (map $ teamUserTeam . snd) $ selectList [TeamUserUser ==. uid] []
+    tids <- fmap (map $ teamUserTeam . entityVal) $ selectList [TeamUserUser ==. uid] []
     news <- selectList [TeamNewsTeam <-. tids] [Desc TeamNewsWhen, LimitTo 20]
     updated <-
         case news of
             [] -> liftIO getCurrentTime
-            (_, n):_ -> return $ teamNewsWhen n
+            (Entity _ n):_ -> return $ teamNewsWhen n
     lift $ newsFeed Feed
         { feedTitle = "Your Haskellers News Feed"
         , feedLinkSelf = UserFeedR uid
-        , feedLinkHome = UserR $ toSinglePiece uid
+        , feedLinkHome = UserR $ toPathPiece uid
         , feedUpdated = updated
         , feedEntries = map toAtomEntry news
         , feedDescription = "Personal Haskellers feed"
         , feedLanguage = "en"
         }
 
-toAtomEntry :: (TeamNewsId, TeamNews) -> FeedEntry HaskellersRoute
-toAtomEntry (tnid, tn) = FeedEntry
+toAtomEntry :: (Entity SqlPersist TeamNews) -> FeedEntry (Route Haskellers)
+toAtomEntry (Entity tnid tn) = FeedEntry
     { feedEntryLink = TeamNewsR tnid
     , feedEntryUpdated = teamNewsWhen tn
     , feedEntryTitle = teamNewsTitle tn
@@ -280,7 +283,7 @@ toAtomEntry (tnid, tn) = FeedEntry
 getTeamNewsR :: TeamNewsId -> Handler ()
 getTeamNewsR tnid = do
     tn <- runDB $ get404 tnid
-    redirectText RedirectPermanent $ teamNewsUrl tn
+    redirectWith status301 $ teamNewsUrl tn
 
 postTeamPackagesR :: TeamId -> Handler RepHtml
 postTeamPackagesR tid = do
@@ -300,7 +303,7 @@ $maybe u <- teamPackageHomepage tp
     <p>
         <a href="#{u}">Visit the homepage.
 |] $ TeamR tid
-            redirect RedirectTemporary $ TeamR tid
+            redirect $ TeamR tid
         _ -> defaultLayout [whamlet|\
 <form method="post" action="@{TeamPackagesR tid}">
     <table>
@@ -317,4 +320,4 @@ postDeleteTeamPackageR tid tpid = do
     unless (tid == teamPackageTeam tp) notFound
     runDB $ delete tpid
     setMessage "Package deleted"
-    redirect RedirectTemporary $ TeamR tid
+    redirect $ TeamR tid

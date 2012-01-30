@@ -5,7 +5,7 @@ module Handler.Package
     , postPackagesR
     ) where
 
-import Haskellers
+import Foundation
 import Control.Monad (unless)
 
 postDeletePackageR :: PackageId -> Handler ()
@@ -15,7 +15,7 @@ postDeletePackageR pid = do
     unless (packageUser p == uid) notFound
     runDB $ delete pid
     setMessage "Package removed"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR
 
 postPackagesR :: Handler ()
 postPackagesR = do
@@ -26,4 +26,4 @@ postPackagesR = do
             _ <- runDB $ insert $ Package uid name
             setMessage "Package added"
         Nothing -> setMessage "Invalid package name"
-    redirect RedirectTemporary ProfileR
+    redirect ProfileR

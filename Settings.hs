@@ -14,7 +14,7 @@ module Settings
     , widgetFile
     , connStr
     , ConnectionPool
-    , withConnectionPool
+    , createConnectionPool
     , runConnectionPool
     , staticroot
     , staticdir
@@ -31,6 +31,7 @@ import Data.Monoid (mempty, mappend)
 import System.Directory (doesFileExist)
 import Data.Text (Text)
 import Control.Monad.IO.Class (MonadIO)
+import Data.ByteString (ByteString)
 
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
@@ -55,7 +56,7 @@ staticroot approot = approot `mappend` "/static"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.
-connStr :: Text
+connStr :: ByteString
 #ifdef PRODUCTION
 connStr = "user=haskellers password=haskellers host=localhost port=5432 dbname=haskellers"
 #else
@@ -141,8 +142,8 @@ widgetFile x = do
 -- database actions using a pool, respectively. It is used internally
 -- by the scaffolded application, and therefore you will rarely need to use
 -- them yourself.
-withConnectionPool :: (MonadIO m, MonadBaseControl IO m) => (ConnectionPool -> m a) -> m a
-withConnectionPool = withPostgresqlPool connStr connectionCount
+createConnectionPool :: MonadIO m => m ConnectionPool
+createConnectionPool = createPostgresqlPool connStr connectionCount
 
 runConnectionPool :: (MonadIO m, MonadBaseControl IO m) => SqlPersist m a -> ConnectionPool -> m a
 runConnectionPool = runSqlPool

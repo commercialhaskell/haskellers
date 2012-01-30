@@ -6,7 +6,7 @@
     <tr>
         <th>Posted by
         <td>
-            <a href="@{UserR (toSinglePiece (jobPostedBy job))}">
+            <a href="@{UserR (toPathPiece (jobPostedBy job))}">
                 \#{userFullName poster}
     <tr>
         <th>Posted at
