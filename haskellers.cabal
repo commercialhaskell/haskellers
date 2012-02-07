@@ -68,7 +68,7 @@ executable         haskellers
                    persistent-postgresql == 0.8.*,
                    template-haskell,
                    hamlet,
-                   fb,
+                   fb >= 0.7.0.1,
                    shakespeare-js,
                    shakespeare-css,
                    parsec,

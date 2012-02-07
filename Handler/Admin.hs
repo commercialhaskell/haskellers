@@ -23,7 +23,7 @@ import Yesod.Form.Jquery (urlJqueryJs)
 
 requireAdmin :: Handler ()
 requireAdmin = do
-    (_, admin) <- requireAuth
+    Entity _ admin <- requireAuth
     unless (userAdmin admin) $ permissionDenied "You are not an admin"
 
 adminHelper :: EntityField User Bool -> Bool -> Html -> UserId -> Handler ()

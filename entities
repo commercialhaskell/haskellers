@@ -42,7 +42,7 @@ Message
     from UserId Maybe Eq Update
     regarding UserId Maybe Eq Update
     text Textarea
-News
+News no-json
     when UTCTime Desc
     title Text
     content Html
@@ -56,11 +56,11 @@ Job
     fullTime Bool
     partTime Bool
     desc Textarea
-ScreenName
+ScreenName no-json
     user UserId Eq
     service Service Asc
     name Text Asc
-Team
+Team no-json
     name Text Asc
     desc Html
     UniqueTeam name
@@ -70,7 +70,7 @@ TeamUser
     user UserId Eq
     status TeamUserStatus Update
     UniqueTeamUser team user
-TeamNews
+TeamNews no-json
     team TeamId Eq In
     when UTCTime Desc
     title Text
@@ -90,7 +90,7 @@ Topic
     status TopicStatus Update
     creator UserId Maybe Update Eq
     title Text
-TopicMessage
+TopicMessage no-json
     topic TopicId Eq
     created UTCTime Asc
     creator UserId Maybe Update Eq

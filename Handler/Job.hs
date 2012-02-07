@@ -39,11 +39,11 @@ getJobsR = do
     now <- liftIO getCurrentTime
     let today = utctDay now
     jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt]
-    let isUnver = Just False == fmap (userReal . snd) mu
+    let isUnver = Just False == fmap (userReal . entityVal) mu
     mform <-
         case mu of
             Nothing -> return Nothing
-            Just (uid, u) ->
+            Just (Entity uid u) ->
                 if userReal u
                     then do
                         ((_, form), _) <- runFormGet $ jobFormlet uid now Nothing
@@ -56,7 +56,7 @@ getJobsR = do
 
 postJobsR :: Handler RepHtml
 postJobsR = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     unless (userReal u) $ permissionDenied "Only verified users can add job listings"
     now <- liftIO getCurrentTime
     ((res, form), _) <- runFormPostNoNonce $ jobFormlet uid now Nothing

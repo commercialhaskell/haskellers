@@ -7,10 +7,11 @@ module Handler.Package
 
 import Foundation
 import Control.Monad (unless)
+import Yesod.Auth (requireAuthId)
 
 postDeletePackageR :: PackageId -> Handler ()
 postDeletePackageR pid = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     p <- runDB $ get404 pid
     unless (packageUser p == uid) notFound
     runDB $ delete pid
@@ -19,7 +20,7 @@ postDeletePackageR pid = do
 
 postPackagesR :: Handler ()
 postPackagesR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     res <- runInputPost $ iopt textField "name"
     case res of
         Just name -> do

@@ -17,7 +17,7 @@ $if areHidden
                         \#{skillName (snd (fst skill))}
                 <td>#{show (snd skill)}
 $maybe u <- mu
-    $if userAdmin (snd u)
+    $if userAdmin (entityVal u)
         <h3>Add new skill (admins only)
         <form method="post" action="@{AllSkillsR}">
             <table>

@@ -1,7 +1,7 @@
 $maybe a <- ma
-    $if userBlocked (snd a)
+    $if userBlocked (entityVal a)
         <div id="login-status">Your account is blocked. A blocked account cannot participate in Special Interest Groups.
-    $elseif not (userVerifiedEmail (snd a))
+    $elseif not (userVerifiedEmail (entityVal a))
         <div id="login-status">
             \You have not yet verified your email address. You cannot participate in Special Interest Groups until your address has been verified. You may do so from 
             <a href="@{ProfileR}">your profile page

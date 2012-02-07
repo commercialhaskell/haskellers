@@ -34,7 +34,7 @@ getTopicsR tid = do
     ma <- maybeAuth
     mf <-
         case ma of
-            Just (uid, User { userVerifiedEmail = True, userBlocked = False }) -> do
+            Just (Entity uid User { userVerifiedEmail = True, userBlocked = False }) -> do
                 now <- liftIO getCurrentTime
                 ((_, form), _) <- runFormPost $ topicFormlet tid uid now
                 return $ Just form
@@ -46,7 +46,7 @@ getTopicsR tid = do
 
 postTopicsR :: TeamId -> Handler RepHtml
 postTopicsR tid = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
         "You must have a verified email address and not be blocked."
     now <- liftIO getCurrentTime
@@ -89,7 +89,7 @@ getTopicR toid = do
     let tid = topicTeam to
     (canMessage, isMember) <-
         case ma of
-            Just (uid, User { userVerifiedEmail = True, userBlocked = False }) -> do
+            Just (Entity uid User { userVerifiedEmail = True, userBlocked = False }) -> do
                 x <- runDB $ getBy $ UniqueTeamUser tid uid
                 let im = fmap (teamUserStatus . entityVal) x `elem`
                            map Just [Admin, ApprovedMember]
@@ -117,7 +117,7 @@ postTopicR :: TopicId -> Handler ()
 postTopicR toid = do
     to <- runDB $ get404 toid
     let tid = topicTeam to
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
         "You must have a verified email address and not be blocked."
     x <- runDB $ getBy $ UniqueTeamUser tid uid
@@ -139,7 +139,7 @@ postTopicMessageR :: TopicId -> Handler RepHtml
 postTopicMessageR toid = do
     to <- runDB $ get404 toid
     let tid = topicTeam to
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
         "You must have a verified email address and not be blocked."
     ((res, _), _) <- runFormPost messageForm

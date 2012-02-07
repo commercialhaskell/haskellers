@@ -30,18 +30,17 @@ import qualified Data.Text as T
 import Text.Hamlet (shamlet)
 import Network.HTTP.Types (status301)
 import Yesod.Auth
-import Database.Persist.Postgresql (SqlPersist)
 
-loginStatus :: Maybe (UserId, User) -> Widget
+loginStatus :: Maybe (Entity User) -> Widget
 loginStatus ma = do
     addCassius $(cassiusFile "login-status")
     addWidget $(hamletFile "login-status")
 
-canAddTeam :: Maybe (UserId, User) -> Handler Bool
+canAddTeam :: Maybe (Entity User) -> Handler Bool
 canAddTeam ma = do
     case ma of
         Nothing -> return False
-        Just (_, u) -> return $ userVerifiedEmail u && userReal u && not (userBlocked u)
+        Just (Entity _ u) -> return $ userVerifiedEmail u && userReal u && not (userBlocked u)
 
 teamFormlet :: Maybe Team -> Html -> MForm Haskellers Haskellers (FormResult Team, Widget)
 teamFormlet mt = renderTable $ Team
@@ -75,7 +74,7 @@ getTeamsR = do
 
 postTeamsR :: Handler RepHtml
 postTeamsR = do
-    u@(uid, _) <- requireAuth
+    u@(Entity uid _) <- requireAuth
     cat <- canAddTeam $ Just u
     unless cat $ permissionDenied "Only unblocked, verified users may create special interest groups"
     ((res, form), enctype) <- runFormPost $ teamFormlet Nothing
@@ -94,7 +93,7 @@ canEditTeam tid = do
     ma <- maybeAuth
     case ma of
         Nothing -> return (False, Nothing)
-        Just (uid, _) -> do
+        Just (Entity uid _) -> do
             x <- runDB $ getBy $ UniqueTeamUser tid uid
             case x of
                 Just (Entity _ (TeamUser _ _ y)) -> return (y == Admin, Just y)
@@ -113,12 +112,12 @@ getTeamR tid = do
     users <- runDB $ selectList [TeamUserTeam ==. tid] [] >>= mapM (\(Entity _ tu) -> do
         let uid = teamUserUser tu
         u <- get404 uid
-        return (teamUserStatus tu, (uid, u))
+        return (teamUserStatus tu, (Entity uid u))
         )
     let admins = map snd $ filter (\(x, _) -> x == Admin) users
     let amembers = map snd $ filter (\(x, _) -> x == ApprovedMember) users
     let umembers = map snd $ filter (\(x, _) -> x == UnapprovedMember) users
-    let notMe x = Just x /= fmap fst ma
+    let notMe x = Just x /= fmap entityKey ma
     packages <- runDB $ selectList [TeamPackageTeam ==. tid] [Asc TeamPackageName]
     ((_, form), enctype) <- runFormPost $ teamFormlet $ Just t
     ((_, addPackage), _) <- runFormPost $ packageFormlet tid Nothing
@@ -147,7 +146,7 @@ postTeamR tid = do
 
 postLeaveTeamR :: TeamId -> Handler ()
 postLeaveTeamR tid = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     t <- runDB $ get404 tid
     x <- runDB $ getBy $ UniqueTeamUser tid uid
     case x of
@@ -161,7 +160,7 @@ postLeaveTeamR tid = do
 
 postWatchTeamR :: TeamId -> Handler ()
 postWatchTeamR tid = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     t <- runDB $ get404 tid
     _ <- runDB $ insertBy $ TeamUser tid uid Watching
     setMessage [shamlet|\You are now watching the <abbr title="Special Interest Group">SIG</abbr> #{teamName t}
@@ -170,7 +169,7 @@ postWatchTeamR tid = do
 
 postJoinTeamR :: TeamId -> Handler ()
 postJoinTeamR tid = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     _ <- runDB $ get404 tid
     x <- runDB $ getBy $ UniqueTeamUser tid uid
     toJoin <-
@@ -189,7 +188,7 @@ postJoinTeamR tid = do
 
 requireGroupAdmin :: TeamId -> Handler ()
 requireGroupAdmin tid = do
-    (uid', _) <- requireAuth
+    uid' <- requireAuthId
     x <- runDB $ getBy $ UniqueTeamUser tid uid'
     case fmap entityVal x of
         Just (TeamUser { teamUserStatus = Admin }) -> return ()
@@ -272,7 +271,7 @@ getUserFeedR uid = runDB $ do
         , feedLanguage = "en"
         }
 
-toAtomEntry :: (Entity SqlPersist TeamNews) -> FeedEntry (Route Haskellers)
+toAtomEntry :: Entity TeamNews -> FeedEntry (Route Haskellers)
 toAtomEntry (Entity tnid tn) = FeedEntry
     { feedEntryLink = TeamNewsR tnid
     , feedEntryUpdated = teamNewsWhen tn

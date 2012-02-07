@@ -32,36 +32,36 @@ $maybe _ <- ma
     <a href="@{TeamFeedR tid}">group news feed.
     $maybe a <- ma
         \ If you are watching this group, are a member or are an admin, this group's news will automatically appear in 
-        <a href="@{UserFeedR (fst a)}">your personal news feed.
+        <a href="@{UserFeedR (entityKey a)}">your personal news feed.
 <div id="admins">
     <h3>Admins
     <ul>
-        $forall admin <- admins
+        $forall Entity uid user <- admins
             <li>
-                <a href="@{UserR (toPathPiece (fst admin))}">#{userFullName (snd admin)}
+                <a href="@{UserR (toPathPiece uid)}">#{userFullName user}
                 $if cet
-                    $if notMe (fst admin)
-                        <form method="post" action="@{TeamUnadminR tid (fst admin)}">
+                    $if notMe uid
+                        <form method="post" action="@{TeamUnadminR tid uid}">
                             <input type="submit" value="Remove group admin rights">
 $if not (null amembers)
     <div id="members">
         <h3>Members
         <ul>
-            $forall u <- amembers
+            $forall Entity uid u <- amembers
                 <li>
-                    <a href="@{UserR (toPathPiece (fst u))}">#{userFullName (snd u)}
+                    <a href="@{UserR (toPathPiece uid)}">#{userFullName u}
                     $if cet
-                        <form method="post" action="@{TeamAdminR tid (fst u)}">
+                        <form method="post" action="@{TeamAdminR tid uid}">
                             <input type="submit" value="Make group admin">
 $if not (null umembers)
   $if cet
     <div id="unapproved">
         <h3>Unapproved Members
         <ul>
-            $forall u <- umembers
+            $forall Entity uid u <- umembers
                 <li>
-                    <a href="@{UserR (toPathPiece (fst u))}">#{userFullName (snd u)}
-                    <form method="post" action="@{ApproveTeamR tid (fst u)}">
+                    <a href="@{UserR (toPathPiece uid)}">#{userFullName u}
+                    <form method="post" action="@{ApproveTeamR tid uid}">
                         <input type="submit" value="Approve Membership">
 $if not (null packages)
     <div .full-width-table>

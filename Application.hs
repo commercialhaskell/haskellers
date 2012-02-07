@@ -2,6 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( getApplication
@@ -110,7 +111,7 @@ fillProfs pool hprofs pprofs = do
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
 
-userToProfile :: (Functor (b m), PersistUnique b m) => (Entity SqlPersist User) -> b m (Maybe Profile)
+userToProfile :: (Functor (b m), PersistUnique b m, b ~ SqlPersist) => Entity User -> b m (Maybe Profile)
 userToProfile (Entity uid u) =
     case userEmail u of
         Nothing -> return Nothing

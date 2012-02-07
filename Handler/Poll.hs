@@ -13,18 +13,17 @@ import Control.Monad (unless, when)
 import qualified Data.Text as T
 import Data.Time (getCurrentTime, addUTCTime)
 import Data.Maybe (isJust)
-import Database.Persist.Postgresql (SqlPersist)
 
 getPollsR :: Handler RepHtml
 getPollsR = do
     polls <- runDB $ selectList [] [LimitTo 5, Desc PollCreated]
     mu <- maybeAuth
-    let isAdmin = maybe False (userAdmin . snd) mu
+    let isAdmin = maybe False (userAdmin . entityVal) mu
     defaultLayout $(widgetFile "polls")
 
 postPollsR :: Handler RepHtml
 postPollsR = do
-    (_, u) <- requireAuth
+    Entity _ u <- requireAuth
     unless (userAdmin u) $ permissionDenied "Must be an admin to create a poll"
     t <- runInputPost $ ireq textField "poll"
     let ls = filter (not . T.null) $ T.lines t
@@ -52,7 +51,7 @@ oiPercent real oi ois
     total = sum $ map f ois
     f = if real then oiRealCount else oiCount
 
-toOI :: (Entity SqlPersist PollOption) -> YesodDB Haskellers Haskellers OptInfo
+toOI :: Entity PollOption -> YesodDB Haskellers Haskellers OptInfo
 toOI (Entity poid po) = do
     x <- count [PollAnswerOption ==. poid]
     y <- count [PollAnswerOption ==. poid, PollAnswerReal ==. True]
@@ -61,8 +60,8 @@ toOI (Entity poid po) = do
 getPollR :: PollId -> Handler RepHtml
 getPollR pollid = do
     mu' <- maybeAuth
-    let muid = fmap fst mu'
-    let mu = fmap snd mu'
+    let muid = fmap entityKey mu'
+    let mu = fmap entityVal mu'
     (poll, ois, options, manswer) <- runDB $ do
         poll <- get404 pollid
         options <- selectList [PollOptionPoll ==. pollid] [Asc PollOptionPriority]
@@ -95,7 +94,7 @@ getPollR pollid = do
 
 postPollR :: PollId -> Handler RepHtml
 postPollR pollid = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     poll <- runDB $ get404 pollid
     when (pollClosed poll) $ permissionDenied "Poll has already been closed"
     oidText <- runInputPost $ ireq textField "option"
@@ -112,7 +111,7 @@ postPollR pollid = do
 
 postPollCloseR :: PollId -> Handler ()
 postPollCloseR pollid = do
-    (_, u) <- requireAuth
+    Entity _ u <- requireAuth
     unless (userAdmin u) $ permissionDenied "Must be an admin to close a poll"
     runDB $ do
         _ <- get404 pollid

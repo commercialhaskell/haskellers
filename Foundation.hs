@@ -127,13 +127,13 @@ maybeAuth' = do
     x <- maybeAuth
     case x of
         Nothing -> return Nothing
-        Just (uid, u) -> do
+        Just (Entity uid u) -> do
             y <- runDB $ getBy $ UniqueUsernameUser uid
             return $ Just ((uid, u), fmap entityVal y)
 
 requireAuth' :: GHandler s Haskellers ((UserId, User), Maybe Username)
 requireAuth' = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     y <- runDB $ getBy $ UniqueUsernameUser uid
     return ((uid, u), fmap entityVal y)
 
@@ -432,7 +432,7 @@ instance YesodAuth Haskellers where
                 addBIDEmail uid
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
-            (Nothing, Just (uid, _)) -> do
+            (Nothing, Just (Entity uid _)) -> do
                 runDB $ addBIDEmail uid
                 setMessage "Identifier added to your account"
                 _ <- runDB $ insert $ Ident (credsIdent creds) uid

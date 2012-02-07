@@ -25,6 +25,7 @@ import StaticFiles (jquery_cookie_js, badge_png)
 import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
 import Yesod.Form
+import Yesod.Auth (requireAuthId)
 import Control.Arrow ((&&&))
 import Data.Time
 import Data.Text (pack)
@@ -88,7 +89,7 @@ userForm maxY u = renderTable $ User
 
 getProfileR :: Handler RepHtml
 getProfileR = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
     ((res, form), enctype) <- runFormPostNoNonce $ userForm (fromInteger maxY) u
@@ -129,7 +130,7 @@ postProfileR = getProfileR
 
 postDeleteAccountR :: Handler ()
 postDeleteAccountR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     runDB $ do
         updateWhere [TopicCreator ==. Just uid] [TopicCreator =. Nothing]
         updateWhere [TopicMessageCreator ==. Just uid]
@@ -147,7 +148,7 @@ postDeleteAccountR = do
 
 postSkillsR :: Handler ()
 postSkillsR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     allSkills <- fmap (map entityKey) $ runDB $ selectList [] []
     let toBool = maybe False (const True)
     skills <- flip filterM allSkills $ \sid ->
@@ -160,7 +161,7 @@ postSkillsR = do
 
 postDeleteIdentR :: IdentId -> Handler ()
 postDeleteIdentR iid = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     i <- runDB $ get404 iid
     unless (uid == identUser i) notFound
     idents <- runDB $ count [IdentUser ==. uid]
@@ -176,7 +177,7 @@ badge_png_plain = StaticRoute ["badge.png"] []
 
 postRequestRealR :: Handler ()
 postRequestRealR = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     if userReal u
         then setMessage "You already have verified user status"
         else if userVerifiedEmail u && hasGoodName (T.unpack $ userFullName u)
@@ -200,7 +201,7 @@ hasGoodName _ = True
 
 postRequestRealPicR :: Handler ()
 postRequestRealPicR = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     if userRealPic u
         then setMessage "You already have real picture status"
         else if userVerifiedEmail u && hasGoodName (T.unpack $ userFullName u)
@@ -219,7 +220,7 @@ postRequestRealPicR = do
 
 postRequestUnblockR :: Handler ()
 postRequestUnblockR = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     if userBlocked u
         then do
             now <- liftIO getCurrentTime
@@ -236,7 +237,7 @@ postRequestUnblockR = do
 
 postRequestSkillR :: Handler ()
 postRequestSkillR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     res <- runInputPost $ iopt textField "skill"
     case res of
         Just skill -> do
@@ -258,14 +259,14 @@ postRequestSkillR = do
 
 postClearUsernameR :: Handler ()
 postClearUsernameR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     runDB $ deleteBy $ UniqueUsernameUser uid
     setMessage "Your username has been cleared."
     redirect ProfileR
 
 postSetUsernameR :: Handler ()
 postSetUsernameR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     res <- runInputPost $ iopt textField "username"
     let musername =
             case res of
@@ -293,7 +294,7 @@ postSetUsernameR = do
 
 postScreenNamesR :: Handler ()
 postScreenNamesR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     ((res, _), _) <- runFormPostNoNonce $ screenNameFormlet uid
     case res of
         FormSuccess sn -> do
@@ -304,7 +305,7 @@ postScreenNamesR = do
 
 postDeleteScreenNameR :: ScreenNameId -> Handler ()
 postDeleteScreenNameR snid = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     sn <- runDB $ get404 snid
     unless (screenNameUser sn == uid) notFound
     runDB $ delete snid

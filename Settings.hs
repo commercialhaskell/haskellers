@@ -109,21 +109,21 @@ luciusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
 luciusFile = H.luciusFile . toLuciusFile
 #else
-luciusFile = H.luciusFileDebug . toLuciusFile
+luciusFile = H.luciusFileReload . toLuciusFile
 #endif
 
 cassiusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
 cassiusFile = H.cassiusFile . toCassiusFile
 #else
-cassiusFile = H.cassiusFileDebug . toCassiusFile
+cassiusFile = H.cassiusFileReload . toCassiusFile
 #endif
 
 juliusFile :: FilePath -> Q Exp
 #ifdef PRODUCTION
 juliusFile = H.juliusFile . toJuliusFile
 #else
-juliusFile = H.juliusFileDebug . toJuliusFile
+juliusFile = H.juliusFileReload . toJuliusFile
 #endif
 
 widgetFile :: FilePath -> Q Exp

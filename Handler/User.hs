@@ -61,7 +61,7 @@ getUserR input = do
                         u <- get404 uid
                         return (uid, u)
     mv <- maybeAuth
-    let viewerIsAdmin = maybe False (userAdmin . snd) mv
+    let viewerIsAdmin = maybe False (userAdmin . entityVal) mv
 
     skills <- runDB $ do
         x <- selectList [UserSkillUser ==. uid] [] >>= mapM (\(Entity _ y) -> do
@@ -153,7 +153,7 @@ getFlagR uid = do
 
 postFlagR :: UserId -> Handler ()
 postFlagR uid = do
-    mvid <- fmap (fmap fst) maybeAuth
+    mvid <- maybeAuthId
     mmsg <- runInputPost $ iopt textField "message"
     let msg = fromMaybe "" mmsg
 

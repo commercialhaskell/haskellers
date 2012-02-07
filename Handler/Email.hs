@@ -19,10 +19,11 @@ import SESCreds (access, secret)
 import Data.Text.Encoding (encodeUtf8)
 import Text.Blaze.Renderer.Utf8 (renderHtml)
 import Text.Hamlet (shamlet)
+import Yesod.Auth (requireAuthId)
 
 postResetEmailR :: Handler ()
 postResetEmailR = do
-    (uid, _) <- requireAuth
+    uid <- requireAuthId
     runDB $ update uid
         [ UserVerifiedEmail =. False
         , UserEmail =. Nothing
@@ -33,7 +34,7 @@ postResetEmailR = do
 
 getVerifyEmailR :: Text -> Handler ()
 getVerifyEmailR verkey = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     if Just verkey == userVerkey u && isJust (userEmail u)
         then do
             runDB $ update uid
@@ -46,7 +47,7 @@ getVerifyEmailR verkey = do
 
 postSendVerifyR :: Handler ()
 postSendVerifyR = do
-    (uid, u) <- requireAuth
+    Entity uid u <- requireAuth
     when (userVerifiedEmail u) $ do
         setMessage "You already have a verified email address."
         redirect ProfileR
