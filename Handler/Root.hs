@@ -120,13 +120,14 @@ filterForm my = renderTable $ Filter
     <$> aopt textField "Name" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no earlier than" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no later than" Nothing
-    <*> areq boolField "Interested in full-time positions" Nothing
-    <*> areq boolField "Interested in part-time positions" Nothing
+    <*> areq boolField "Must be interested in full-time positions" (Just False)
+    <*> areq boolField "Must be interested in part-time positions" (Just False)
 
 yearField :: Int -> Int -> Field sub master Int
 yearField minY maxY = Field
     { fieldParse = \ss -> return $
         case ss of
+            [""] -> Right Nothing
             [s] ->
                 case readIntegral $ T.unpack s of
                     Nothing -> Left "Invalid integer"

@@ -77,8 +77,8 @@ getApplication approot = do
   where
     s = static Settings.staticdir
 
-getApplicationDev :: IO Application
-getApplicationDev = getApplication "http://localhost:3000"
+getApplicationDev :: IO (Int, Application)
+getApplicationDev = ((,) 3000) `fmap` getApplication "http://localhost:3000"
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
 getHomepageProfs pool = flip runConnectionPool pool $ do

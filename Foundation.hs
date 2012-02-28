@@ -156,7 +156,7 @@ instance Yesod Haskellers where
       where
         corrected = filter (not . T.null) s
 
-    approot = theApproot
+    approot = ApprootMaster theApproot
 
     defaultLayout widget = do
         mmsg <- getMessage

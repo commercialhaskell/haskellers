@@ -42,6 +42,7 @@ library
                    Handler.Team
                    Handler.Topic
                    Handler.User
+                   Handler.Poll
                    SESCreds
     ghc-options:   -Wall -Werror -O0
 
