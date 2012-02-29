@@ -148,7 +148,7 @@ instance Yesod Haskellers where
         pieces'
             | pieces == ["auth", "page", "openid", "complete"] = ["auth", "page", "openid", "complete", ""] -- For Google, it remembers the old OpenIDs
             | otherwise = pieces
-    cleanPath _ ["page", "openid", "complete", ""] = Right ["page", "openid", "complete"]
+    cleanPath _ ["auth", "page", "openid", "complete", ""] = Right ["auth", "page", "openid", "complete"]
     cleanPath _ s =
         if corrected == s
             then Right s
