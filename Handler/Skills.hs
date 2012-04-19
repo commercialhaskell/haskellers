@@ -41,7 +41,7 @@ getAllSkillsR = do
                 else filter (\(_, x) -> x >= threshhold) skills'
     let hidden = length skills' - length skills
     let areHidden = hidden > 0
-    let showAllUrl = (AllSkillsR, [("show-all", "true")])
+    let showAllUrl = (AllSkillsR, [("show-all", "yes")])
     render <- getUrlRender
     defaultLayoutJson (do
         setTitle "Browse all skills"
