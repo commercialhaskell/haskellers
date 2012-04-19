@@ -17,7 +17,7 @@ skillFormlet = renderTable $ Skill
 postAllSkillsR :: Handler ()
 postAllSkillsR = do
     requireAdmin
-    ((res, _), _) <- runFormPostNoNonce skillFormlet
+    ((res, _), _) <- runFormPostNoToken skillFormlet
     case res of
         FormSuccess skill -> do
             _ <- runDB $ insert skill

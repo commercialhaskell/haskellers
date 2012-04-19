@@ -59,7 +59,7 @@ postJobsR = do
     Entity uid u <- requireAuth
     unless (userReal u) $ permissionDenied "Only verified users can add job listings"
     now <- liftIO getCurrentTime
-    ((res, form), _) <- runFormPostNoNonce $ jobFormlet uid now Nothing
+    ((res, form), _) <- runFormPostNoToken $ jobFormlet uid now Nothing
     let mform = Just form
     case res of
         FormSuccess job -> do

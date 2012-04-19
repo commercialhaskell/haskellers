@@ -1,5 +1,5 @@
 name:              haskellers
-version:           0.3.0
+version:           0.4.0
 license:           BSD3
 license-file:      LICENSE
 author:            Michael Snoyman
@@ -44,37 +44,37 @@ library
                    Handler.User
                    Handler.Poll
                    SESCreds
-    ghc-options:   -Wall -Werror -O0
+    ghc-options:   -Wall -O0
 
 executable         haskellers
     if flag(production)
         cpp-options:   -DPRODUCTION
-        ghc-options:   -Wall -Werror -threaded
+        ghc-options:   -Wall -threaded
     else
-        ghc-options:   -Wall -Werror -threaded -O0
+        ghc-options:   -Wall -threaded -O0
     if flag(devel)
         Buildable:     False
     main-is:       main.hs
     build-depends: base >= 4 && < 5,
-                   yesod == 0.10.*,
-                   yesod-auth == 0.8.*,
-                   yesod-auth-fb == 0.10.*,
+                   yesod == 1.0.*,
+                   yesod-auth,
+                   yesod-auth-fb,
                    authenticate >= 1.0.0.1,
-                   wai-extra == 1.1.*,
+                   wai-extra == 1.2.*,
                    directory,
-                   conduit == 0.2.*,
+                   conduit == 0.4.*,
                    bytestring,
-                   persistent == 0.8.*,
-                   persistent-template == 0.8.*,
-                   persistent-postgresql == 0.8.*,
+                   persistent == 0.9.*,
+                   persistent-template == 0.9.*,
+                   persistent-postgresql == 0.9.*,
                    template-haskell,
                    hamlet,
-                   fb >= 0.7.0.1,
+                   fb == 0.8.*,
                    shakespeare-js,
                    shakespeare-css,
                    parsec,
                    pureMD5 < 3,
-                   http-conduit == 1.2.*,
+                   http-conduit >= 1.4.1.2 && < 1.5,
                    random,
                    base64-bytestring,
                    cryptocipher,
@@ -86,16 +86,16 @@ executable         haskellers
                    neither,
                    data-default,
                    mime-mail,
-                   mime-mail-ses == 0.1.*,
+                   mime-mail-ses == 0.2.*,
                    text,
                    text-icu,
                    hjsmin,
                    utf8-string,
-                   warp == 1.1.*,
-                   yesod-core == 0.10.*,
-                   yesod-form == 0.4.*,
-                   yesod-newsfeed == 0.4.*,
-                   yesod-static == 0.10.*,
+                   warp == 1.2.*,
+                   yesod-core == 1.0.*,
+                   yesod-form == 1.0.*,
+                   yesod-newsfeed == 1.0.*,
+                   yesod-static == 1.0.*,
                    monad-control,
                    blaze-html,
                    http-types,

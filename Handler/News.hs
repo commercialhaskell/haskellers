@@ -41,7 +41,7 @@ getNewsR = do
 postNewsR :: Handler RepHtml
 postNewsR = do
     requireAdmin
-    ((res, form), _) <- runFormPostNoNonce newsForm
+    ((res, form), _) <- runFormPostNoToken newsForm
     case res of
         FormSuccess (title, content) -> do
             now <- liftIO getCurrentTime

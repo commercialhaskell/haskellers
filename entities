@@ -17,11 +17,13 @@ User
     longitude Double Maybe Ne
     latitude Double Maybe Ne
     googlePlus Text Maybe
+    deriving Show
 Username
     user UserId
     username Text
     UniqueUsernameUser user
     UniqueUsername username
+    deriving Show
 Ident
     ident Text Asc
     user UserId Eq

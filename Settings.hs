@@ -26,7 +26,7 @@ import qualified Text.Lucius as H
 import qualified Text.Julius as H
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql
-import Yesod (MonadBaseControl, addWidget, addCassius, addJulius, whamletFile)
+import Yesod (MonadBaseControl, addWidget, whamletFile, toWidget)
 import Data.Monoid (mempty, mappend)
 import System.Directory (doesFileExist)
 import Data.Text (Text)
@@ -132,11 +132,11 @@ widgetFile x = do
     let c = unlessExists toCassiusFile cassiusFile
     let j = unlessExists toJuliusFile juliusFile
     let l = unlessExists toLuciusFile luciusFile
-    [|addWidget $h >> addCassius $c >> addJulius $j >> addCassius $l|]
+    [|$h $ $c $ $j $ $l $ return ()|]
   where
     unlessExists tofn f = do
         e <- qRunIO $ doesFileExist $ tofn x
-        if e then f x else [|mempty|]
+        if e then [|(>>) $ toWidget $(f x)|] else [|id|]
 
 -- The next two functions are for allocating a connection pool and running
 -- database actions using a pool, respectively. It is used internally

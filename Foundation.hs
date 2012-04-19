@@ -188,14 +188,14 @@ instance Yesod Haskellers where
         pc <- widgetToPageContent $ do
             case ma of
                 Nothing -> return ()
-                Just ((uid, _), _) -> addHamletHead [hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your Haskellers Updates">
+                Just ((uid, _), _) -> toWidgetHead [hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your Haskellers Updates">
 |]
-            addCassius $(Settings.cassiusFile "default-layout")
+            toWidget $(Settings.cassiusFile "default-layout")
             addScriptEither $ urlJqueryJs y
             addScriptEither $ urlJqueryUiJs y
             addStylesheetEither $ urlJqueryUiCss y
-            addJulius $(Settings.juliusFile "analytics")
-            addJulius $(Settings.juliusFile "default-layout")
+            toWidget $(Settings.juliusFile "analytics")
+            toWidget $(Settings.juliusFile "default-layout")
             addScriptRemote "https://browserid.org/include.js"
             addWidget widget
         let login' = $(ihamletFile "hamlet/login.hamlet")
@@ -238,7 +238,7 @@ instance Yesod Haskellers where
         unless exists $ liftIO $ L.writeFile fn' content'
         return $ Just $ Right (StaticR $ StaticRoute ["tmp", pack fn] [], [])
 
-    clientSessionDuration _ = 60 * 24 * 14 -- 2 weeks
+    -- FIXME clientSessionDuration _ = 60 * 24 * 14 -- 2 weeks
 
 navbar :: [(String, [(String, Route Haskellers)])]
 navbar =

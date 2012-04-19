@@ -92,7 +92,7 @@ getProfileR = do
     Entity uid u <- requireAuth
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
-    ((res, form), enctype) <- runFormPostNoNonce $ userForm (fromInteger maxY) u
+    ((res, form), enctype) <- runFormPostNoToken $ userForm (fromInteger maxY) u
     musername <- fmap (fmap entityVal) $ runDB $ getBy $ UniqueUsernameUser uid
     case res of
         FormSuccess u' -> do
@@ -295,7 +295,7 @@ postSetUsernameR = do
 postScreenNamesR :: Handler ()
 postScreenNamesR = do
     uid <- requireAuthId
-    ((res, _), _) <- runFormPostNoNonce $ screenNameFormlet uid
+    ((res, _), _) <- runFormPostNoToken $ screenNameFormlet uid
     case res of
         FormSuccess sn -> do
             _ <- runDB $ insert sn
