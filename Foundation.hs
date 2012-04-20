@@ -430,14 +430,18 @@ instance YesodAuth Haskellers where
                     , userGooglePlus = Nothing
                     }
                 addBIDEmail uid
+                addClaimed uid creds
                 _ <- insert $ Ident (credsIdent creds) uid
                 return $ Just uid
             (Nothing, Just (Entity uid _)) -> do
-                runDB $ addBIDEmail uid
                 setMessage "Identifier added to your account"
-                _ <- runDB $ insert $ Ident (credsIdent creds) uid
+                runDB $ do
+                    addBIDEmail uid
+                    _ <- insert $ Ident (credsIdent creds) uid
+                    addClaimed uid creds
                 return $ Just uid
-            (Just _, Just _) -> do
+            (Just _, Just (Entity uid _)) -> do
+                runDB $ addClaimed uid creds
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect ProfileR
       where
@@ -446,6 +450,11 @@ instance YesodAuth Haskellers where
                 u <- get404 uid
                 unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
+
+        addClaimed uid creds = do
+            let claimed = credsIdentClaimed creds
+            _ <- insertBy $ Ident claimed uid
+            return ()
 
     authPlugins _ = [ authOpenId
                   , authFacebook
