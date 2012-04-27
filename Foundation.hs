@@ -430,8 +430,8 @@ instance YesodAuth Haskellers where
                     , userGooglePlus = Nothing
                     }
                 addBIDEmail uid
-                addClaimed uid creds
                 _ <- insert $ Ident (credsIdent creds) uid
+                addClaimed uid creds
                 return $ Just uid
             (Nothing, Just (Entity uid _)) -> do
                 setMessage "Identifier added to your account"
