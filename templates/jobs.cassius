@@ -2,7 +2,7 @@
     width: 300px
 #desc
     width: 400px
-    height: 100px
+    height: 400px
 .errors
     color: #900
 .tooltip

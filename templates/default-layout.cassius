@@ -287,3 +287,6 @@ form h2
 
 #browserid
     cursor: pointer
+
+.nicEdit-panelContain
+    color: #000
