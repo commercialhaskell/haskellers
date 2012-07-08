@@ -11,6 +11,7 @@ import Control.Applicative
 import Data.Maybe (fromMaybe)
 import Data.Time
 import Yesod.Form.Jquery
+import Yesod.Form.Nic
 import Control.Monad (unless)
 import Yesod.Feed
 import Yesod.Auth
@@ -29,9 +30,10 @@ jobFormlet uid now mj = renderTable $ Job
     <*> areq (jqueryDayField def) "Filling by" (fmap jobFillingBy mj)
     <*> areq boolField "Full time option?" (fmap jobFullTime mj)
     <*> areq boolField "Part time option?" (fmap jobPartTime mj)
-    <*> areq textareaField "Description"
+    <*> pure (Textarea "Please see HTML description")
+    <*> fmap Just (areq nicHtmlField "Description"
             { fsId = Just "desc"
-            } (fmap jobDesc mj)
+            } (mj >>= jobDescHtml))
 
 getJobsR :: Handler RepHtml
 getJobsR = do

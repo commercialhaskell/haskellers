@@ -58,6 +58,7 @@ Job
     fullTime Bool
     partTime Bool
     desc Textarea
+    descHtml Html Maybe
 ScreenName no-json
     user UserId Eq
     service Service Asc

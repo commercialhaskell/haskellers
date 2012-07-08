@@ -30,4 +30,8 @@
     <tr>
         <th>Location
         <td>#{jobLocation job}
-<div id="desc">#{jobDesc job}
+<div id="desc">
+    $maybe h <- jobDescHtml job
+        #{h}
+    $nothing
+        #{jobDesc job}
