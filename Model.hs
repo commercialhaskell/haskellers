@@ -9,7 +9,7 @@ module Model where
 
 import Yesod
 import Database.Persist.Store
-import Text.Blaze (ToHtml (..))
+import Text.Blaze.Html (ToMarkup (..))
 import Data.Time (UTCTime, Day)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -40,7 +40,7 @@ prettyEmployment PartTime = "You can ask me about part-time employment"
 prettyEmployment FullPartTime = "You can ask me about full- or part-time employment"
 prettyEmployment NotLooking = "I am not currently seeking employment"
 
-instance ToHtml Employment where toHtml = toHtml . prettyEmployment
+instance ToMarkup Employment where toMarkup = toMarkup . prettyEmployment
 
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:

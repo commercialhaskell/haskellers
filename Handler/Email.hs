@@ -17,7 +17,7 @@ import StaticFiles (logo_png)
 import Data.Text (Text, pack, unpack)
 import SESCreds (access, secret)
 import Data.Text.Encoding (encodeUtf8)
-import Text.Blaze.Renderer.Utf8 (renderHtml)
+import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import Text.Hamlet (shamlet)
 import Yesod.Auth (requireAuthId)
 
