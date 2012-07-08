@@ -5,10 +5,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE EmptyDataDecls #-}
 module Model where
 
 import Yesod
-import Database.Persist.Store
 import Text.Blaze.Html (ToMarkup (..))
 import Data.Time (UTCTime, Day)
 import Data.Text (Text)
