@@ -1,0 +1,6 @@
+<form method="post" action="@{TeamR tid}">
+    <table>
+        ^{form}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Update Group">

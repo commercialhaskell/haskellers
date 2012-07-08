@@ -1,8 +1,7 @@
 #!/bin/bash -xe
 
-cabal clean
-cabal configure -fproduction
-cabal build
+cabal-dev configure -fproduction
+cabal-dev build
 rm -rf static/tmp
 strip dist/build/haskellers/haskellers
 bzip2 dist/build/haskellers/haskellers

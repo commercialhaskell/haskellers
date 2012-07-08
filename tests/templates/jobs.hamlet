@@ -1,0 +1,37 @@
+\<div class="subscribe">
+\<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a>
+\<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
+\</div>
+\
+$if null jobs
+    <p>There are no active job listings.
+$else
+    $forall Entity key j <- jobs
+        <div .job>
+            <a href="@{JobR key}">#{jobTitle j} in #{jobLocation j}
+            <span .time>
+                \ #{prettyTime (jobPostedAt j)}
+\
+<p>
+    \You can find more Haskell jobs from 
+    <ul>
+        <li>
+            <a href="http://cufp.org/jobs/language/31">Commercial Users of Functional Programming
+        <li>
+            <a href="http://functionaljobs.com/">Functional Jobs
+$maybe form <- mform
+    <form method="post" action="@{JobsR}" .big>
+        <h2>Post a new job
+        <table>
+            \^{form}
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Post Job">
+$nothing
+    <div id="login-status" .notice>
+        $if isUnverEmail
+            You must have a verified email address to add a job listing.
+        $else
+            If you 
+            <a href="@{AuthR LoginR}">log in
+            \ to a verified account, you can add a job listing.

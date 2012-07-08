@@ -1,0 +1,15 @@
+$forall Entity key item <- news
+    <div .news>
+        <a href="@{NewsItemR key}">#{newsTitle item}
+        <span .time>
+            \ #{fuzzyDiffTime (newsWhen item)}
+$maybe u <- mu
+    $if userAdmin (entityVal u)
+        \^{addCassius newsAdmin}
+        <form method="post" action="@{NewsR}" .add-news>
+          <h2>Post news item (admins only)
+          <table>
+              \^{form}
+              <tr>
+                  <td colspan="2">
+                      <input type="submit" value="Post">

@@ -1,0 +1,4 @@
+exec: ../dist/build/haskellers/haskellers
+args:
+    - production
+host: haskellers.yesodweb.com

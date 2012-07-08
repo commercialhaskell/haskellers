@@ -1,0 +1,9 @@
+<ol id="toc">
+    $forall faq <- faqs
+        <li>
+            <a href="##{hash faq}">#{question faq}
+$forall faq <- faqs
+    <div .faq>
+        <h4 id="#{hash faq}">#{question faq}
+        \#{answer faq}
+    <a href="#toc" .back-to-top>back to top

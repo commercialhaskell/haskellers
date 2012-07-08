@@ -1,0 +1,6 @@
+<form method="post" action="@{TeamsR}">
+    <table>
+        \^{form}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Add Group">

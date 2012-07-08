@@ -1,0 +1,5 @@
+.buttons
+    float: right
+h1
+    margin-top: 20px
+    width: 600px

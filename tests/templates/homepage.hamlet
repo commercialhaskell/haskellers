@@ -1,0 +1,25 @@
+$forall Entity key val <- news
+    <div .news>
+        <a href="@{NewsItemR key}">#{newsTitle val}
+        <span .time>
+            \ #{fuzzyDiffTime (newsWhen val)}
+$forall item <- job
+    <div .job>
+        <b>Newest job: 
+        <a href="@{JobR (entityKey item)}">#{jobTitle (entityVal item)}
+        <span .time>
+            \ #{fuzzyDiffTime (jobPostedAt (entityVal item))}
+<div id="map_canvas">
+<div id="users" .users>
+    <div .counts>
+        \Total accounts: 
+        <em>#{show public} 
+        \public, 
+        <em>#{show private} 
+        \private
+    $forall prof <- profs
+        <div .user>
+            <a href="@{profileUserR prof}">
+                <img src="#{gravatar 80 (profileEmail prof)}" alt="Gravatar Profile Picture">
+                <span .name>
+                  \#{profileName prof}

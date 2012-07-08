@@ -1,0 +1,42 @@
+$(function(){
+    $("#tabs").tabs({
+        cookie: {
+            expires: 1
+        }
+    });
+    $("#tabs > ul > li > a").css("font-size", "80%");
+    $("input[type=submit]").css("font-size", "80%").button();
+
+    $("#location").after("<div id='map_canvas''></div>");
+    geocoder = new google.maps.Geocoder();
+    var lat = $("#latitude").val() || 0;
+    var lng = $("#longitude").val() || 0;
+    var latlng = new google.maps.LatLng(lat, lng);
+    var myOptions = {
+      zoom: 8,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+    if (lat != 0 || lng != 0) new google.maps.Marker({
+        map: map,
+        position: latlng
+    });
+    $("#location").blur(function(){
+        var address = document.getElementById("location").value;
+        geocoder.geocode( { 'address': address}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            map.setCenter(results[0].geometry.location);
+            var marker = new google.maps.Marker({
+                map: map, 
+                position: results[0].geometry.location
+            });
+            $("#longitude").val(results[0].geometry.location.lng());
+            $("#latitude").val(results[0].geometry.location.lat());
+          } else {
+            alert("Geocode was not successful for the following reason: " + status);
+          }
+        });
+        return false;
+    });
+});

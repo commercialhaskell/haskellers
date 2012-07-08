@@ -1,0 +1,87 @@
+!!!
+
+<html>
+    <head>
+        <title>#{title}
+        <link rel="stylesheet" href="@{StaticR reset_css}">
+        ^{const $ pageHead pc}
+        <link href="@{NewsFeedR}" type="application/atom+xml" rel="alternate" title="Haskellers News">
+        <link href="@{JobsFeedR}" type="application/atom+xml" rel="alternate" title="Haskellers Job Listings">
+    <body .#{bodyClass}>
+        <div id="haskell_bar">
+          <p .title>
+            <a href="http://www.haskell.org/">Haskell
+            <form method=post action=@{LangR}>
+              $maybe cr <- current
+                <input type=hidden name=dest value=@{tm cr}>
+              <select name=lang>
+                <option>-- Language
+                $forall lang <- langs
+                  <option value=#{fst lang}>#{snd lang}
+              <input type=submit value="Change Language">
+        <div id="heading_wrapper">
+            <div id="heading">
+                <a href="@{RootR}" alt="Home">
+                    <img src="@{StaticR logo_png}" alt="Haskellers" .logo>
+                    <span .tagline>_{MsgTagLine}
+                <div id="main_menu">
+                    <a id="overview" href="@{RootR}">_{MsgOverview}
+                    <a id="teams" href="@{TeamsR}">_{MsgGroups}
+                    <a id="find_haskeller" href="@{UsersR}">Find<br>a Haskeller
+                    <a id="find_job" href="@{JobsR}">_{MsgFindAJob}
+                <div id="secondary_menu">
+                    <a href=@{PollsR}>Polls
+                    <a href=@{BlingR}>_{MsgBling}
+                    <a href="@{FaqR}">_{MsgFAQ}
+                    <a href="@{NewsR}">_{MsgNewsArchive}
+                    <a href="@{AllSkillsR}">_{MsgBrowseSkills}
+                    $maybe u <- ma
+                        <a href="@{ProfileR}">_{MsgYourProfile}
+                        <a href="@{AuthR LogoutR}">_{MsgLogout}
+                        $if userAdmin (snd (fst u))
+                            <a href="@{MessagesR}">Admin Messages
+                            <a href="@{AdminUsersR}">Admin Users
+                    $nothing
+                      <a href="@{AuthR LoginR}">_{MsgLogin}
+                    <div id="im_a_haskeller">
+                        $maybe u <- ma
+                          <a href="@{userR u}">_{MsgWelcomeUser $ userFullName (snd (fst u))}
+                        $nothing
+                          <a id="login-button" href="@{AuthR LoginR}">_{MsgIAmAHaskeller}
+        <div id="section_title">
+            <div>
+                <ul id="breadcrumbs">
+                    $if not (null parents)
+                        $forall p <- parents
+                            <li>
+                                <a href="@{fst p}">#{snd p}
+                    <li>#{title'}
+        <div id="content_wrapper">
+            <div id="main_content">
+                $maybe msg <- mmsg
+                    <div id="message">#{msg}
+                ^{const $ pageBody pc}
+        <div id="footer_wrapper">
+            <div id="footer_content">
+                <p>
+                    Developed by 
+                    <a href="http://www.snoyman.com/">Michael Snoyman
+                    \ and powered by the #
+                    <a href="http://docs.yesodweb.com/">Yesod Web Framework
+                    .
+                <p>
+                    Design by 
+                      <a href="http://www.haskellers.com/user/nubis/">Nubis
+                <a href="http://github.com/snoyberg/haskellers">View Source
+                <div .addthis_toolbox .addthis_default_style>
+                    <a href="http://www.addthis.com/bookmark.php?v=250&amp;username=snoyberg" .addthis_button_compact>Share
+                    <span .addthis_separator>|
+                    <a class="addthis_button_preferred_1"></a>
+                    <a class="addthis_button_preferred_2"></a>
+                    <a class="addthis_button_preferred_3"></a>
+                    <a class="addthis_button_preferred_4"></a>
+                    <script type="text/javascript">var addthis_config = {"data_track_clickback":true};
+                    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=snoyberg">
+        <div id="login">
+          <h3>_{MsgLoginWith}
+            ^{login'}

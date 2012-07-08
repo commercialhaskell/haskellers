@@ -1,0 +1,180 @@
+$if userBlocked u
+    <h3 .ui-state-error .ui-corner-all>Note: Your account has been blocked. You've probably put in some inappropriate gravatar image or content. Please clean it up.
+    <form method="post" action="@{RequestUnblockR}">
+        <input type="submit" value="I'm clean now, please unblock me!">
+$elseif not (userVerifiedEmail u)
+    <h3 .ui-state-error .ui-corner-all>Note: You have not yet verified your email address.  Your profile will not be public until you do so.
+$elseif not (hasGoodName $ T.unpack (userFullName u))
+    <h3 .ui-state-error .ui-corner-all>Note: Please enter your proper name on the profile tab.
+$elseif not (userVisible u)
+    <h3 .ui-state-error .ui-corner-all>Note: You're account is in private mode. You can send people links directly to your profile, but you will not appear in any listings. You can change this in the "Profile" tab.
+<div id="tabs">
+  <ul>
+        <li>
+            <a href="#email-box">Email
+        <li>
+            <a href="#profile">Profile
+        <li>
+            <a href="#skills">Skills
+        <li>
+            <a href="#packages">Packages
+        <li>
+            <a href="#identifiers">Identifiers
+        <li>
+            <a href="#screen-names">Screen Names
+        <li>
+            <a href="#extras">Extras
+        <li>
+            <a href="#delete">Delete
+  <div id="email-box">
+    $if userVerifiedEmail u
+        $maybe email <- userEmail u
+            <div id="gravatar">
+                <img src="#{gravatar 120 email}" alt="Gravatar Profile Picture">
+                <a href="http://gravatar.com/">Change your Gravatar
+            <form id="reset" method="post" action="@{ResetEmailR}">
+                \Your email address is 
+                <b>#{email}
+                \. 
+                <input type="submit" value="Reset Email Address">
+                <p>Note: by resetting your email address, your profile will no longer appear on the homepage until you have verified a new address.
+            <div .ui-helper-clearfix>
+        $nothing
+            \There's a database error, because you don't have an email address yet your address is verified. Please report this.
+    $else
+        <p>
+          \In order to have your profile show up on the homepage, you need to verify an email address. Your address will be protected with 
+          <a href="http://www.google.com/recaptcha/mailhide/">Recaptcha mailhide
+          \ and will be used to show a 
+          <a href="http://gravatar.com/">Gravatar.
+        <form method="post" action="@{SendVerifyR}">
+            \Email: 
+            $maybe email <- userEmail u
+                <input id="email" type="email" name="email" value="#{email}">
+            $nothing
+                <input id="email" type="email" name="email">
+            <input type="submit" value="Send verification link">
+  <div id="profile">
+    <form method="post" action="@{ProfileR}" enctype="#{enctype}">
+        <table>
+            \^{form}
+            <tr>
+                <td colspan="2" .update-profile>
+                    <input type="submit" value="Update Profile">
+  <div id="skills">
+    <h3>Select your skills
+    <form method="post" action="@{SkillsR}">
+        <table>
+            $forall skill <- skills
+                <tr>
+                    <td>
+                        <input id="skill-#{toPathPiece (fst (fst skill))}" type="checkbox" name="#{toPathPiece (fst (fst skill))}" :snd skill:checked="">
+                    <th>
+                        <label for="skill-#{toPathPiece (fst (fst skill))}">
+                            \#{skillName (snd (fst skill))}
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Update your skills">
+    <h3>Request new skill
+    <p>We want to try and keep this list of skills manageable. As such, please make sure of the following before requesting a new skill:
+    <ul>
+        <li>The skill doesn't already exist in the list above.
+        <li>It's not too general (eg, I know how to program).
+        <li>It's not too specific (eg, I know how to use the transformers package to build a 3-level-deep monad transformer stack).
+        <li>It's relevant to the Haskell community (eg, don't put in your juggling talent).
+    <p>An admin must approve your skill request before it appears in the list.
+    <form method="post" action="@{RequestSkillR}">
+        \New skill: 
+        <input id="skill" type="text" name="skill">
+        <input type="submit" value="Request skill addition">
+  <div id="packages">
+    <h3>I've authored or contributed significantly to the following hackage packages:
+    $if null packages
+        <p>I haven't authored any packages.
+    $else
+        <table>
+            $forall p <- packages
+                <tr>
+                    <td>#{packageName (entityVal p)}
+                    <td>
+                        <form method="post" action="@{DeletePackageR (entityKey p)}">
+                            <input type="submit" value="Remove">
+    <h3>Add a package
+    <form method="post" action="@{PackagesR}">
+        \Name: 
+        <input id="package-name" type="text" name="name">
+        <input type="submit" value="Add package">
+  <div id="identifiers">
+    <h3>Current identifiers
+    <ul>
+        $forall ident <- idents
+            <li>
+                $if isWeb $ identIdent $ entityVal ident
+                    <a href="#{identIdent (entityVal ident)}">#{identIdent (entityVal ident)}
+                $else
+                    #{identIdent (entityVal ident)}
+                $if notOne idents
+                    <form method="post" action="@{DeleteIdentR (entityKey ident)}" .delete-ident>
+                        <input type="submit" value="Remove">
+    <h3>Add new identifier
+    \^{login}
+  <div id="screen-names">
+    <h3>Screen Names
+    $if null screenNames
+        <p>You have not set any screen names.
+    $else
+        <table id="screen-names-table">
+            <tbody>
+                $forall sn <- screenNames
+                    <tr>
+                        <td .screen-name-service>#{show (screenNameService (entityVal sn))}
+                        <td .screen-name>#{screenNameName (entityVal sn)}
+                        <td>
+                            <form method="post" action="@{DeleteScreenNameR (entityKey sn)}">
+                                <input type="submit" value="Delete">
+    <h3>Add Screenname
+    <form method="post" action="@{ScreenNamesR}">
+        <table>
+            \^{screenNameForm}
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Add screen name">
+  <div id="extras">
+    $if not (userReal u)
+        <h3>Request verified user status
+        <p>Verified users (formerly: real Haskellers) have been approved by the site administrators as real users, not spammers. This is simply an anti-spam measure. For the moment, verified status will give you higher ranking in searches. In the future, it may be that only verified users are displayed publicly. All users are encouraged to request this status.
+        <form method="post" action="@{RequestRealR}">
+            <input type="submit" value="Request verified user status">
+        <p>Note: only ask us once, you'll just annoy us otherwise.
+    <h3>Haskellers username
+    $maybe username <- musername
+        <div>
+            \Your username is 
+            <b>#{usernameUsername username}
+            \.
+            <form style="display:inline" method="post" action="@{ClearUsernameR}">
+                <input type="submit" value="Clear my username">
+    $nothing
+        <p>Your username makes your profile URL prettier. Instead of "/user/48292/", you can have "/user/my-user-name/". Usernames can contain letters, numbers, underscores and dashes, and must contain at least one letter.
+        <form method="post" action="@{SetUsernameR}">
+            \I want my username to be 
+            <input type="text" name="username">
+            <input type="submit" value="Set my username">
+    $if not (userRealPic u)
+        <h3>Request real picture status
+        <p>The homepage shows a random selection of Haskellers. In order to give the site a more professional look, we only show Haskellers on the homepage who have real pictures: this means an actual photo of themselves. Also, the photo needs to be minimally professional; it should not be a picture at a frat party or picking your nose.
+        <p>This status <i>only affects homepage display</i>: if you'd rather not put a real picture up, you can still create a public account, it will just never be featured on the homepage.
+        <form method="post" action="@{RequestRealPicR}">
+            <input type="submit" value="Request real picture status">
+    <h3>I'm a Haskeller button
+    <p>
+        \Simply copy the following code to get your badge. 
+        <img src="@{StaticR badge_png}" alt="I'm a Haskeller" .badge>
+    <textarea id="badge-code">
+        \
+        <a href="@{UserR (toPathPiece uid)}">
+            <img src="@{StaticR badge_png_plain}" alt="I'm a Haskeller">
+  <div id="delete">
+    <form method="post" action="@{DeleteAccountR}">
+        <p>Warning: deleting your account cannot be undone. Are you sure?
+        <input type="submit" value="I'm sure, delete it!">
