@@ -50,7 +50,7 @@ postRealPicR :: UserId -> Handler ()
 postRealPicR = adminHelper UserRealPic True "User now has real picture status"
 
 postUnrealPicR :: UserId -> Handler ()
-postUnrealPicR = adminHelper UserReal False "User no longer has real picture status"
+postUnrealPicR = adminHelper UserRealPic False "User no longer has real picture status"
 
 postBlockR :: UserId -> Handler ()
 postBlockR = adminHelper UserBlocked True "User has been blocked"
