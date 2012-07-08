@@ -57,7 +57,7 @@ getJobsR = do
 postJobsR :: Handler RepHtml
 postJobsR = do
     Entity uid u <- requireAuth
-    unless (userReal u) $ permissionDenied "Only verified users can add job listings"
+    unless (userVerifiedEmail u) $ permissionDenied "Only users with verified email addresses can add job listings"
     now <- liftIO getCurrentTime
     ((res, form), _) <- runFormPostNoToken $ jobFormlet uid now Nothing
     let mform = Just form
