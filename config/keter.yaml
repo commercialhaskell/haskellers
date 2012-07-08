@@ -1,4 +1,5 @@
 exec: ../dist/build/haskellers/haskellers
 args:
     - production
-host: haskellers.yesodweb.com
+host: www.haskellers.com
+postgres: true

@@ -41,7 +41,7 @@ instance ToMarkup Employment where toMarkup = toMarkup . prettyEmployment
 -- at:
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith lowerCaseSettings "config/models")
+    $(persistFileWith upperCaseSettings "config/models")
 
 userFullName' :: User -> Text
 userFullName' u =
