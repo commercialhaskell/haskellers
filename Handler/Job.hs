@@ -39,12 +39,12 @@ getJobsR = do
     now <- liftIO getCurrentTime
     let today = utctDay now
     jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt]
-    let isUnver = Just False == fmap (userReal . entityVal) mu
+    let isUnverEmail = Just False == fmap (userVerifiedEmail . entityVal) mu
     mform <-
         case mu of
             Nothing -> return Nothing
             Just (Entity uid u) ->
-                if userReal u
+                if userVerifiedEmail u
                     then do
                         ((_, form), _) <- runFormGet $ jobFormlet uid now Nothing
                         return $ Just form
@@ -68,7 +68,7 @@ postJobsR = do
             redirect $ JobR jid
         _ -> return ()
     let jobs = []
-    let isUnver = False
+    let isUnverEmail = False
     defaultLayout $ do
         addCassius $(cassiusFile "jobs")
         $(hamletFile "jobs")

@@ -29,8 +29,8 @@ $maybe form <- mform
                     <input type="submit" value="Post Job">
 $nothing
     <div id="login-status" .notice>
-        $if isUnver
-            You must have a verified account to add a job listing.
+        $if isUnverEmail
+            You must have a verified email address to add a job listing.
         $else
             If you 
             <a href="@{AuthR LoginR}">log in
