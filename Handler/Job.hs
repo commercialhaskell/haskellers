@@ -4,6 +4,7 @@ module Handler.Job
     , postJobsR
     , getJobR
     , getJobsFeedR
+    , postCloseJobR
     ) where
 
 import Import
@@ -34,13 +35,14 @@ jobFormlet uid now mj = renderTable $ Job
     <*> fmap Just (areq nicHtmlField "Description"
             { fsId = Just "desc"
             } (mj >>= jobDescHtml))
+    <*> pure True
 
 getJobsR :: Handler RepHtml
 getJobsR = do
     mu <- maybeAuth
     now <- liftIO getCurrentTime
     let today = utctDay now
-    jobs <- runDB $ selectList [JobFillingBy >. today] [Desc JobPostedAt]
+    jobs <- runDB $ selectList [JobFillingBy >. today, JobOpen ==. True] [Desc JobPostedAt]
     let isUnverEmail = Just False == fmap (userVerifiedEmail . entityVal) mu
     mform <-
         case mu of
@@ -75,6 +77,8 @@ postJobsR = do
 getJobR :: JobId -> Handler RepHtml
 getJobR jid = do
     job <- runDB $ get404 jid
+    muid <- maybeAuthId
+    let isOwner = Just (jobPostedBy job) == muid
     poster <- runDB $ get404 $ jobPostedBy job
     defaultLayout $(widgetFile "job")
 
@@ -96,6 +100,7 @@ getJobsFeedR = do
         , feedEntries = map go jobs
         , feedDescription = "Haskellers Job Listings"
         , feedLanguage = "en"
+        , feedAuthor = "Haskellers Job Listings"
         }
   where
     go (Entity jid j) = FeedEntry
@@ -104,3 +109,14 @@ getJobsFeedR = do
         , feedEntryTitle = jobTitle j
         , feedEntryContent = toHtml $ jobDesc j
         }
+
+postCloseJobR :: JobId -> Handler ()
+postCloseJobR jid = do
+    uid <- requireAuthId
+    j <- runDB $ get404 jid
+    if jobPostedBy j == uid
+        then do
+            runDB $ update jid [JobOpen =. False]
+            setMessage "Job posting has been closed"
+            redirect $ JobR jid
+        else permissionDenied "You did not created this job."

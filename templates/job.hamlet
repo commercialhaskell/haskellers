@@ -2,6 +2,11 @@
   <script src="http://reddit.com/static/button/button1.js">
 \
 <h1>#{jobTitle job}
+$if not $ jobOpen job
+    <h2>Note: This job listing has been closed.
+$elseif isOwner
+    <form method=post action=@{CloseJobR jid}>
+        <button>Close job listing
 <table>
     <tr>
         <th>Posted by

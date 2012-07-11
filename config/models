@@ -59,6 +59,7 @@ Job
     partTime Bool
     desc Textarea
     descHtml Html Maybe
+    open Bool default=true
 ScreenName no-json
     user UserId Eq
     service Service Asc

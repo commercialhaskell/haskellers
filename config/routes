@@ -60,6 +60,7 @@
 
 /jobs JobsR GET POST
 /jobs/#JobId JobR GET
+/jobs/#JobId/close CloseJobR POST
 
 /feed/news NewsFeedR GET
 /feed/jobs JobsFeedR GET
