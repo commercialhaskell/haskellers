@@ -132,4 +132,5 @@ userToProfile (Entity uid u) =
                 , profileUser = u
                 , profileSkills = Set.fromList [] -- FIXME
                 , profileUsername = mun
+                , profileLocation = Location <$> userLongitude u <*> userLatitude u
                 }

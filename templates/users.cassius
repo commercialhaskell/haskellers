@@ -53,3 +53,7 @@ form.filter-users label
 form.filter-users h2
     font-size: 25px
     margin-bottom: 15px
+#map_canvas
+    height: 200px
+    width: 400px
+    margin-top: 5px

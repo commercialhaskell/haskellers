@@ -25,6 +25,8 @@ import Data.Time
 import qualified Data.Text as T
 import Data.Text.ICU.Normalize
 import Data.Text (Text, pack, unpack)
+import Data.List (sortBy)
+import Data.Ord (comparing)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -76,6 +78,7 @@ data Filter = Filter
     , filterFullTime :: Bool
     , filterPartTime :: Bool
     -- filter for skills
+    , filterLocation :: Maybe Location
     }
 
 applyFilter :: Filter -> Profile -> Bool
@@ -117,12 +120,14 @@ applyFilter f p = and
             _ -> False
 
 filterForm :: Int -> Html -> MForm Haskellers Haskellers (FormResult Filter, Widget)
-filterForm my = renderTable $ Filter
+filterForm my = renderTable $ (\a b c d e f g -> Filter a b c d e $ Location <$> f <*> g)
     <$> aopt textField "Name" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no earlier than" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no later than" Nothing
     <*> areq boolField "Must be interested in full-time positions" (Just False)
     <*> areq boolField "Must be interested in part-time positions" (Just False)
+    <*> aopt doubleField "Longitude" { fsId = Just "longitude" } Nothing
+    <*> aopt doubleField "Latitude" { fsId = Just "latitude" } Nothing
 
 yearField :: Int -> Int -> Field sub master Int
 yearField minY maxY = Field
@@ -153,7 +158,11 @@ getUsersR = do
     ((res, form), enctype) <- runFormGet $ filterForm $ fromInteger maxY
     let filteredProfs =
             case res of
-                FormSuccess filt -> filter (applyFilter filt) allProfs
+                FormSuccess filt ->
+                    let profs' = filter (applyFilter filt) allProfs
+                     in case filterLocation filt of
+                            Nothing -> profs'
+                            Just loc -> map snd $ sortBy (comparing fst) $ map (\p -> (getDistance loc $ profileLocation p, p)) profs'
                 _ -> allProfs
     let public = length filteredProfs
     mpage <- runInputGet $ iopt intField "page"
@@ -173,6 +182,7 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (json render profs) $ do
         setTitle "Browsing Haskellers"
+        addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         $(widgetFile "users")
   where
     json r users = object ["users" .= array (map (json' r) users)]
@@ -228,3 +238,24 @@ postLangR = do
     case md of
         Nothing -> redirect RootR
         Just d -> redirect d
+
+data Distance = Distance Double | Unknown
+    deriving (Show, Eq, Ord)
+
+getDistance :: Location -> Maybe Location -> Distance
+getDistance _ Nothing = Unknown
+getDistance (Location x1 y1) (Just (Location x2 y2)) =
+    Distance c
+  where
+    toRad deg = deg / 180 * pi
+
+    xd = toRad $ x2 - x1
+    yd = toRad $ y2 - y1
+
+    z1 = toRad y1
+    z2 = toRad y2
+
+    a = sin (yd / 2) * sin (yd / 2)
+      + sin (xd / 2) * sin (xd / 2) * cos z1 * cos z2
+
+    c = 2 * atan2 (sqrt a) (sqrt (1 - a))

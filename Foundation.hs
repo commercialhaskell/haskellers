@@ -14,6 +14,7 @@ module Foundation
     , module Model
     , login
     , Profile (..)
+    , Location (..)
     , userR
     , getDebugR
     , prettyTime
@@ -78,6 +79,12 @@ data App = App
     , publicProfiles :: IORef [Profile]
     }
 
+data Location = Location
+    { locationLong :: Double
+    , locationLat :: Double
+    }
+  deriving Show
+
 data Profile = Profile
     { profileUserId :: UserId
     , profileName :: Text
@@ -85,6 +92,7 @@ data Profile = Profile
     , profileUser :: User
     , profileSkills :: Set.Set SkillId
     , profileUsername :: Maybe Username
+    , profileLocation :: Maybe Location
     }
   deriving Show
 
