@@ -107,7 +107,7 @@ getJobsFeedR = do
         { feedEntryLink = JobR jid
         , feedEntryUpdated = jobPostedAt j
         , feedEntryTitle = jobTitle j
-        , feedEntryContent = toHtml $ jobDesc j
+        , feedEntryContent = fromMaybe (toHtml $ jobDesc j) (jobDescHtml j)
         }
 
 postCloseJobR :: JobId -> Handler ()
