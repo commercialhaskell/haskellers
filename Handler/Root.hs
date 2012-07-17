@@ -67,6 +67,7 @@ getRootR = do
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
+        addScriptRemote "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"
         addCassius $(cassiusFile "templates/jobs.cassius")
         addCassius $(cassiusFile "templates/users.cassius")
         $(widgetFile "homepage")

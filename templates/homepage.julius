@@ -6,14 +6,19 @@ $(function(){
             center: new google.maps.LatLng(30, 0),
             mapTypeId: google.maps.MapTypeId.ROADMAP
         });
+        var markers = [];
         for (var i = 0; i < data.locations.length; ++i) {
+            var lat = parseFloat(data.locations[i].lat) + (Math.random() - 0.5) / 8;
+            var lng = parseFloat(data.locations[i].lng) + (Math.random() - 0.5) / 8;
             var marker = new google.maps.Marker({
                 map: map,
-                position: new google.maps.LatLng(data.locations[i].lat, data.locations[i].lng),
+                position: new google.maps.LatLng(lat, lng),
                 title: data.locations[i].name
             });
+            markers.push(marker);
             addMarkerLink(marker, data.locations[i].url);
         }
+        var mc = new MarkerClusterer(map, markers);
     });
 });
 function addMarkerLink(marker, url) {
