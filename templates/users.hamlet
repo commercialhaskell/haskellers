@@ -7,7 +7,7 @@
                 <input id="apply-filters" type="submit" value="Apply Filters">
                 \ 
                 <a href="@?{noFilter}">Clear Filters
-    <div #location>
+    <div #map_canvas>
 <div id="results" .users>
     <div .controls>
         $if hasPrev

@@ -1,8 +1,8 @@
 $(function(){
-    $("#location").after("<div id='map_canvas''></div>");
+    $("#longitude, #latitude").parents("tr.optional").hide();
     geocoder = new google.maps.Geocoder();
-    var lat = $("#latitude").val() || 0;
-    var lng = $("#longitude").val() || 0;
+    var lat = $("#latitude").val() || 31;
+    var lng = $("#longitude").val() || 35;
     var latlng = new google.maps.LatLng(lat, lng);
     var myOptions = {
       zoom: 8,

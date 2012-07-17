@@ -121,7 +121,7 @@ applyFilter f p = and
             _ -> False
 
 filterForm :: Int -> Html -> MForm Haskellers Haskellers (FormResult Filter, Widget)
-filterForm my = renderTable $ (\a b c d e f g -> Filter a b c d e $ Location <$> f <*> g)
+filterForm my = renderTable $ (\a b c d e f g _ -> Filter a b c d e $ Location <$> f <*> g)
     <$> aopt textField "Name" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no earlier than" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no later than" Nothing
@@ -129,6 +129,7 @@ filterForm my = renderTable $ (\a b c d e f g -> Filter a b c d e $ Location <$>
     <*> areq boolField "Must be interested in part-time positions" (Just False)
     <*> aopt doubleField "Longitude" { fsId = Just "longitude" } Nothing
     <*> aopt doubleField "Latitude" { fsId = Just "latitude" } Nothing
+    <*> aopt textField "Order by proximity to:" { fsId = Just "location" } Nothing
 
 yearField :: Int -> Int -> Field sub master Int
 yearField minY maxY = Field
