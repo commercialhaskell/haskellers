@@ -81,6 +81,7 @@ getNewsFeedR = do
         , feedEntries = map go news
         , feedDescription = "Haskellers news feed"
         , feedLanguage = "en"
+        , feedAuthor = "Haskellers News"
         }
   where
     go (Entity nid n) = FeedEntry

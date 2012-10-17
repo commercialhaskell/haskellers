@@ -3,3 +3,4 @@ args:
     - production
 host: www.haskellers.com
 postgres: true
+copy-to: ubuntu@www.yesodweb.com:/opt/keter/incoming

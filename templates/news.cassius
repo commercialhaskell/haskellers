@@ -3,3 +3,9 @@
 h1
     margin-top: 20px
     width: 600px
+
+ol
+    list-style: decimal
+
+ol li
+    margin-left: 40px
