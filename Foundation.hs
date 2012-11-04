@@ -378,6 +378,9 @@ instance YesodBreadcrumbs App where
     breadcrumb TopicMessageR{} = return ("", Nothing)
     breadcrumb LangR{} = return ("", Nothing)
     breadcrumb PollCloseR{} = return ("", Nothing)
+    breadcrumb MessagesFeedR{} = return ("", Nothing)
+    breadcrumb MessagesFeedLinkR{} = return ("", Nothing)
+    breadcrumb CloseJobR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist App where
