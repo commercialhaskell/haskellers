@@ -1,4 +1,6 @@
 <h3>Admin Messages
+<p>
+    <a href=@{MessagesFeedR}>News feed
 $if null messages
     <p>You're lucky, no open messages.
 $else

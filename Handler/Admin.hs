@@ -10,6 +10,8 @@ module Handler.Admin
     , postBlockR
     , postUnblockR
     , getMessagesR
+    , getMessagesFeedR
+    , getMessagesFeedLinkR
     , postCloseMessageR
     , getAdminUsersR
     , requireAdmin
@@ -20,6 +22,8 @@ import Control.Monad (unless)
 import Handler.User (adminControls) -- FIXME includes style too many times
 import Handler.Root (gravatar)
 import Yesod.Form.Jquery (urlJqueryJs)
+import Yesod.Feed
+import Data.Time (getCurrentTime)
 
 requireAdmin :: Handler ()
 requireAdmin = do
@@ -72,6 +76,35 @@ getMessagesR = do
     defaultLayout $ do
         setTitle "Admin Messages"
         $(widgetFile "messages")
+
+getMessagesFeedR :: Handler RepAtomRss
+getMessagesFeedR = do
+    messages <- runDB $ selectList [MessageClosed ==. False] [Desc MessageWhen, LimitTo 10]
+    updated <-
+        case messages of
+            [] -> liftIO getCurrentTime
+            Entity _ m:_ -> return $ messageWhen m
+
+    newsFeed Feed
+        { feedTitle = "Haskellers admin messages"
+        , feedLinkSelf = MessagesFeedR
+        , feedLinkHome = RootR
+        , feedAuthor = "Michael Snoyman"
+        , feedDescription = "Admin messages for Haskellers.com"
+        , feedLanguage = "en"
+        , feedUpdated = updated
+        , feedEntries = map toEntry messages
+        }
+  where
+    toEntry (Entity mid m) = FeedEntry
+        { feedEntryLink = MessagesFeedLinkR mid
+        , feedEntryUpdated = messageWhen m
+        , feedEntryTitle = "Some message"
+        , feedEntryContent = "Some message"
+        }
+
+getMessagesFeedLinkR :: MessageId -> Handler ()
+getMessagesFeedLinkR _ = redirect MessagesR
 
 postCloseMessageR :: MessageId -> Handler ()
 postCloseMessageR mid = do

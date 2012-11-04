@@ -51,6 +51,8 @@
 
 /admin AdminUsersR GET
 /admin/messages MessagesR GET
+/admin/messages-feed MessagesFeedR GET
+/admin/messages-feed/#MessageId MessagesFeedLinkR GET
 /admin/messages/#MessageId/close CloseMessageR POST
 
 /news NewsR GET POST
