@@ -305,7 +305,7 @@ instance YesodBreadcrumbs App where
     breadcrumb VerifyEmailR{} = return ("Verify Your Email Address", Nothing)
     breadcrumb AdminUsersR = return ("User List- Admin", Nothing)
     breadcrumb MessagesR = return ("Messages- Admin", Nothing)
-    breadcrumb (AuthR LoginR) = return ("Log in to App", Just RootR)
+    breadcrumb (AuthR LoginR) = return ("Log in to Haskellers", Just RootR)
     breadcrumb DebugR = return ("Database pool debug info", Just RootR)
     breadcrumb PollsR = return ("Polls", Just RootR)
     breadcrumb (PollR pollid) = do
