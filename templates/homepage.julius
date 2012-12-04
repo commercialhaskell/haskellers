@@ -8,8 +8,8 @@ $(function(){
         });
         var markers = [];
         for (var i = 0; i < data.locations.length; ++i) {
-            var lat = parseFloat(data.locations[i].lat) + (Math.random() - 0.5) / 8;
-            var lng = parseFloat(data.locations[i].lng) + (Math.random() - 0.5) / 8;
+            var lat = parseFloat(data.locations[i].lat) + (Math.random() - 0.5) / 80;
+            var lng = parseFloat(data.locations[i].lng) + (Math.random() - 0.5) / 80;
             var marker = new google.maps.Marker({
                 map: map,
                 position: new google.maps.LatLng(lat, lng),
