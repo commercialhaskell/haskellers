@@ -13,7 +13,6 @@ import Yesod.Default.Main
 import Yesod.Default.Handlers
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import qualified Database.Persist.Store
-import Database.Persist.GenericSql (runMigration)
 import Network.HTTP.Conduit (newManager, def)
 import Data.IORef
 import Control.Monad
@@ -21,6 +20,8 @@ import Control.Concurrent
 import Database.Persist.GenericSql
 import Data.Maybe
 import qualified Data.Set as Set
+import Control.Monad.Logger (MonadLogger)
+import Control.Monad.Trans.Resource (MonadResource, runResourceT)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -89,7 +90,7 @@ getApplicationDev =
         }
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
-getHomepageProfs pool = flip runSqlPool pool $ do
+getHomepageProfs pool = runResourceT $ flip runSqlPool pool $ do
     users <-
         selectList [ UserVerifiedEmail ==. True
                    , UserVisible ==. True
@@ -100,7 +101,7 @@ getHomepageProfs pool = flip runSqlPool pool $ do
     fmap catMaybes $ mapM userToProfile users
 
 getPublicProfs :: ConnectionPool -> IO [Profile]
-getPublicProfs pool = flip runSqlPool pool $ do
+getPublicProfs pool = runResourceT $ flip runSqlPool pool $ do
     users <-
         selectList [ UserVerifiedEmail ==. True
                    , UserVisible ==. True
@@ -119,7 +120,7 @@ fillProfs pool hprofs pprofs = do
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
 
-userToProfile :: (Functor (b m), PersistUnique b m, b ~ SqlPersist) => Entity User -> b m (Maybe Profile)
+userToProfile :: (MonadLogger m, MonadResource m) => Entity User -> SqlPersist m (Maybe Profile)
 userToProfile (Entity uid u) =
     case userEmail u of
         Nothing -> return Nothing

@@ -133,7 +133,7 @@ filterForm my = renderTable $ (\a b c d e f g _ -> Filter a b c d e $ Location <
 
 yearField :: Int -> Int -> Field sub master Int
 yearField minY maxY = Field
-    { fieldParse = \ss -> return $
+    { fieldParse = \ss _ -> return $
         case ss of
             [""] -> Right Nothing
             [s] ->
@@ -149,6 +149,7 @@ yearField minY maxY = Field
          in toWidget [hamlet|
 <input id="#{theId}" name="#{name}" type="number" min="#{show minY}" max="#{show maxY}" step="1" :isReq:required="" value="#{val}">
 |]
+    , fieldEnctype = UrlEncoded
     }
 
 getUsersR :: Handler RepHtmlJson
