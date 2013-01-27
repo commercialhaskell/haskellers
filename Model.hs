@@ -2,7 +2,8 @@ module Model where
 
 import Prelude
 import Yesod
-import Data.Text (Text)
+import Data.Text (Text, append)
+import Data.Char (isUpper)
 import qualified Data.Text as T
 import Data.Time (UTCTime, Day)
 import Database.Persist.Quasi
@@ -41,7 +42,12 @@ instance ToMarkup Employment where toMarkup = toMarkup . prettyEmployment
 -- at:
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith upperCaseSettings "config/models")
+    $(persistFileWith upperCaseSettings
+        { psToDBName = \t ->
+            if not (T.null t) && isUpper (T.head t)
+                then "Haskellers__" `append` psToDBName upperCaseSettings t
+                else psToDBName upperCaseSettings t
+        } "config/models")
 
 userFullName' :: User -> Text
 userFullName' u =
