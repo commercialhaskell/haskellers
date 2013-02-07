@@ -18,3 +18,9 @@ td
 #desc
     margin: 10px 20px
     padding: 3px
+    p
+        line-height: 1.4em
+    ul
+        padding-left: 40px
+    li
+        list-style: disc
