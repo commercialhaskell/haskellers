@@ -20,8 +20,9 @@ import Control.Concurrent
 import Database.Persist.GenericSql
 import Data.Maybe
 import qualified Data.Set as Set
-import Control.Monad.Logger (MonadLogger)
+import Control.Monad.Logger (MonadLogger, runNoLoggingT)
 import Control.Monad.Trans.Resource (MonadResource, runResourceT)
+import System.Timeout
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -66,15 +67,17 @@ makeFoundation conf = do
               Database.Persist.Store.loadConfig >>=
               Database.Persist.Store.applyEnv
     p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
-    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    runNoLoggingT $ Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
 
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
     if production
         then do
             _ <- forkIO $ forever $ do
-                _ <- fillProfs p hprofs pprofs
-                threadDelay (1000 * 1000 * 60 * 5)
+                _ <- forkIO $ do
+                    _ <- timeout (1000 * 1000 * 60 * 2) $ fillProfs p hprofs pprofs
+                    return ()
+                threadDelay (1000 * 1000 * 60 * 10)
             return ()
         else fillProfs p hprofs pprofs
 
@@ -90,7 +93,7 @@ getApplicationDev =
         }
 
 getHomepageProfs :: ConnectionPool -> IO [Profile]
-getHomepageProfs pool = runResourceT $ flip runSqlPool pool $ do
+getHomepageProfs pool = runNoLoggingT $ runResourceT $ flip runSqlPool pool $ do
     users <-
         selectList [ UserVerifiedEmail ==. True
                    , UserVisible ==. True
@@ -101,7 +104,7 @@ getHomepageProfs pool = runResourceT $ flip runSqlPool pool $ do
     fmap catMaybes $ mapM userToProfile users
 
 getPublicProfs :: ConnectionPool -> IO [Profile]
-getPublicProfs pool = runResourceT $ flip runSqlPool pool $ do
+getPublicProfs pool = runNoLoggingT $ runResourceT $ flip runSqlPool pool $ do
     users <-
         selectList [ UserVerifiedEmail ==. True
                    , UserVisible ==. True
