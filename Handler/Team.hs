@@ -40,14 +40,14 @@ canAddTeam ma = do
         Nothing -> return False
         Just (Entity _ u) -> return $ userVerifiedEmail u && userReal u && not (userBlocked u)
 
-teamFormlet :: Maybe Team -> Html -> MForm Haskellers Haskellers (FormResult Team, Widget)
+teamFormlet :: Maybe Team -> Form Team
 teamFormlet mt = renderTable $ Team
     <$> areq textField "Name" (fmap teamName mt)
     <*> areq nicHtmlField "Description"
             { fsId = Just "team-desc"
             } (fmap teamDesc mt)
 
-packageFormlet :: TeamId -> Maybe TeamPackage -> Html -> MForm Haskellers Haskellers (FormResult TeamPackage, Widget)
+packageFormlet :: TeamId -> Maybe TeamPackage -> Form TeamPackage
 packageFormlet tid mtp = renderTable $ TeamPackage
     <$> pure tid
     <*> areq textField "Name" (fmap teamPackageName mtp)
@@ -66,7 +66,7 @@ getTeamsR = do
         )
     let teams = reverse $ sortBy (comparing snd) teams'
     defaultLayout $ do
-        addWidget $ loginStatus ma
+        toWidget $ loginStatus ma
         $(widgetFile "teams")
 
 postTeamsR :: Handler RepHtml
@@ -82,7 +82,7 @@ postTeamsR = do
             lift $ setMessage "Your new group has been created"
             lift $ redirect $ TeamR tid
         _ -> defaultLayout $ do
-            addCassius $(cassiusFile "templates/teams.cassius")
+            toWidget $(cassiusFile "templates/teams.cassius")
             $(widgetFile "teams-form")
 
 canEditTeam :: TeamId -> Handler (Bool, Maybe TeamUserStatus)
@@ -119,10 +119,10 @@ getTeamR tid = do
     ((_, form), enctype) <- runFormPost $ teamFormlet $ Just t
     ((_, addPackage), _) <- runFormPost $ packageFormlet tid Nothing
     defaultLayout $ do
-        addWidget $ loginStatus ma
-        addCassius $(cassiusFile "templates/teams.cassius")
+        toWidget $ loginStatus ma
+        toWidget $(cassiusFile "templates/teams.cassius")
         $(widgetFile "team")
-        addHamletHead [hamlet|<link href="@{TeamFeedR tid}" type="application/atom+xml" rel="alternate" title="#{teamName t} Updates">
+        toWidgetHead [hamlet|<link href="@{TeamFeedR tid}" type="application/atom+xml" rel="alternate" title="#{teamName t} Updates">
 |]
 
 postTeamR :: TeamId -> Handler RepHtml
@@ -137,7 +137,7 @@ postTeamR tid = do
             setMessage "Group information updated"
             redirect $ TeamR tid
         _ -> defaultLayout $ do
-            addCassius $(cassiusFile "templates/teams.cassius")
+            toWidget $(cassiusFile "templates/teams.cassius")
             $(widgetFile "team-form")
 
 postLeaveTeamR :: TeamId -> Handler ()
@@ -230,7 +230,7 @@ postTeamUnadminR tid uid = do
         _ -> notFound
     redirect $ TeamR tid
 
-getTeamFeedR :: TeamId -> Handler RepAtomRss
+getTeamFeedR :: TeamId -> Handler TypedContent
 getTeamFeedR tid = runDB $ do
     t <- get404 tid
     news <- selectList [TeamNewsTeam ==. tid] [Desc TeamNewsWhen, LimitTo 20]
@@ -249,7 +249,7 @@ getTeamFeedR tid = runDB $ do
         , feedAuthor = "Haskellers.com"
         }
 
-getUserFeedR :: UserId -> Handler RepAtomRss
+getUserFeedR :: UserId -> Handler TypedContent
 getUserFeedR uid = runDB $ do
     _ <- get404 uid
     tids <- fmap (map $ teamUserTeam . entityVal) $ selectList [TeamUserUser ==. uid] []

@@ -13,7 +13,7 @@
             <a href="http://www.haskell.org/">Haskell
             <form method=post action=@{LangR}>
               $maybe cr <- current
-                <input type=hidden name=dest value=@{tm cr}>
+                <input type=hidden name=dest value=@{cr}>
               <select name=lang>
                 <option>-- Language
                 $forall lang <- langs

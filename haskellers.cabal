@@ -65,15 +65,14 @@ library
 
     build-depends: base                          >= 4          && < 5
                  -- , yesod-platform                >= 1.1        && < 1.2
-                 , yesod                         >= 1.1        && < 1.2
-                 , yesod-core                    >= 1.1        && < 1.2
-                 , yesod-auth                    >= 1.1        && < 1.4
-                 , yesod-auth-fb                 >= 1.4        && < 1.5
-                 , yesod-static                  >= 1.1        && < 1.2
-                 , yesod-default                 >= 1.1.1      && < 1.2
-                 , yesod-form                    >= 1.2        && < 1.3
-                 , yesod-newsfeed                >= 1.1        && < 1.2
-                 , yesod-test                    >= 0.3        && < 0.4
+                 , yesod                         >= 1.2        && < 1.3
+                 , yesod-core                    >= 1.1        && < 1.3
+                 , yesod-auth                    >= 1.2        && < 1.4
+                 , yesod-auth-fb                 >= 1.5        && < 1.6
+                 , yesod-static                  >= 1.1        && < 1.3
+                 , yesod-form                    >= 1.2        && < 1.4
+                 , yesod-newsfeed                >= 1.1        && < 1.3
+                 , yesod-test                    >= 0.3        && < 0.5
                  , clientsession                 >= 0.8        && < 0.9
                  , bytestring                    >= 0.9        && < 0.11
                  , text                          >= 0.11.2     && < 0.12
@@ -94,6 +93,7 @@ library
                  , blaze-html                    >= 0.5        && < 0.7
                  , data-default
                  , time
+                 , transformers
                  , containers
                  , old-locale
                  , stm
@@ -111,6 +111,8 @@ library
                  , mime-mail-ses
                  , resourcet
                  , monad-logger
+                 , aeson
+                 , shakespeare-css
 
 executable         haskellers
     if flag(library-only)
@@ -120,7 +122,7 @@ executable         haskellers
     hs-source-dirs:    dist
     build-depends:     base
                      , haskellers
-                     , yesod-default
+                     , yesod
 
     ghc-options:       -threaded -O2
 
@@ -133,5 +135,5 @@ test-suite test
     build-depends: base
                  , haskellers
                  , yesod-test
-                 , yesod-default
+                 , yesod
                  , yesod-core

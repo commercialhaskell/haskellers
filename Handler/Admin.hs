@@ -77,7 +77,7 @@ getMessagesR = do
         setTitle "Admin Messages"
         $(widgetFile "messages")
 
-getMessagesFeedR :: Handler RepAtomRss
+getMessagesFeedR :: Handler TypedContent
 getMessagesFeedR = do
     messages <- runDB $ selectList [MessageClosed ==. False] [Desc MessageWhen, LimitTo 10]
     updated <-

@@ -35,6 +35,7 @@ import Yesod.Auth.Facebook
 import Facebook (Credentials (Credentials))
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
+import Control.Monad.Trans.Class (lift)
 import Network.HTTP.Conduit (Manager)
 import Control.Monad (unless)
 import Data.Char (isSpace)
@@ -123,9 +124,9 @@ mkMessage "App" "messages" "en"
 -- split these actions into two functions and place them in separate files.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm App App (FormResult x, Widget)
+type Form x = Html -> MForm Handler (FormResult x, Widget)
 
-maybeAuth' :: GHandler s App (Maybe ((UserId, User), Maybe Username))
+maybeAuth' :: Handler (Maybe ((UserId, User), Maybe Username))
 maybeAuth' = do
     x <- maybeAuth
     case x of
@@ -134,7 +135,7 @@ maybeAuth' = do
             y <- runDB $ getBy $ UniqueUsernameUser uid
             return $ Just ((uid, u), fmap entityVal y)
 
-requireAuth' :: GHandler s App ((UserId, User), Maybe Username)
+requireAuth' :: Handler ((UserId, User), Maybe Username)
 requireAuth' = do
     Entity uid u <- requireAuth
     y <- runDB $ getBy $ UniqueUsernameUser uid
@@ -167,9 +168,8 @@ instance Yesod App where
         y <- getYesod
         (title', parents) <- breadcrumbs
         current <- getCurrentRoute
-        tm <- getRouteToMaster
         let bodyClass =
-                case fmap tm current of
+                case current of
                     Just UsersR -> "find-haskeller"
                     Just UserR{} -> "find-haskeller"
                     Just JobsR -> "find-job"
@@ -179,12 +179,12 @@ instance Yesod App where
                     Just TopicsR{} -> "teams"
                     Just TopicR{} -> "teams"
                     _ -> "overview" :: T.Text
-        let title = if fmap tm current == Just RootR
+        let title = if current == Just RootR
                         then "Haskellers"
                         else title'
         let isCurrent :: Route App -> Bool
-            isCurrent RootR = fmap tm current == Just RootR
-            isCurrent x = Just x == fmap tm current || x `elem` map fst parents
+            isCurrent RootR = current == Just RootR
+            isCurrent x = Just x == current || x `elem` map fst parents
         let navbarSection :: (String, [(String, Route App)])
                           -> HtmlUrlI18n AppMessage (Route App)
             navbarSection section = $(ihamletFile "templates/navbar-section.hamlet")
@@ -200,7 +200,7 @@ instance Yesod App where
             toWidget $(Settings.juliusFile "templates/analytics.julius")
             toWidget $(Settings.juliusFile "templates/default-layout.julius")
             addScriptRemote "https://browserid.org/include.js"
-            addWidget widget
+            widget
         let login' = $(ihamletFile "templates/login.hamlet")
         let langs :: [(Text, Text)]
             langs =
@@ -215,9 +215,7 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = do
-        key <- getKey "config/client_session_key.aes"
-        return . Just $ clientSessionBackend key 120
+    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend 120 "config/client_session_key.aes"
 
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticRoot setting in Settings.hs
@@ -482,12 +480,9 @@ instance YesodAuth App where
 --
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 
-    loginHandler = defaultLayout $ do
-        [whamlet|\
-<div style="width:500px;margin:0 auto">^{login}
-|]
+    loginHandler = lift $ defaultLayout $ [whamlet|<div style="width:500px;margin:0 auto">^{login}|]
 
-login :: GWidget s App ()
+login :: Widget
 login = toWidget $ {-addCassius $(cassiusFile "login") >> -}$(hamletFile "templates/login.hamlet")
 
 userR :: ((UserId, User), Maybe Username) -> Route App
@@ -585,7 +580,7 @@ userFullName =
 browserIdDest :: AuthRoute
 browserIdDest = PluginR "browserid" []
 
-fixBrowserId :: Creds App -> GHandler sub App ()
+fixBrowserId :: Creds App -> Handler ()
 fixBrowserId creds
     | credsPlugin creds == "browserid" = runDB $ do
         liftIO $ putStrLn "here i am"

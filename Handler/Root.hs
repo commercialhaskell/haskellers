@@ -27,6 +27,7 @@ import Data.Text.ICU.Normalize
 import Data.Text (Text, pack, unpack)
 import Data.List (sortBy)
 import Data.Ord (comparing)
+import Data.Aeson (object)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -68,8 +69,8 @@ getRootR = do
         addStylesheetEither $ urlJqueryUiCss y
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         addScriptRemote "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"
-        addCassius $(cassiusFile "templates/jobs.cassius")
-        addCassius $(cassiusFile "templates/users.cassius")
+        toWidget $(cassiusFile "templates/jobs.cassius")
+        toWidget $(cassiusFile "templates/users.cassius")
         $(widgetFile "homepage")
 
 data Filter = Filter
@@ -120,7 +121,7 @@ applyFilter f p = and
             Just FullPartTime -> True
             _ -> False
 
-filterForm :: Int -> Html -> MForm Haskellers Haskellers (FormResult Filter, Widget)
+filterForm :: Int -> Form Filter
 filterForm my = renderTable $ (\a b c d e f g _ -> Filter a b c d e $ Location <$> f <*> g)
     <$> aopt textField "Name" Nothing
     <*> aopt (yearField 1980 my) "Started using Haskell no earlier than" Nothing
@@ -131,7 +132,7 @@ filterForm my = renderTable $ (\a b c d e f g _ -> Filter a b c d e $ Location <
     <*> aopt doubleField "Latitude" { fsId = Just "latitude" } Nothing
     <*> aopt textField "Order by proximity to:" { fsId = Just "location" } Nothing
 
-yearField :: Int -> Int -> Field sub master Int
+yearField :: Int -> Int -> Field Handler Int
 yearField minY maxY = Field
     { fieldParse = \ss _ -> return $
         case ss of
@@ -152,7 +153,7 @@ yearField minY maxY = Field
     , fieldEnctype = UrlEncoded
     }
 
-getUsersR :: Handler RepHtmlJson
+getUsersR :: Handler TypedContent
 getUsersR = do
     y <- getYesod
     allProfs <- liftIO $ readIORef $ publicProfiles y
@@ -183,7 +184,7 @@ getUsersR = do
     let maxHaskeller = minHaskeller + length profs - 1
     let noFilter = (UsersR, [("page", T.pack $ show page)])
     render <- getUrlRender
-    flip defaultLayoutJson (json render profs) $ do
+    flip defaultLayoutJson (return $ json render profs) $ do
         setTitle "Browsing Haskellers"
         addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
         $(widgetFile "users")
@@ -206,7 +207,7 @@ gravatar s x = T.concat
     hash = pack $ show $ md5 $ L.fromString $ map toLower $ trim $ unpack x
     trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
-getLocationsR :: Handler RepJson
+getLocationsR :: Handler Value
 getLocationsR = do
     render <- getUrlRender
     users <- runDB $ selectList [ UserLongitude !=. Nothing
@@ -216,7 +217,7 @@ getLocationsR = do
                                 , UserBlocked ==. False
                                 ] []
     cacheSeconds 3600
-    jsonToRepJson $ object
+    return $ object
         ["locations" .= array (map (go render) users)]
   where
     go r (Entity uid u@User

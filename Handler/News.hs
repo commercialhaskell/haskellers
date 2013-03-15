@@ -15,7 +15,7 @@ import Handler.Admin (requireAdmin)
 import Data.Time (getCurrentTime)
 import Data.Text (Text)
 
-newsForm :: Html -> MForm Haskellers Haskellers (FormResult (Text, Html), Widget)
+newsForm :: Form (Text, Html)
 newsForm = renderTable $ (,)
     <$> areq textField "Title" Nothing
     <*> areq nicHtmlField "Content"
@@ -66,10 +66,10 @@ getNewsItemR nid = do
     n <- runDB $ get404 nid
     defaultLayout $ do
         setTitle $ toHtml $ newsTitle n
-        addCassius $(cassiusFile "templates/news.cassius")
+        toWidget $(cassiusFile "templates/news.cassius")
         $(widgetFile "news-item")
 
-getNewsFeedR :: Handler RepAtomRss
+getNewsFeedR :: Handler TypedContent
 getNewsFeedR = do
     cacheSeconds 7200
     news@(newest:_) <- runDB $ selectList [] [Desc NewsWhen, LimitTo 10]

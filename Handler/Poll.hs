@@ -51,7 +51,7 @@ oiPercent real oi ois
     total = sum $ map f ois
     f = if real then oiRealCount else oiCount
 
-toOI :: Entity PollOption -> YesodDB Haskellers Haskellers OptInfo
+toOI :: Entity PollOption -> YesodDB Haskellers OptInfo
 toOI (Entity poid po) = do
     x <- count [PollAnswerOption ==. poid]
     y <- count [PollAnswerOption ==. poid, PollAnswerReal ==. True]

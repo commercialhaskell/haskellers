@@ -17,7 +17,7 @@ import Control.Monad (unless)
 import qualified Data.Text as T
 import Text.Hamlet (shamlet)
 
-topicFormlet :: TeamId -> UserId -> UTCTime -> Html -> MForm Haskellers Haskellers (FormResult Topic, Widget)
+topicFormlet :: TeamId -> UserId -> UTCTime -> Form Topic
 topicFormlet tid uid now = renderTable $ Topic
     <$> pure tid
     <*> pure now
@@ -40,7 +40,7 @@ getTopicsR tid = do
                 return $ Just form
             _ -> return Nothing
     defaultLayout $ do
-        addWidget $ loginStatus ma
+        loginStatus ma
         $(widgetFile "topics")
 
 postTopicsR :: TeamId -> Handler RepHtml
@@ -72,13 +72,13 @@ postTopicsR tid = do
                 <input type="submit" value="Create topic">
 |]
 
-statusFormlet :: TopicStatus -> Html -> MForm Haskellers Haskellers (FormResult TopicStatus, Widget)
+statusFormlet :: TopicStatus -> Form TopicStatus
 statusFormlet =
     renderTable . areq (selectFieldList opts) "New status" . Just
   where
     opts = map (T.pack . show &&& id) [minBound..maxBound]
 
-messageForm :: Html -> MForm Haskellers Haskellers (FormResult Html, Widget)
+messageForm :: Form Html
 messageForm = renderTable $ areq nicHtmlField "Your message" Nothing
 
 getTopicR :: TopicId -> Handler RepHtml
@@ -108,7 +108,7 @@ getTopicR toid = do
         return ((mid, m), mu)
         )
     defaultLayout $ do
-        addWidget $ loginStatus ma
+        loginStatus ma
         $(widgetFile "topic")
 
 postTopicR :: TopicId -> Handler ()

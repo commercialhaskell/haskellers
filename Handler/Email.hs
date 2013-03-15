@@ -68,7 +68,7 @@ postSendVerifyR = do
                     , sesSecretKey = secret
                     }
             h <- getYesod
-            lift $ renderSendMailSES (httpManager h) ses Mail
+            renderSendMailSES (httpManager h) ses Mail
                 { mailHeaders =
                     [ ("Subject", "Verify your email address")
                     ]

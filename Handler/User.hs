@@ -28,19 +28,19 @@ import qualified Data.ByteString.Base64 as B64
 import Crypto.Cipher.AES (initKey, encryptCBC, IV (IV))
 import Network.HTTP.Types (status301)
 
-getByIdentR :: Handler RepJson
+getByIdentR :: Handler Value
 getByIdentR = do
     identS <- runInputGet $ ireq textField "ident"
     x <- runDB $ getBy $ UniqueIdent identS
     render <- getUrlRender
     case x of
         Nothing -> notFound
-        Just (Entity _ (Ident { identUser = uid })) -> jsonToRepJson $ object
+        Just (Entity _ (Ident { identUser = uid })) -> return $ object
             [ "id"  .= toPathPiece (uid :: UserId)
             , "url" .= render (UserR $ toPathPiece uid)
             ]
 
-getUserR :: Text -> Handler RepHtmlJson
+getUserR :: Text -> Handler TypedContent
 getUserR input = do
     (uid, u) <-
         case Data.Text.Read.decimal input :: Either String (Int, Text) of
@@ -94,7 +94,7 @@ getUserR input = do
     let packdeps = "http://packdeps.haskellers.com/specific/?" ++
             intercalate "&"
                 (map (\x -> "package=" ++ percentEncode x) packages)
-    flip defaultLayoutJson json $ do
+    flip defaultLayoutJson (return json) $ do
         setTitle $ toHtml $ "Haskellers profile for " `mappend` userFullName u
         addScriptEither $ urlJqueryJs y
         $(widgetFile "user")
@@ -146,7 +146,7 @@ getFlagR uid = do
     let userLink = userR ((uid, u), Nothing)
     defaultLayout $ do
         setTitle "Report a user"
-        addWidget $(widgetFile "flag")
+        $(widgetFile "flag")
 
 postFlagR :: UserId -> Handler ()
 postFlagR uid = do

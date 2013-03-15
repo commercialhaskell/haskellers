@@ -17,7 +17,7 @@ User
     longitude Double Maybe Ne
     latitude Double Maybe Ne
     googlePlus Text Maybe
-    deriving Show
+    deriving Show Typeable
 Username
     user UserId
     username Text

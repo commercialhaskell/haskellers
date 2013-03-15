@@ -17,7 +17,7 @@ import Control.Monad (unless)
 import Yesod.Feed
 import Yesod.Auth
 
-jobFormlet :: UserId -> UTCTime -> Maybe Job -> Html -> MForm Haskellers Haskellers (FormResult Job, Widget)
+jobFormlet :: UserId -> UTCTime -> Maybe Job -> Form Job
 jobFormlet uid now mj = renderTable $ Job
     <$> pure (fromMaybe uid (fmap jobPostedBy mj))
     <*> pure (fromMaybe now (fmap jobPostedAt mj))
@@ -54,7 +54,7 @@ getJobsR = do
                         return $ Just form
                     else return Nothing
     defaultLayout $ do
-        addCassius $(cassiusFile "templates/login-status.cassius")
+        toWidget $(cassiusFile "templates/login-status.cassius")
         $(widgetFile "jobs")
 
 postJobsR :: Handler RepHtml
@@ -82,7 +82,7 @@ getJobR jid = do
     poster <- runDB $ get404 $ jobPostedBy job
     defaultLayout $(widgetFile "job")
 
-getJobsFeedR :: Handler RepAtomRss
+getJobsFeedR :: Handler TypedContent
 getJobsFeedR = do
     cacheSeconds 7200
     now <- liftIO getCurrentTime

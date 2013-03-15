@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 module Model where
 
 import Prelude
@@ -8,6 +9,7 @@ import qualified Data.Text as T
 import Data.Time (UTCTime, Day)
 import Database.Persist.Quasi
 import Text.Blaze.Html (ToMarkup (..))
+import Data.Typeable (Typeable)
 
 data Employment = FullTime | PartTime | FullPartTime | NotLooking
     deriving (Show, Read, Eq, Enum, Bounded)
@@ -41,7 +43,7 @@ instance ToMarkup Employment where toMarkup = toMarkup . prettyEmployment
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll"]
+share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"]
     $(persistFileWith upperCaseSettings
         { psToDBName = \t ->
             if not (T.null t) && isUpper (T.head t)

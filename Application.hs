@@ -53,7 +53,7 @@ mkYesodDispatch "App" resourcesApp
 makeApplication :: AppConfig DefaultEnv Extra -> IO Application
 makeApplication conf = do
     foundation <- makeFoundation conf
-    app <- toWaiAppPlain foundation
+    app <- toWaiApp foundation
     return $ logWare app
   where
     logWare   = if development then logStdoutDev

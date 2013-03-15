@@ -9,7 +9,7 @@ module Handler.Skills
 import Import
 import Handler.Admin (requireAdmin)
 
-skillFormlet :: Html -> MForm Haskellers Haskellers (FormResult Skill, Widget)
+skillFormlet :: Form Skill
 skillFormlet = renderTable $ Skill
     <$> areq textField "Skill name" { fsId = Just "skill-name" } Nothing
 
@@ -24,7 +24,7 @@ postAllSkillsR = do
         _ -> setMessage "Invalid skill entered"
     redirect AllSkillsR
 
-getAllSkillsR :: Handler RepHtmlJson
+getAllSkillsR :: Handler TypedContent
 getAllSkillsR = do
     mu <- maybeAuth
     skills' <- runDB $ selectList [] [Asc SkillName] >>= mapM (\(Entity sid s) -> do
@@ -45,7 +45,7 @@ getAllSkillsR = do
     defaultLayoutJson (do
         setTitle "Browse all skills"
         $(widgetFile "skills")
-        ) $ object
+        ) $ return $ object
         [ "skills" .= array (flip map skills' $ \((sid, Skill name), users) ->
             object
                 [ "id"    .= toPathPiece sid
@@ -55,7 +55,7 @@ getAllSkillsR = do
                 ])
         ]
 
-getSkillR :: SkillId -> Handler RepHtmlJson
+getSkillR :: SkillId -> Handler TypedContent
 getSkillR sid = do
     skill <- runDB $ get404 sid
     users <- runDB $ do
@@ -70,7 +70,7 @@ getSkillR sid = do
     defaultLayoutJson (do
         setTitle $ toHtml $ skillName skill
         $(widgetFile "skill")
-        ) $ object
+        ) $ return $ object
         [ "users" .= array (flip map users $ \x@((uid, u), _) -> object
             [ "id"   .= toPathPiece uid
             , "url"  .= render (userR x)

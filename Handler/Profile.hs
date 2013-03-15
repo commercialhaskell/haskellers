@@ -33,7 +33,7 @@ import qualified Data.Text as T
 import Data.Char (isDigit)
 import Yesod.Static
 
-screenNameFormlet :: UserId -> Html -> MForm Haskellers Haskellers (FormResult ScreenName, Widget)
+screenNameFormlet :: UserId -> Form ScreenName
 screenNameFormlet uid = renderTable $ ScreenName
     <$> pure uid
     <*> areq (selectFieldList servopts) "Service" Nothing
@@ -41,7 +41,7 @@ screenNameFormlet uid = renderTable $ ScreenName
   where
     servopts = map (T.pack . show &&& id) [minBound..maxBound]
 
-userForm :: Int -> User -> Html -> MForm Haskellers Haskellers (FormResult User, Widget)
+userForm :: Int -> User -> Form User
 userForm maxY u = renderTable $ User
     <$> areq textField "Full name"
             { fsId = Just "full-name"
