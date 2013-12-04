@@ -119,4 +119,4 @@ postCloseJobR jid = do
             runDB $ update jid [JobOpen =. False]
             setMessage "Job posting has been closed"
             redirect $ JobR jid
-        else permissionDenied "You did not created this job."
+        else permissionDenied "You did not create this job."
