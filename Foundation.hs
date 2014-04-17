@@ -40,9 +40,9 @@ import Network.HTTP.Conduit (Manager)
 import Control.Monad (unless)
 import Data.Char (isSpace)
 import qualified Settings
-import qualified Database.Persist.Store
+import qualified Database.Persist
 import Settings.StaticFiles
-import Database.Persist.GenericSql
+import Database.Persist.Sql
 import Settings (widgetFile, Extra (..))
 import Model hiding (userFullName)
 import qualified Model (userFullName)
@@ -65,6 +65,7 @@ import Control.Concurrent.STM
 import qualified Data.Map as Map
 import System.IO.Unsafe
 import Data.IORef (IORef)
+import Yesod.Facebook
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -73,7 +74,7 @@ import Data.IORef (IORef)
 data App = App
     { settings :: AppConfig DefaultEnv Extra
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
     , persistConfig :: Settings.PersistConfig
     , homepageProfiles :: IORef ([Profile], Int)
@@ -385,7 +386,7 @@ instance YesodPersist App where
     type YesodPersistBackend App = SqlPersist
     runDB f = do
         master <- getYesod
-        Database.Persist.Store.runPool
+        Database.Persist.runPool
             (persistConfig master)
             f
             (connPool master)
@@ -462,13 +463,8 @@ instance YesodAuth App where
             return ()
 
     authPlugins _ = [ authOpenId OPLocal []
-                  , authFacebook
-                        (Credentials
-                            "App.com"
-                            "157813777573244"
-                            "327e6242e855954b16f9395399164eec")
-                        []
-                  , authBrowserId
+                  , authFacebook []
+                  , authBrowserId def
                   ]
 
     authHttpManager = httpManager
@@ -481,6 +477,13 @@ instance YesodAuth App where
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 
     loginHandler = lift $ defaultLayout $ [whamlet|<div style="width:500px;margin:0 auto">^{login}|]
+
+instance YesodFacebook App where
+    fbCredentials _ = Credentials
+        "App.com"
+        "157813777573244"
+        "327e6242e855954b16f9395399164eec"
+    fbHttpManager = httpManager
 
 login :: Widget
 login = toWidget $ {-addCassius $(cassiusFile "login") >> -}$(hamletFile "templates/login.hamlet")

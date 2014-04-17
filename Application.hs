@@ -12,12 +12,12 @@ import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Handlers
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
-import qualified Database.Persist.Store
-import Network.HTTP.Conduit (newManager, def)
+import qualified Database.Persist
+import Network.HTTP.Conduit (newManager, conduitManagerSettings)
 import Data.IORef
 import Control.Monad
 import Control.Concurrent
-import Database.Persist.GenericSql
+import Database.Persist.Sql
 import Data.Maybe
 import qualified Data.Set as Set
 import Control.Monad.Logger (MonadLogger, runNoLoggingT)
@@ -61,13 +61,13 @@ makeApplication conf = do
 
 makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
-    manager <- newManager def
+    manager <- newManager conduitManagerSettings
     s <- staticSite
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
-              Database.Persist.Store.loadConfig >>=
-              Database.Persist.Store.applyEnv
-    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
-    runNoLoggingT $ Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+              Database.Persist.loadConfig >>=
+              Database.Persist.applyEnv
+    p <- Database.Persist.createPoolConfig (dbconf :: Settings.PersistConfig)
+    runNoLoggingT $ Database.Persist.runPool dbconf (runMigration migrateAll) p
 
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
@@ -88,7 +88,7 @@ getApplicationDev :: IO (Int, Application)
 getApplicationDev =
     defaultDevelApp loader makeApplication
   where
-    loader = loadConfig (configSettings Development)
+    loader = Yesod.Default.Config.loadConfig (configSettings Development)
         { csParseExtra = parseExtra
         }
 

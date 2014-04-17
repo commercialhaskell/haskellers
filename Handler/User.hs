@@ -25,7 +25,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Read
 import qualified Data.ByteString.Base64 as B64
-import Crypto.Cipher.AES (initKey, encryptCBC, IV (IV))
+import qualified Crypto.Cipher.AES as AES
 import Network.HTTP.Types (status301)
 
 getByIdentR :: Handler Value
@@ -136,9 +136,9 @@ pad s =
 
 encrypt :: S.ByteString -> IO S.ByteString
 encrypt bs = do
-    let key = initKey mailhidePrivate
+    let key = AES.initKey mailhidePrivate
     let iv = S.replicate 16 0
-    return $ encryptCBC key (IV iv) bs
+    return $ AES.encryptCBC key iv bs
 
 getFlagR :: UserId -> Handler RepHtml
 getFlagR uid = do

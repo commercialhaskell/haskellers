@@ -36,7 +36,8 @@ getNewsR = do
         setTitle "Haskellers News Archive"
         $(widgetFile "news")
   where
-    newsAdmin = $(cassiusFile "templates/news-admin.cassius")
+    newsAdmin :: Widget
+    newsAdmin = toWidget $(cassiusFile "templates/news-admin.cassius")
 
 postNewsR :: Handler RepHtml
 postNewsR = do

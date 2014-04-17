@@ -5,7 +5,7 @@ $forall Entity key item <- news
             \ #{fuzzyDiffTime (newsWhen item)}
 $maybe u <- mu
     $if userAdmin (entityVal u)
-        \^{toWidget newsAdmin}
+        \^{newsAdmin}
         <form method="post" action="@{NewsR}" .add-news>
           <h2>Post news item (admins only)
           <table>
