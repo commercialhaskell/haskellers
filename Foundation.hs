@@ -412,7 +412,9 @@ instance YesodAuth App where
         x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
             (Just (Entity _ i), Nothing) -> do
-                runDB $ addBIDEmail (identUser i)
+                runDB $ do
+                    addBIDEmail (identUser i)
+                    addClaimed (identUser i) creds
                 return $ Just $ identUser i
             (Nothing, Nothing) -> runDB $ do
                 uid <- insert $ User

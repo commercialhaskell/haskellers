@@ -2,4 +2,3 @@ exec: ../dist/build/haskellers/haskellers
 args:
     - production
 host: www.haskellers.com
-copy-to: ubuntu@www.yesodweb.com:/opt/keter/incoming
