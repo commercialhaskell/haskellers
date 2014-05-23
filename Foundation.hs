@@ -409,7 +409,11 @@ instance YesodAuth App where
     getAuthId creds = do
         fixBrowserId creds
         muid <- maybeAuth
-        x <- runDB $ getBy $ UniqueIdent $ credsIdent creds
+        x <- runDB $ do
+            x1 <- getBy $ UniqueIdent $ credsIdentClaimed creds
+            case x1 of
+                Just _ -> return x1
+                Nothing -> getBy $ UniqueIdent $ credsIdent creds
         case (x, muid) of
             (Just (Entity _ i), Nothing) -> do
                 runDB $ do
