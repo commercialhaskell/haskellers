@@ -1,8 +1,8 @@
 # default-layout
-TagLine: Место встречи профессиональных Haskell-программистов
+TagLine: Место встречи профессиональных Хаскель–программистов
 Overview: Обзор
 Groups: Группы
-FindAHaskeller: Найти Haskeller'а
+FindAHaskeller: Найти Хаскелера
 FindAJob: Найти работу
 Bling: Мишура
 FAQ: ЧаВо
@@ -12,7 +12,7 @@ YourProfile: Ваш профиль
 Logout: Выйти
 Login: Войти
 WelcomeUser name@Text: Добро пожаловать, #{name}
-IAmAHaskeller: Я Haskeller!
+IAmAHaskeller: Я Хаскелер!
 LoginWith: Войти с помощью
 
 #teams
@@ -21,6 +21,6 @@ AddGroupLong: Добавить новую группу по интересам
 AddGroupShort: Добавить группу
 
 #polls
-Polls: Голосования
+Polls: Опросы
 NoPolls: Ни одного опроса не было создано.
-PollAsked time@UTCTime: Голосование от #{prettyTime time}
+PollAsked time@UTCTime: Опрос от #{prettyTime time}

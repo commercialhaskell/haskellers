@@ -30,7 +30,7 @@
                     <a id="find_haskeller" href="@{UsersR}">Find<br>a Haskeller
                     <a id="find_job" href="@{JobsR}">_{MsgFindAJob}
                 <div id="secondary_menu">
-                    <a href=@{PollsR}>Polls
+                    <a href=@{PollsR}>_{MsgPolls}
                     <a href=@{BlingR}>_{MsgBling}
                     <a href="@{FaqR}">_{MsgFAQ}
                     <a href="@{NewsR}">_{MsgNewsArchive}
