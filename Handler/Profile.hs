@@ -140,6 +140,9 @@ postDeleteAccountR = do
         updateWhere [MessageRegarding ==. Just uid] [MessageRegarding =. Nothing]
         deleteWhere [ScreenNameUser ==. uid]
         deleteWhere [UsernameUser ==. uid]
+        deleteWhere [JobPostedBy ==. uid]
+        deleteWhere [TeamUserUser ==. uid]
+        deleteWhere [PollAnswerUser ==. uid]
         delete uid
     setMessage "Your account has been deleted."
     redirect RootR

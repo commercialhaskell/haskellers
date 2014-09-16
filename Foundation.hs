@@ -28,7 +28,7 @@ import Prelude
 import Yesod
 import Yesod.Static
 import Yesod.Auth
-import Yesod.Auth.BrowserId
+import Yesod.Auth.BrowserId hiding (forwardUrl)
 import Yesod.Auth.GoogleEmail hiding (forwardUrl)
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook
