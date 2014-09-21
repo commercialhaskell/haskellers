@@ -383,7 +383,7 @@ instance YesodBreadcrumbs App where
 
 -- How to run database actions.
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersist
+    type YesodPersistBackend App = SqlBackend
     runDB f = do
         master <- getYesod
         Database.Persist.runPool
@@ -483,6 +483,8 @@ instance YesodAuth App where
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 
     loginHandler = lift $ defaultLayout $ [whamlet|<div style="width:500px;margin:0 auto">^{login}|]
+
+instance YesodAuthPersist App
 
 instance YesodFacebook App where
     fbCredentials _ = Credentials
