@@ -66,6 +66,7 @@ postSendVerifyR = do
                     , sesTo = [encodeUtf8 email]
                     , sesAccessKey = access
                     , sesSecretKey = secret
+                    , sesRegion = usEast1
                     }
             h <- getYesod
             renderSendMailSES (httpManager h) ses Mail
