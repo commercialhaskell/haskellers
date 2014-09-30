@@ -18,13 +18,10 @@ module Handler.Profile
 
 import Import
 import Handler.Root (yearField)
-import Control.Applicative
 import Handler.Root (gravatar)
 import Yesod.Form.Jquery
-import Settings.StaticFiles (jquery_cookie_js, badge_png)
 import Data.Maybe (isJust)
 import Control.Monad (filterM, forM_, unless)
-import Yesod.Form
 import Yesod.Auth (requireAuthId)
 import Control.Arrow ((&&&))
 import Data.Time
@@ -87,7 +84,7 @@ userForm maxY u = renderTable $ User
     empOpts = map (pack . prettyEmployment &&& id) [minBound..maxBound]
     validGooglePlus t = "https://plus.google.com/" `T.isPrefixOf` t
 
-getProfileR :: Handler RepHtml
+getProfileR :: Handler Html
 getProfileR = do
     Entity uid u <- requireAuth
     now <- liftIO getCurrentTime
@@ -123,7 +120,7 @@ getProfileR = do
     notOne _ = True
     isWeb t = "http://" `T.isPrefixOf` t || "https://" `T.isPrefixOf` t
 
-postProfileR :: Handler RepHtml
+postProfileR :: Handler Html
 postProfileR = getProfileR
 
 postDeleteAccountR :: Handler ()

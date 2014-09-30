@@ -13,12 +13,10 @@ import Network.Mail.Mime.SES
 import System.Random (newStdGen)
 import Data.Maybe (isJust)
 import qualified Data.ByteString.Lazy.UTF8 as LU
-import Settings.StaticFiles (logo_png)
-import Data.Text (Text, pack, unpack)
+import Data.Text (pack, unpack)
 import SESCreds (access, secret)
 import Data.Text.Encoding (encodeUtf8)
 import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
-import Text.Hamlet (shamlet)
 import Yesod.Auth (requireAuthId)
 
 postResetEmailR :: Handler ()

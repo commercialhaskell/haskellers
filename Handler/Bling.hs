@@ -4,9 +4,8 @@ module Handler.Bling
     ) where
 
 import Import
-import Settings.StaticFiles (bling_monads_in_disguise_png)
 
-getBlingR :: Handler RepHtml
+getBlingR :: Handler Html
 getBlingR = defaultLayout $ do
     setTitle "Haskell Bling"
     $(widgetFile "bling")

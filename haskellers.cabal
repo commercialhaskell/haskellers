@@ -79,8 +79,8 @@ library
                  , clientsession                 >= 0.8        && < 0.10
                  , bytestring                    >= 0.9        && < 0.11
                  , text                          >= 0.11.2     && < 1.3
-                 , persistent                    >= 2.0        && < 2.1
-                 , persistent-postgresql         >= 2.0        && < 2.1
+                 , persistent                    >= 2.1        && < 2.2
+                 , persistent-postgresql         >= 2.1        && < 2.2
                  , template-haskell
                  , shakespeare                   >= 2.0        && < 2.1
                  , hjsmin                        >= 0.1        && < 0.2
@@ -108,7 +108,7 @@ library
                  , cryptocipher
                  , base64-bytestring
                  , mime-mail
-                 , mime-mail-ses
+                 , mime-mail-ses                 >= 0.3
                  , resourcet
                  , monad-logger
                  , aeson

@@ -2,13 +2,7 @@ module Model.Types where
 
 import Prelude
 import Yesod
-import Data.Text (Text, append)
-import Data.Char (isUpper)
-import qualified Data.Text as T
-import Data.Time (UTCTime, Day)
-import Database.Persist.Quasi
 import Text.Blaze.Html (ToMarkup (..))
-import Data.Typeable (Typeable)
 
 data Employment = FullTime | PartTime | FullPartTime | NotLooking
     deriving (Show, Read, Eq, Enum, Bounded)

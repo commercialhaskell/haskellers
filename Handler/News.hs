@@ -9,11 +9,9 @@ module Handler.News
 
 import Import
 import Yesod.Feed
-import Control.Applicative
 import Yesod.Form.Nic
 import Handler.Admin (requireAdmin)
 import Data.Time (getCurrentTime)
-import Data.Text (Text)
 
 newsForm :: Form (Text, Html)
 newsForm = renderTable $ (,)
@@ -22,7 +20,7 @@ newsForm = renderTable $ (,)
         { fsId = Just "content"
         } Nothing
 
-getNewsR :: Handler RepHtml
+getNewsR :: Handler Html
 getNewsR = do
     mu <- maybeAuth
     cacheSeconds 3600
@@ -39,7 +37,7 @@ getNewsR = do
     newsAdmin :: Widget
     newsAdmin = toWidget $(cassiusFile "templates/news-admin.cassius")
 
-postNewsR :: Handler RepHtml
+postNewsR :: Handler Html
 postNewsR = do
     requireAdmin
     ((res, form), _) <- runFormPostNoToken newsForm
@@ -61,7 +59,7 @@ postNewsR = do
                 <input type="submit" value="Post">
 |]
 
-getNewsItemR :: NewsId -> Handler RepHtml
+getNewsItemR :: NewsId -> Handler Html
 getNewsItemR nid = do
     cacheSeconds 3600
     n <- runDB $ get404 nid

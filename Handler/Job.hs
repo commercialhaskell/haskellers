@@ -8,7 +8,6 @@ module Handler.Job
     ) where
 
 import Import
-import Control.Applicative
 import Data.Maybe (fromMaybe)
 import Data.Time
 import Yesod.Form.Jquery
@@ -37,7 +36,7 @@ jobFormlet uid now mj = renderTable $ Job
             } (mj >>= jobDescHtml))
     <*> pure True
 
-getJobsR :: Handler RepHtml
+getJobsR :: Handler Html
 getJobsR = do
     mu <- maybeAuth
     now <- liftIO getCurrentTime
@@ -57,7 +56,7 @@ getJobsR = do
         toWidget $(cassiusFile "templates/login-status.cassius")
         $(widgetFile "jobs")
 
-postJobsR :: Handler RepHtml
+postJobsR :: Handler Html
 postJobsR = do
     Entity uid u <- requireAuth
     unless (userVerifiedEmail u) $ permissionDenied "Only users with verified email addresses can add job listings"
@@ -74,7 +73,7 @@ postJobsR = do
     let isUnverEmail = False
     defaultLayout $(widgetFile "jobs")
 
-getJobR :: JobId -> Handler RepHtml
+getJobR :: JobId -> Handler Html
 getJobR jid = do
     job <- runDB $ get404 jid
     muid <- maybeAuthId

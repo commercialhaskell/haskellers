@@ -11,11 +11,9 @@ import Import
 import Handler.Team (loginStatus)
 import Yesod.Form.Nic
 import Data.Time
-import Control.Applicative
 import Control.Arrow
 import Control.Monad (unless)
 import qualified Data.Text as T
-import Text.Hamlet (shamlet)
 
 topicFormlet :: TeamId -> UserId -> UTCTime -> Form Topic
 topicFormlet tid uid now = renderTable $ Topic
@@ -28,7 +26,7 @@ topicFormlet tid uid now = renderTable $ Topic
   where
     opts = map (T.pack . show &&& id) [minBound..maxBound]
 
-getTopicsR :: TeamId -> Handler RepHtml
+getTopicsR :: TeamId -> Handler Html
 getTopicsR tid = do
     topics <- runDB $ selectList [TopicTeam ==. tid] [Desc TopicCreated]
     ma <- maybeAuth
@@ -43,7 +41,7 @@ getTopicsR tid = do
         loginStatus ma
         $(widgetFile "topics")
 
-postTopicsR :: TeamId -> Handler RepHtml
+postTopicsR :: TeamId -> Handler Html
 postTopicsR tid = do
     Entity uid u <- requireAuth
     unless (userVerifiedEmail u && not (userBlocked u)) $ permissionDenied
@@ -81,7 +79,7 @@ statusFormlet =
 messageForm :: Form Html
 messageForm = renderTable $ areq nicHtmlField "Your message" Nothing
 
-getTopicR :: TopicId -> Handler RepHtml
+getTopicR :: TopicId -> Handler Html
 getTopicR toid = do
     ma <- maybeAuth
     to <- runDB $ get404 toid
@@ -133,7 +131,7 @@ postTopicR toid = do
         _ -> setMessage "Invalid input"
     redirect $ TopicR toid
 
-postTopicMessageR :: TopicId -> Handler RepHtml
+postTopicMessageR :: TopicId -> Handler Html
 postTopicMessageR toid = do
     to <- runDB $ get404 toid
     let tid = topicTeam to

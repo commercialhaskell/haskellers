@@ -4,7 +4,6 @@ module Handler.Faq
     ) where
 
 import Import
-import Text.Hamlet (shamlet)
 
 data Faq = Faq
     { hash :: String
@@ -40,7 +39,7 @@ faqs =
 |]
     ]
 
-getFaqR :: Handler RepHtml
+getFaqR :: Handler Html
 getFaqR = defaultLayout $ do
     setTitle "Haskellers Frequently Asked Questions"
     $(widgetFile "faq")

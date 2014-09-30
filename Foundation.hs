@@ -29,13 +29,11 @@ import Yesod
 import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.BrowserId hiding (forwardUrl)
-import Yesod.Auth.GoogleEmail hiding (forwardUrl)
 import Yesod.Auth.OpenId
-import Yesod.Auth.Facebook
+import Yesod.Auth.Facebook.ServerSide
 import Facebook (Credentials (Credentials))
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Control.Monad.Trans.Class (lift)
 import Network.HTTP.Conduit (Manager)
 import Control.Monad (unless)
 import Data.Char (isSpace)
@@ -47,7 +45,6 @@ import Settings (widgetFile, Extra (..))
 import Model hiding (userFullName)
 import qualified Model (userFullName)
 import Text.Jasmine (minifym)
-import Web.ClientSession (getKey)
 import Text.Hamlet
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Data.Monoid (mappend)
@@ -183,12 +180,6 @@ instance Yesod App where
         let title = if current == Just RootR
                         then "Haskellers"
                         else title'
-        let isCurrent :: Route App -> Bool
-            isCurrent RootR = current == Just RootR
-            isCurrent x = Just x == current || x `elem` map fst parents
-        let navbarSection :: (String, [(String, Route App)])
-                          -> HtmlUrlI18n AppMessage (Route App)
-            navbarSection section = $(ihamletFile "templates/navbar-section.hamlet")
         pc <- widgetToPageContent $ do
             case ma of
                 Nothing -> return ()
@@ -212,7 +203,7 @@ instance Yesod App where
                 , ("ru", "Russian")
                 , ("ua", "Ukrainian")
                 ]
-        ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
+        ihamletToHtml $(ihamletFile "templates/default-layout.hamlet")
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
@@ -235,46 +226,6 @@ instance Yesod App where
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
-
-navbar :: [(String, [(String, Route App)])]
-navbar =
-    [ ("General",
-        [ ("Homepage", RootR)
-        , ("FAQ", FaqR)
-        , ("News Archive", NewsR)
-        ]
-      )
-    , ("Find a Haskeller",
-        [ ("Browse Users", UsersR)
-        , ("Browse Skills", AllSkillsR)
-        ]
-      )
-    , ("Find a Job",
-        [ ("Job Listings", JobsR)
-        ]
-      )
-    , ("Special Interest Groups",
-        [ ("All Groups", TeamsR)
-        ]
-      )
-    ]
-
-userbar :: ((UserId, User), Maybe Username)
-        -> [(String, [(String, Route App)])]
-userbar ((uid, u), a) = (:) ("Your Profile",
-    [ ("Edit Profile", ProfileR)
-    , ("View Profile", userR ((uid, u), a))
-    , ("Logout", AuthR LogoutR)
-    ])
-    $ if userAdmin u
-        then [("Administration",
-                [ ("Messages", MessagesR)
-                , ("All Users", AdminUsersR)
-                ])]
-        else []
-
-loginbar :: (String, [(String, Route App)])
-loginbar = ("Account", [("Login", AuthR LoginR)])
 
 instance YesodBreadcrumbs App where
     breadcrumb RootR = return ("Homepage", Nothing)
@@ -463,8 +414,8 @@ instance YesodAuth App where
                 unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
 
-        addClaimed uid creds = do
-            let claimed = credsIdentClaimed creds
+        addClaimed uid creds' = do
+            let claimed = credsIdentClaimed creds'
             _ <- insertBy $ Ident claimed uid
             return ()
 
@@ -503,7 +454,7 @@ userR ((uid, _), _) = UserR $ toPathPiece uid
 debugInfo :: TVar (Map.Map (String, Int) (Int, Int))
 debugInfo = unsafePerformIO $ newTVarIO Map.empty
 
-getDebugR :: Handler RepHtml
+getDebugR :: Handler Html
 getDebugR = do
     l <- Map.toList `fmap` liftIO (atomically $ readTVar debugInfo)
     defaultLayout $ do
@@ -527,7 +478,7 @@ getDebugR = do
 prettyDay :: Day -> String
 prettyDay = formatTime defaultTimeLocale "%B %e, %Y"
 
-addTeamNews :: TeamId -> Text -> Html -> Route App -> SqlPersist Handler ()
+addTeamNews :: TeamId -> Text -> Html -> Route App -> SqlPersistT Handler ()
 addTeamNews tid title content url = do
     render <- lift getUrlRender
     now <- liftIO getCurrentTime

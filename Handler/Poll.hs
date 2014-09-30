@@ -14,14 +14,14 @@ import qualified Data.Text as T
 import Data.Time (getCurrentTime, addUTCTime)
 import Data.Maybe (isJust)
 
-getPollsR :: Handler RepHtml
+getPollsR :: Handler Html
 getPollsR = do
     polls <- runDB $ selectList [] [LimitTo 5, Desc PollCreated]
     mu <- maybeAuth
     let isAdmin = maybe False (userAdmin . entityVal) mu
     defaultLayout $(widgetFile "polls")
 
-postPollsR :: Handler RepHtml
+postPollsR :: Handler Html
 postPollsR = do
     Entity _ u <- requireAuth
     unless (userAdmin u) $ permissionDenied "Must be an admin to create a poll"
@@ -57,7 +57,7 @@ toOI (Entity poid po) = do
     y <- count [PollAnswerOption ==. poid, PollAnswerReal ==. True]
     return $ OptInfo (pollOptionAnswer po) x y
 
-getPollR :: PollId -> Handler RepHtml
+getPollR :: PollId -> Handler Html
 getPollR pollid = do
     mu' <- maybeAuth
     let muid = fmap entityKey mu'
@@ -92,7 +92,7 @@ getPollR pollid = do
             else return Nothing
     defaultLayout $(widgetFile "poll")
 
-postPollR :: PollId -> Handler RepHtml
+postPollR :: PollId -> Handler Html
 postPollR pollid = do
     Entity uid u <- requireAuth
     poll <- runDB $ get404 pollid

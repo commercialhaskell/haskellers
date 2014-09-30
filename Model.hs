@@ -11,7 +11,6 @@ import Data.Char (isUpper)
 import qualified Data.Text as T
 import Data.Time (UTCTime, Day)
 import Database.Persist.Quasi
-import Text.Blaze.Html (ToMarkup (..))
 import Data.Typeable (Typeable)
 import Model.Types
 
@@ -19,7 +18,7 @@ import Model.Types
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"]
+share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith upperCaseSettings
         { psToDBName = \t ->
             if not (T.null t) && isUpper (T.head t)

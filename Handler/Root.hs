@@ -11,7 +11,6 @@ module Handler.Root
 
 import Import hiding (Filter)
 import qualified Model
-import Yesod.Form
 import qualified Data.ByteString.Lazy.UTF8 as L
 import Data.Digest.Pure.MD5 (md5)
 import Data.Char (toLower, isSpace, isMark)
@@ -19,15 +18,13 @@ import Data.Maybe (fromMaybe)
 import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
 import Data.IORef (readIORef)
-import Control.Applicative
 import Yesod.Form.Jquery
 import Data.Time
 import qualified Data.Text as T
 import Data.Text.ICU.Normalize
-import Data.Text (Text, pack, unpack)
+import Data.Text (pack, unpack)
 import Data.List (sortBy)
 import Data.Ord (comparing)
-import Data.Aeson (object)
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -36,7 +33,7 @@ import Data.Aeson (object)
 -- The majority of the code you will write in Yesod lives in these handler
 -- functions. You can spread them across multiple files if you are so
 -- inclined, or create a single monolithic file.
-getRootR :: Handler RepHtml
+getRootR :: Handler Html
 getRootR = do
     y <- getYesod
     (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
@@ -50,7 +47,6 @@ getRootR = do
             if null allProfs
                 then []
                 else take 24 $ shuffle' allProfs len gen
-    mu <- maybeAuth
     let fuzzyDiffTime = humanReadableTimeDiff now
     (public, private) <- runDB $ do
         public <- count [ UserVerifiedEmail ==. True
@@ -159,7 +155,7 @@ getUsersR = do
     allProfs <- liftIO $ readIORef $ publicProfiles y
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
-    ((res, form), enctype) <- runFormGet $ filterForm $ fromInteger maxY
+    ((res, form), _enctype) <- runFormGet $ filterForm $ fromInteger maxY
     let filteredProfs =
             case res of
                 FormSuccess filt ->

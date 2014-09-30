@@ -62,7 +62,7 @@ postBlockR = adminHelper UserBlocked True "User has been blocked"
 postUnblockR :: UserId -> Handler ()
 postUnblockR = adminHelper UserBlocked False "User has been unblocked"
 
-getMessagesR :: Handler RepHtml
+getMessagesR :: Handler Html
 getMessagesR = do
     requireAdmin
     messages <- runDB $ selectList [MessageClosed ==. False] [Asc MessageWhen] >>= mapM (\(Entity mid m) -> do
@@ -113,7 +113,7 @@ postCloseMessageR mid = do
     setMessage "Message has been closed"
     redirect MessagesR
 
-getAdminUsersR :: Handler RepHtml
+getAdminUsersR :: Handler Html
 getAdminUsersR = do
     users <- runDB $ selectList [UserVerifiedEmail ==. True] [Asc UserFullName]
     y <- getYesod

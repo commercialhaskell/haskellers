@@ -20,8 +20,8 @@ import Control.Concurrent
 import Database.Persist.Sql
 import Data.Maybe
 import qualified Data.Set as Set
-import Control.Monad.Logger (MonadLogger, runNoLoggingT)
-import Control.Monad.Trans.Resource (MonadResource, runResourceT)
+import Control.Monad.Logger (runNoLoggingT)
+import Control.Monad.Trans.Resource (runResourceT)
 import System.Timeout
 
 -- Import all relevant handler modules here.
@@ -123,7 +123,7 @@ fillProfs pool hprofs pprofs = do
     writeIORef hprofs (hprofs', length hprofs')
     writeIORef pprofs pprofs'
 
-userToProfile :: (MonadLogger m, MonadResource m) => Entity User -> SqlPersist m (Maybe Profile)
+userToProfile :: (MonadLogger m, MonadResource m) => Entity User -> SqlPersistT m (Maybe Profile)
 userToProfile (Entity uid u) =
     case userEmail u of
         Nothing -> return Nothing

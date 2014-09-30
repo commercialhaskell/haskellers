@@ -20,8 +20,6 @@ import qualified Data.ByteString.UTF8 as SU
 import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 import Data.Time (getCurrentTime)
-import Data.Monoid (mappend)
-import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Read
 import qualified Data.ByteString.Base64 as B64
@@ -98,9 +96,6 @@ getUserR input = do
         setTitle $ toHtml $ "Haskellers profile for " `mappend` userFullName u
         addScriptEither $ urlJqueryJs y
         $(widgetFile "user")
-  where
-    notOne 1 = False
-    notOne _ = True
 
 mailhidePublic :: Text
 mailhidePublic = "01_o4fjI3uXdNz6rLrIquvlw=="
@@ -136,11 +131,11 @@ pad s =
 
 encrypt :: S.ByteString -> IO S.ByteString
 encrypt bs = do
-    let key = AES.initKey mailhidePrivate
+    let key = AES.initAES mailhidePrivate
     let iv = S.replicate 16 0
     return $ AES.encryptCBC key iv bs
 
-getFlagR :: UserId -> Handler RepHtml
+getFlagR :: UserId -> Handler Html
 getFlagR uid = do
     u <- runDB $ get404 uid
     let userLink = userR ((uid, u), Nothing)

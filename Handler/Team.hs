@@ -22,12 +22,10 @@ import Import
 import Yesod.Feed
 import Data.List (sortBy)
 import Data.Ord (comparing)
-import Control.Applicative
 import Yesod.Form.Nic
 import Control.Monad (unless)
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
-import Text.Hamlet (shamlet)
 import Network.HTTP.Types (status301)
 import Yesod.Auth
 
@@ -55,11 +53,11 @@ packageFormlet tid mtp = renderTable $ TeamPackage
     <*> aopt textField "Description" (fmap teamPackageDesc mtp)
     <*> aopt urlField "Homepage" (fmap teamPackageHomepage mtp)
 
-getTeamsR :: Handler RepHtml
+getTeamsR :: Handler Html
 getTeamsR = do
     ma <- maybeAuth
     cat <- canAddTeam ma
-    ((_, form), enctype) <- runFormPost $ teamFormlet Nothing
+    ((_, form), _enctype) <- runFormPost $ teamFormlet Nothing
     teams' <- runDB $ selectList [] [] >>= mapM (\(Entity tid t) -> do
         users <- count [TeamUserTeam ==. tid]
         return ((tid, t), users)
@@ -69,12 +67,12 @@ getTeamsR = do
         toWidget $ loginStatus ma
         $(widgetFile "teams")
 
-postTeamsR :: Handler RepHtml
+postTeamsR :: Handler Html
 postTeamsR = do
     u@(Entity uid _) <- requireAuth
     cat <- canAddTeam $ Just u
     unless cat $ permissionDenied "Only unblocked, verified users may create special interest groups"
-    ((res, form), enctype) <- runFormPost $ teamFormlet Nothing
+    ((res, form), _enctype) <- runFormPost $ teamFormlet Nothing
     case res of
         FormSuccess team -> runDB $ do
             tid <- insert team
@@ -96,7 +94,7 @@ canEditTeam tid = do
                 Just (Entity _ (TeamUser _ _ y)) -> return (y == Admin, Just y)
                 _ -> return (False, Nothing)
 
-getTeamR :: TeamId -> Handler RepHtml
+getTeamR :: TeamId -> Handler Html
 getTeamR tid = do
     t <- runDB $ get404 tid
     ma <- maybeAuth
@@ -116,7 +114,7 @@ getTeamR tid = do
     let umembers = map snd $ filter (\(x, _) -> x == UnapprovedMember) users
     let notMe x = Just x /= fmap entityKey ma
     packages <- runDB $ selectList [TeamPackageTeam ==. tid] [Asc TeamPackageName]
-    ((_, form), enctype) <- runFormPost $ teamFormlet $ Just t
+    ((_, form), _enctype) <- runFormPost $ teamFormlet $ Just t
     ((_, addPackage), _) <- runFormPost $ packageFormlet tid Nothing
     defaultLayout $ do
         toWidget $ loginStatus ma
@@ -125,12 +123,12 @@ getTeamR tid = do
         toWidgetHead [hamlet|<link href="@{TeamFeedR tid}" type="application/atom+xml" rel="alternate" title="#{teamName t} Updates">
 |]
 
-postTeamR :: TeamId -> Handler RepHtml
+postTeamR :: TeamId -> Handler Html
 postTeamR tid = do
     t <- runDB $ get404 tid
     (cet, _) <- canEditTeam tid
     unless cet $ permissionDenied "You are not an administrator of this group"
-    ((res, form), enctype) <- runFormPost $ teamFormlet $ Just t
+    ((res, form), _enctype) <- runFormPost $ teamFormlet $ Just t
     case res of
         FormSuccess t' -> do
             runDB $ replace tid t'
@@ -282,7 +280,7 @@ getTeamNewsR tnid = do
     tn <- runDB $ get404 tnid
     redirectWith status301 $ teamNewsUrl tn
 
-postTeamPackagesR :: TeamId -> Handler RepHtml
+postTeamPackagesR :: TeamId -> Handler Html
 postTeamPackagesR tid = do
     requireGroupAdmin tid
     t <- runDB $ get404 tid
