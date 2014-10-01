@@ -40,8 +40,8 @@ getRootR = do
     gen <- liftIO newStdGen
     news <- runDB $ selectList [] [Desc NewsWhen, LimitTo 1]
     now <- liftIO getCurrentTime
-    let minus24h = addUTCTime ((-1) * 60 * 60 * 24) now
-    job <- runDB $ selectList [JobPostedAt >. minus24h]
+    let minus7d = addUTCTime ((-1) * 60 * 60 * 24 * 7) now
+    job <- runDB $ selectList [JobPostedAt >. minus7d, JobOpen ==. True]
                                    [Desc JobPostedAt, LimitTo 1]
     let profs =
             if null allProfs
