@@ -49,7 +49,7 @@ getJobsR = do
             Just (Entity uid u) ->
                 if userVerifiedEmail u
                     then do
-                        ((_, form), _) <- runFormGet $ jobFormlet uid now Nothing
+                        (form, _) <- generateFormPost $ jobFormlet uid now Nothing
                         return $ Just form
                     else return Nothing
     defaultLayout $ do
@@ -61,7 +61,7 @@ postJobsR = do
     Entity uid u <- requireAuth
     unless (userVerifiedEmail u) $ permissionDenied "Only users with verified email addresses can add job listings"
     now <- liftIO getCurrentTime
-    ((res, form), _) <- runFormPostNoToken $ jobFormlet uid now Nothing
+    ((res, form), _) <- runFormPost $ jobFormlet uid now Nothing
     let mform = Just form
     case res of
         FormSuccess job -> do
