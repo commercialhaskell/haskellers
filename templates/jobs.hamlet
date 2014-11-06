@@ -16,8 +16,6 @@ $else
     \You can find more Haskell jobs from 
     <ul>
         <li>
-            <a href="http://cufp.org/jobs/language/31">Commercial Users of Functional Programming
-        <li>
             <a href="http://functionaljobs.com/">Functional Jobs
 $maybe form <- mform
     <form method="post" action="@{JobsR}" .big>
