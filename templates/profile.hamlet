@@ -7,7 +7,7 @@ $elseif not (userVerifiedEmail u)
 $elseif not (hasGoodName $ T.unpack (userFullName u))
     <h3 .ui-state-error .ui-corner-all>Note: Please enter your proper name on the profile tab.
 $elseif not (userVisible u)
-    <h3 .ui-state-error .ui-corner-all>Note: You're account is in private mode. You can send people links directly to your profile, but you will not appear in any listings. You can change this in the "Profile" tab.
+    <h3 .ui-state-error .ui-corner-all>Note: Your account is in private mode. You can send people links directly to your profile, but you will not appear in any listings. You can change this in the "Profile" tab.
 <div id="tabs">
   <ul>
         <li>
