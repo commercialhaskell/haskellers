@@ -1,8 +1,5 @@
 <div .login-options>
     <h3>Login using
-    <form method="get" action="@{AuthR forwardUrl}" .button .google>
-        <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
-        <input type="image" src="@{StaticR google_gif}" value="Login via Google">
     <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
         <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
         <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
