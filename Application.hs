@@ -22,7 +22,11 @@ import Data.Maybe
 import qualified Data.Set as Set
 import Control.Monad.Logger (runNoLoggingT)
 import Control.Monad.Trans.Resource (runResourceT)
+import System.Environment (getEnv)
 import System.Timeout
+import Network.Mail.Mime.SES
+import Data.Text.Encoding (encodeUtf8)
+import qualified Data.ByteString.Char8 as S8
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -81,7 +85,25 @@ makeFoundation conf = do
             return ()
         else fillProfs p hprofs pprofs
 
-    return $ App conf s p manager dbconf hprofs pprofs
+    access <- getEnv "AWS_ACCESS_KEY"
+    secret <- getEnv "AWS_SECRET_KEY"
+
+    return $ App
+        { settings = conf
+        , getStatic = s
+        , connPool = p
+        , httpManager = manager
+        , persistConfig = dbconf
+        , homepageProfiles = hprofs
+        , publicProfiles = pprofs
+        , sesCreds = \email -> SES
+                { sesFrom = "webmaster@haskellers.com"
+                , sesTo = [encodeUtf8 email]
+                , sesAccessKey = S8.pack access
+                , sesSecretKey = S8.pack secret
+                , sesRegion = usEast1
+                }
+        }
 
 -- for yesod devel
 getApplicationDev :: IO (Int, Application)

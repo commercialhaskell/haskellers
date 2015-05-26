@@ -29,7 +29,6 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
-                     SESCreds
                      Handler.Root
                      Handler.Profile
                      Handler.User
@@ -112,7 +111,6 @@ library
                  , resourcet
                  , monad-logger
                  , aeson
-                 , shakespeare-css
                  , cipher-aes
 
 executable         haskellers

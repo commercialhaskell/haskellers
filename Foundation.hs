@@ -63,6 +63,7 @@ import qualified Data.Map as Map
 import System.IO.Unsafe
 import Data.IORef (IORef)
 import Yesod.Facebook
+import Network.Mail.Mime.SES (SES)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -76,6 +77,7 @@ data App = App
     , persistConfig :: Settings.PersistConfig
     , homepageProfiles :: IORef ([Profile], Int)
     , publicProfiles :: IORef [Profile]
+    , sesCreds :: Text -> SES
     }
 
 data Location = Location

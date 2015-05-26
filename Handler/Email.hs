@@ -14,8 +14,6 @@ import System.Random (newStdGen)
 import Data.Maybe (isJust)
 import qualified Data.ByteString.Lazy.UTF8 as LU
 import Data.Text (pack, unpack)
-import SESCreds (access, secret)
-import Data.Text.Encoding (encodeUtf8)
 import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import Yesod.Auth (requireAuthId)
 
@@ -59,14 +57,8 @@ postSendVerifyR = do
                                ]
             render <- getUrlRender
             let url = render $ VerifyEmailR verkey
-            let ses = SES
-                    { sesFrom = "webmaster@haskellers.com"
-                    , sesTo = [encodeUtf8 email]
-                    , sesAccessKey = access
-                    , sesSecretKey = secret
-                    , sesRegion = usEast1
-                    }
             h <- getYesod
+            let ses = sesCreds h email
             renderSendMailSES (httpManager h) ses Mail
                 { mailHeaders =
                     [ ("Subject", "Verify your email address")
