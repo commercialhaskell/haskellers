@@ -6,3 +6,6 @@ devel-server
 dist
 static/tmp
 /docker/app/
+/kube/haskellers-postgresql-secret.yaml
+/.stack-work/
+config/db/aws

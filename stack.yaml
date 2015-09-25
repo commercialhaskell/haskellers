@@ -1,3 +1,8 @@
-packages:
-- '.'
-resolver: lts-2.9
+resolver: lts-2.22
+image:
+  container:
+    name: snoyberg/haskellers
+    base: fpco/stack-run
+    add:
+        static: /app/static
+        config: /app/config

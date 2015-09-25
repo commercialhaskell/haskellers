@@ -22,11 +22,14 @@ import Data.Maybe
 import qualified Data.Set as Set
 import Control.Monad.Logger (runNoLoggingT)
 import Control.Monad.Trans.Resource (runResourceT)
-import System.Environment (getEnv)
+import System.Environment (lookupEnv)
 import System.Timeout
 import Network.Mail.Mime.SES
 import Data.Text.Encoding (encodeUtf8)
 import qualified Data.ByteString.Char8 as S8
+import qualified Data.Map as Map
+import Control.Exception (throwIO)
+import Data.Yaml (decodeFileEither)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -67,7 +70,7 @@ makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
     manager <- newManager conduitManagerSettings
     s <- staticSite
-    dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
+    dbconf <- withYamlEnvironment "config/db/postgresql.yml" (appEnv conf)
               Database.Persist.loadConfig >>=
               Database.Persist.applyEnv
     p <- Database.Persist.createPoolConfig (dbconf :: Settings.PersistConfig)
@@ -85,8 +88,16 @@ makeFoundation conf = do
             return ()
         else fillProfs p hprofs pprofs
 
-    access <- getEnv "AWS_ACCESS_KEY"
-    secret <- getEnv "AWS_SECRET_KEY"
+    maccess <- lookupEnv "AWS_ACCESS_KEY"
+    msecret <- lookupEnv "AWS_SECRET_KEY"
+    (access, secret) <-
+        case (,) <$> maccess <*> msecret of
+            Just pair -> return pair
+            Nothing -> do
+                m <- decodeFileEither "config/db/aws" >>= either throwIO return
+                case (,) <$> Map.lookup "access" m <*> Map.lookup ("secret" :: Text) m of
+                    Just pair -> return pair
+                    Nothing -> error $ "Invalid config/db/aws: " ++ show m
 
     return $ App
         { settings = conf
