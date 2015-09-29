@@ -5,7 +5,7 @@ metadata:
     labels:
         name: haskellers
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     name: haskellers
   template:
