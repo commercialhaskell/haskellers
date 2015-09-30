@@ -37,7 +37,7 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
     ```
 5. Edit `config/db/postgresql.yml` to reflect the choices you made in step 4.
 
-6. Rename `SESCred-dummy.hs` to `SESCred.hs`. Replace the `fake-secret-key` and `fake-access-key` with random, unguessable strings. 
+6. Within `config/db/aws`, replace `SOME-ACCESS-KEY` and `SOME-SECRET-KEY` with random, unguessable strings. 
 
 7. Start the haskellers application by running `stack exec -- yesod devel`.
 
