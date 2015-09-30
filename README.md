@@ -21,10 +21,9 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
 
 2. cd to the haskellers directory created above.
 
-3. Download and install local copies of all the libraries needed by haskellers.com. Just run:
+3. Download and install local copies of all the libraries needed by haskellers.com. using [the Stack tool](https://github.com/commercialhaskell/stack/):
     ```
-    cabal sandbox init
-    cabal install --only-dependencies --reorder-goals --max-backjumps=-1
+    stack install yesod-bin cabal-install --install-ghc && stack build
     ```    
 4. create a new postgresql database for the haskellers data. Just run:
 
@@ -36,9 +35,9 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
     GRANT ALL PRIVILEGES ON DATABASE <dbname> TO <name>;
     \q
     ```
-5. Rename `config/postgres-dummy.yml` to `config/postgres.yml` and edit it to reflect the choices you made in step 4.
+5. Edit `config/db/postgresql.yml` to reflect the choices you made in step 4.
 
 6. Rename `SESCred-dummy.hs` to `SESCred.hs`. Replace the `fake-secret-key` and `fake-access-key` with random, unguessable strings. 
 
-7. Start the haskellers application by running `yesod devel`.
+7. Start the haskellers application by running `stack exec -- yesod devel`.
 
