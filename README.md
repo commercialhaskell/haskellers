@@ -35,9 +35,12 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
     GRANT ALL PRIVILEGES ON DATABASE <dbname> TO <name>;
     \q
     ```
-5. Edit `config/db/postgresql.yml` to reflect the choices you made in step 4.
+5. Copy `config/db/postgresql.yml.example` to `config/db/postgresql.yml`,
+   and edit the latter to reflect the choices you made in step 4.
 
-6. Within `config/db/aws`, replace `SOME-ACCESS-KEY` and `SOME-SECRET-KEY` with random, unguessable strings. 
+6. Copy `config/db/aws.example` to `config/db/aws`, and in the latter
+   replace `SOME-ACCESS-KEY` and `SOME-SECRET-KEY` with random,
+   unguessable strings.
 
 7. Start the haskellers application by running `stack exec -- yesod devel`.
 
