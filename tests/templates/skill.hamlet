@@ -1,4 +1,0 @@
-<ul>
-    $forall user <- users
-        <li>
-            <a href="@{userR user}">#{userFullName (snd (fst user))}

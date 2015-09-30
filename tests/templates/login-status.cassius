@@ -1,9 +1,0 @@
-#login-status
-    -moz-border-radius: 2px
-    -webkit-border-radius: 2px
-    padding: 10px
-    margin-bottom: 10px
-    background: #FFDBDB
-    color: #B84848
-#login-status a
-    color: #FA3232

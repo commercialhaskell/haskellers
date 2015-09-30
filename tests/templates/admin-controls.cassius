@@ -1,4 +1,0 @@
-.admin-controls form
-    display: inline
-.admin-controls input[type=submit]
-    font-size: 70%
