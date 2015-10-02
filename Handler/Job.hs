@@ -15,6 +15,22 @@ import Yesod.Form.Nic
 import Control.Monad (unless)
 import Yesod.Feed
 import Yesod.Auth
+import Data.Maybe (listToMaybe)
+import Text.HTML.SanitizeXSS (sanitizeBalance)
+import Text.Regex
+import Data.Text (pack, unpack)
+
+stripStyleString :: String -> String
+stripStyleString input = subRegex (mkRegex "style=\".*\"") input ""
+
+stripStyle :: Text -> Text
+stripStyle = pack . stripStyleString . unpack
+
+nicHtmlFieldNoStyle = Field {
+  fieldParse = \e _ -> return . Right . fmap (preEscapedToMarkup . sanitizeBalance . stripStyle) . listToMaybe $ e,
+  fieldView = fieldView nicHtmlField,
+  fieldEnctype = fieldEnctype (nicHtmlField :: Field (HandlerT App IO) Html)
+  }
 
 jobFormlet :: UserId -> UTCTime -> Maybe Job -> Form Job
 jobFormlet uid now mj = renderTable $ Job
@@ -31,7 +47,7 @@ jobFormlet uid now mj = renderTable $ Job
     <*> areq boolField "Full time option?" (fmap jobFullTime mj)
     <*> areq boolField "Part time option?" (fmap jobPartTime mj)
     <*> pure (Textarea "Please see HTML description")
-    <*> fmap Just (areq nicHtmlField "Description"
+    <*> fmap Just (areq nicHtmlFieldNoStyle "Description"
             { fsId = Just "desc"
             } (mj >>= jobDescHtml))
     <*> pure True
