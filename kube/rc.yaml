@@ -20,6 +20,9 @@ spec:
         containers:
         - name: haskellers
           image: snoyberg/haskellers
+          resources:
+            limits:
+              memory: 800Mi
           imagePullPolicy: Always
           command: ["haskellers", "production"]
           workingDir: /app
