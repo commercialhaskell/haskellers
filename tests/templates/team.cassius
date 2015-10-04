@@ -1,5 +1,0 @@
-#status form, #admins form, #members form, #unapproved form
-    font-size: 70%
-    display: inline
-input[type=text], input[type=url]
-    width: 300px

@@ -1,7 +1,0 @@
-table
-    border-collapse: collapse
-th, td
-    border: 1px solid #666
-    padding: 5px
-#skill-name
-    width: 400px
