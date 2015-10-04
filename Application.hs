@@ -13,7 +13,7 @@ import Yesod.Default.Main
 import Yesod.Default.Handlers
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import qualified Database.Persist
-import Network.HTTP.Conduit (newManager, conduitManagerSettings)
+import Network.HTTP.Conduit (newManager, tlsManagerSettings)
 import Data.IORef
 import Control.Monad
 import Control.Concurrent
@@ -68,7 +68,7 @@ makeApplication conf = do
 
 makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
-    manager <- newManager conduitManagerSettings
+    manager <- newManager tlsManagerSettings
     s <- staticSite
     dbconf <- withYamlEnvironment "config/db/postgresql.yml" (appEnv conf)
               Database.Persist.loadConfig >>=
