@@ -1,7 +1,7 @@
 *.swp
 *.hi
 *.o
-client_session_key.aes
+client-session-key.aes
 devel-server
 dist
 static/tmp

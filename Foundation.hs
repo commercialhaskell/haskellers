@@ -209,7 +209,7 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend 120 "config/client_session_key.aes"
+    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend 120 "config/db/client-session-key.aes"
 
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticRoot setting in Settings.hs
