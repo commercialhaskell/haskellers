@@ -19,6 +19,8 @@ td
     margin: 10px 20px
     padding: 3px
     background-color: white
+    *
+        color: black
     p
         line-height: 1.4em
     ul
