@@ -1,4 +1,4 @@
-resolver: lts-2.22
+resolver: lts-3.7
 image:
   container:
     name: snoyberg/haskellers
@@ -6,5 +6,3 @@ image:
     add:
         static: /app/static
         config: /app/config
-extra-deps:
-- hfsevents-0.1.5

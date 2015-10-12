@@ -47,7 +47,6 @@ import qualified Model (userFullName)
 import Text.Jasmine (minifym)
 import Text.Hamlet
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
-import Data.Monoid (mappend)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -55,7 +54,6 @@ import qualified Data.Text.Read
 import Data.Maybe (fromJust)
 import Data.Time
 import qualified Data.Set as Set
-import System.Locale
 import Yesod.Form.Jquery
 import Yesod.Form.Nic
 import Control.Concurrent.STM

@@ -64,32 +64,31 @@ library
                 NoMonomorphismRestriction
                 ViewPatterns
 
-    build-depends: base                          >= 4          && < 5
-                 -- , yesod-platform                >= 1.1        && < 1.2
-                 , yesod                         >= 1.4        && < 1.5
-                 , yesod-core                    >= 1.4        && < 1.5
-                 , yesod-auth                    >= 1.4        && < 1.5
-                 , yesod-auth-fb                 >= 1.6        && < 1.7
+    build-depends: base
+                 , yesod
+                 , yesod-core
+                 , yesod-auth
+                 , yesod-auth-fb
                  , yesod-fb
-                 , yesod-static                  >= 1.4        && < 1.5
-                 , yesod-form                    >= 1.4.0.1    && < 1.5
-                 , yesod-newsfeed                >= 1.4        && < 1.5
-                 , yesod-test                    >= 1.4        && < 1.5
-                 , clientsession                 >= 0.8        && < 0.10
-                 , bytestring                    >= 0.9        && < 0.11
-                 , text                          >= 0.11.2     && < 1.3
-                 , persistent                    >= 2.1        && < 2.2
-                 , persistent-postgresql         >= 2.1        && < 2.2
+                 , yesod-static
+                 , yesod-form
+                 , yesod-newsfeed
+                 , yesod-test
+                 , clientsession
+                 , bytestring
+                 , text
+                 , persistent
+                 , persistent-postgresql
                  , template-haskell
-                 , shakespeare                   >= 2.0        && < 2.1
-                 , hjsmin                        >= 0.1        && < 0.2
-                 , monad-control                 >= 0.3        && < 1.1
-                 , wai-extra                     >= 3.0        && < 3.1
-                 , yaml                          >= 0.8        && < 0.9
-                 , http-conduit                  >= 2.1        && < 2.2
-                 , directory                     >= 1.1        && < 1.3
-                 , warp                          >= 3.0        && < 3.1
-                 , blaze-html                    >= 0.5        && < 0.9
+                 , shakespeare
+                 , hjsmin
+                 , monad-control
+                 , wai-extra
+                 , yaml
+                 , http-conduit
+                 , directory
+                 , warp
+                 , blaze-html
                  , data-default
                  , time
                  , transformers
@@ -107,7 +106,7 @@ library
                  , cryptocipher
                  , base64-bytestring
                  , mime-mail
-                 , mime-mail-ses                 >= 0.3
+                 , mime-mail-ses
                  , resourcet
                  , monad-logger
                  , aeson
