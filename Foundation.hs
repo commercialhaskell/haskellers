@@ -199,6 +199,7 @@ instance Yesod App where
                 [ ("en", "English")
                 , ("ja", "Japanese")
                 , ("es", "Spanish")
+                , ("fr", "French")
                 , ("he", "Hebrew")
                 , ("ru", "Russian")
                 , ("ua", "Ukrainian")
