@@ -1,117 +1,113 @@
 User
-    fullName Text Asc id=full-name
-    website Text Maybe id=website
-    email Text Maybe toFormField=maybeEmailField id=email Update Eq
-    verifiedEmail Bool default=false Eq Update
-    verkey Text Maybe Update
-    haskellSince Int Maybe Asc
-    desc Textarea Maybe id=desc
-    visible Bool default=true Eq
-    real Bool default=false Update Desc Eq
-    realPic Bool default=false Update Eq
-    admin Bool default=false Update
-    employment Employment Maybe
-    blocked Bool Update Eq default=false
-    emailPublic Bool default=false
-    location Text Maybe
-    longitude Double Maybe Ne
-    latitude Double Maybe Ne
-    googlePlus Text Maybe
-    deriving Show Typeable
+  fullName       Text
+  website        Text Maybe
+  email          Text Maybe
+  verifiedEmail  Bool default=false
+  verkey         Text Maybe
+  haskellSince   Int Maybe
+  desc           Textarea Maybe
+  visible        Bool default=true
+  real           Bool default=false
+  realPic        Bool default=false
+  admin          Bool default=false
+  employment     Employment Maybe
+  blocked        Bool default=false
+  emailPublic    Bool default=false
+  location       Text Maybe
+  longitude      Double Maybe
+  latitude       Double Maybe
+  googlePlus     Text Maybe
+  deriving       Show Typeable
 Username
-    user UserId
-    username Text
-    UniqueUsernameUser user
-    UniqueUsername username
-    deriving Show
+  user           UserId
+  username       Text
+  UniqueUsernameUser user
+  UniqueUsername username
+  deriving       Show
 Ident
-    ident Text Asc
-    user UserId Eq
-    UniqueIdent ident
+  ident          Text
+  user           UserId
+  UniqueIdent    ident
 Skill
-    name Text Asc
+  name           Text
 UserSkill
-    user UserId Eq
-    skill SkillId Eq
-    UniqueUserSkill user skill
+  user           UserId
+  skill          SkillId
+  UniqueUserSkill user skill
 Package
-    user UserId Eq
-    name Text Asc
-    UniquePackage user name
+  user           UserId
+  name           Text
+  UniquePackage  user name
 Message
-    closed Bool Update Eq
-    when UTCTime Asc
-    from UserId Maybe Eq Update
-    regarding UserId Maybe Eq Update
-    text Textarea
-News no-json
-    when UTCTime Desc
-    title Text
-    content Html
-    deriving
+  closed         Bool
+  when           UTCTime
+  from           UserId Maybe
+  regarding      UserId Maybe
+  text           Textarea
+News
+  when           UTCTime
+  title          Text
+  content        Html
 Job
-    postedBy UserId
-    postedAt UTCTime Desc Gt
-    title Text
-    location Text
-    fillingBy Day Gt
-    fullTime Bool
-    partTime Bool
-    desc Textarea
-    descHtml Html Maybe
-    open Bool default=true
-ScreenName no-json
-    user UserId Eq
-    service Service Asc
-    name Text Asc
-Team no-json
-    name Text Asc
-    desc Html
-    UniqueTeam name
-    deriving
+  postedBy       UserId
+  postedAt       UTCTime
+  title          Text
+  location       Text
+  fillingBy      Day
+  fullTime       Bool
+  partTime       Bool
+  desc           Textarea
+  descHtml       Html Maybe
+  open           Bool default=true
+ScreenName
+  user           UserId
+  service        Service
+  name           Text
+Team
+  name           Text
+  desc           Html
+  UniqueTeam     name
 TeamUser
-    team TeamId Eq
-    user UserId Eq
-    status TeamUserStatus Update
-    UniqueTeamUser team user
-TeamNews no-json
-    team TeamId Eq In
-    when UTCTime Desc
-    title Text
-    content Html
-    url Text
-    deriving
+  team           TeamId
+  user           UserId
+  status         TeamUserStatus
+  UniqueTeamUser team user
+TeamNews
+  team           TeamId
+  when           UTCTime
+  title          Text
+  content        Html
+  url            Text
 TeamPackage
-    team TeamId Eq
-    name Text Asc
-    hackage Bool
-    desc Text Maybe
-    homepage Text Maybe
+  team           TeamId
+  name           Text
+  hackage        Bool
+  desc           Text Maybe
+  homepage       Text Maybe
 Topic
-    team TeamId Eq
-    created UTCTime Desc
-    type TopicType
-    status TopicStatus Update
-    creator UserId Maybe Update Eq
-    title Text
-TopicMessage no-json
-    topic TopicId Eq
-    created UTCTime Asc
-    creator UserId Maybe Update Eq
-    content Html
-    deriving
+  team           TeamId
+  created        UTCTime
+  type           TopicType
+  status         TopicStatus
+  creator        UserId Maybe
+  title          Text
+TopicMessage
+  topic          TopicId
+  created        UTCTime
+  creator        UserId Maybe
+  content        Html
 Poll
-    question Text
-    created UTCTime
-    closed Bool default=false
+  question       Text
+  created        UTCTime
+  closed         Bool default=false
 PollOption
-    poll PollId
-    answer Text
-    priority Int
+  poll           PollId
+  answer         Text
+  priority       Int
 PollAnswer
-    poll PollId
-    option PollOptionId
-    user UserId
-    real Bool
-    answered UTCTime default=now()
-    UniquePollAnswer poll user
+  poll           PollId
+  option         PollOptionId
+  user           UserId
+  real           Bool
+  answered       UTCTime default=now()
+  UniquePollAnswer poll user
