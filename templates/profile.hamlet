@@ -44,7 +44,7 @@ $elseif not (userVisible u)
     $else
         <p>
           \In order to have your profile show up on the homepage, you need to verify an email address. Your address will be protected with 
-          <a href="http://www.google.com/recaptcha/mailhide/">Recaptcha mailhide
+          <a href="http://www.google.com/recaptcha/intro/index.html">Recaptcha mailhide
           \ and will be used to show a 
           <a href="http://gravatar.com/">Gravatar.
         <form method="post" action="@{SendVerifyR}">
