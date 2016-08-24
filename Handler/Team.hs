@@ -245,6 +245,7 @@ getTeamFeedR tid = runDB $ do
         , feedDescription = toHtml $ teamName t `T.append` " on Haskellers"
         , feedLanguage = "en"
         , feedAuthor = "Haskellers.com"
+        , feedLogo = Nothing
         }
 
 getUserFeedR :: UserId -> Handler TypedContent
@@ -265,6 +266,7 @@ getUserFeedR uid = runDB $ do
         , feedDescription = "Personal Haskellers feed"
         , feedLanguage = "en"
         , feedAuthor = "Haskellers.com"
+        , feedLogo = Nothing
         }
 
 toAtomEntry :: Entity TeamNews -> FeedEntry (Route Haskellers)
@@ -273,6 +275,7 @@ toAtomEntry (Entity tnid tn) = FeedEntry
     , feedEntryUpdated = teamNewsWhen tn
     , feedEntryTitle = teamNewsTitle tn
     , feedEntryContent = teamNewsContent tn
+    , feedEntryEnclosure = Nothing
     }
 
 getTeamNewsR :: TeamNewsId -> Handler ()

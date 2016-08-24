@@ -81,6 +81,7 @@ getNewsFeedR = do
         , feedDescription = "Haskellers news feed"
         , feedLanguage = "en"
         , feedAuthor = "Haskellers News"
+        , feedLogo = Nothing
         }
   where
     go (Entity nid n) = FeedEntry
@@ -88,4 +89,5 @@ getNewsFeedR = do
         , feedEntryUpdated = newsWhen n
         , feedEntryTitle = newsTitle n
         , feedEntryContent = newsContent n
+        , feedEntryEnclosure = Nothing
         }

@@ -1,10 +1,12 @@
 <div .login-options>
     <h3>Login using
+    <a href=@{AuthR Google.forwardUrl} .button .google>
+        <img src="@{StaticR google_gif}" alt="Login via Google">
     <form method="get" action="@{AuthR forwardUrl}" .button .yahoo>
         <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
         <input type="image" src="@{StaticR yahoo_gif}" value="Login via Yahoo!">
     <a href="@{AuthR facebookLogin}" .button .facebook>
-        <img src="@{StaticR facebook_gif}" value="Login via Facebook">
+        <img src="@{StaticR facebook_gif}" alt="Login via Facebook">
     <h3>&mdash; OR &mdash;
     <form method="get" action="@{AuthR forwardUrl}">
         <input id="openid_identifier" type="text" name="openid_identifier" value="http://">

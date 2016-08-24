@@ -94,6 +94,7 @@ getMessagesFeedR = do
         , feedLanguage = "en"
         , feedUpdated = updated
         , feedEntries = map toEntry messages
+        , feedLogo = Nothing
         }
   where
     toEntry (Entity mid m) = FeedEntry
@@ -101,6 +102,7 @@ getMessagesFeedR = do
         , feedEntryUpdated = messageWhen m
         , feedEntryTitle = "Some message"
         , feedEntryContent = "Some message"
+        , feedEntryEnclosure = Nothing
         }
 
 getMessagesFeedLinkR :: MessageId -> Handler ()

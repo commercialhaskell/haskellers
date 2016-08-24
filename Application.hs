@@ -99,6 +99,12 @@ makeFoundation conf = do
                     Just pair -> return pair
                     Nothing -> error $ "Invalid config/db/aws: " ++ show m
 
+    googleEmailCreds <- do
+        m <- decodeFileEither "config/db/google-email.yaml" >>= either throwIO return
+        case (,) <$> Map.lookup "client-id" m <*> Map.lookup ("client-secret" :: Text) m of
+            Just pair -> return pair
+            Nothing -> error $ "Invalid config/db/google-email.yaml: " ++ show m
+
     return $ App
         { settings = conf
         , getStatic = s
@@ -114,6 +120,7 @@ makeFoundation conf = do
                 , sesSecretKey = S8.pack secret
                 , sesRegion = usEast1
                 }
+        , appGoogleEmailCreds = googleEmailCreds
         }
 
 -- for yesod devel

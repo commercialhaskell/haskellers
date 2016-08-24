@@ -100,6 +100,7 @@ getJobsFeedR = do
         , feedDescription = "Haskellers Job Listings"
         , feedLanguage = "en"
         , feedAuthor = "Haskellers Job Listings"
+        , feedLogo = Nothing
         }
   where
     go (Entity jid j) = FeedEntry
@@ -107,6 +108,7 @@ getJobsFeedR = do
         , feedEntryUpdated = jobPostedAt j
         , feedEntryTitle = jobTitle j
         , feedEntryContent = fromMaybe (toHtml $ jobDesc j) (jobDescHtml j)
+        , feedEntryEnclosure = Nothing
         }
 
 postCloseJobR :: JobId -> Handler ()

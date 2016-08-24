@@ -38,9 +38,11 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
 5. Copy `config/db/postgresql.yml.example` to `config/db/postgresql.yml`,
    and edit the latter to reflect the choices you made in step 4.
 
-6. Copy `config/db/aws.example` to `config/db/aws`, and in the latter
+6. Copy `config/db/google-email.yaml.example` to `config/db/google-email.yaml`
+
+7. Copy `config/db/aws.example` to `config/db/aws`, and in the latter
    replace `SOME-ACCESS-KEY` and `SOME-SECRET-KEY` with random,
    unguessable strings.
 
-7. Start the haskellers application by running `stack exec -- yesod devel`.
+8. Start the haskellers application by running `stack exec -- yesod devel`.
 

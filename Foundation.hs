@@ -31,6 +31,7 @@ import Yesod.Auth
 import Yesod.Auth.BrowserId hiding (forwardUrl)
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook.ServerSide
+import qualified Yesod.Auth.GoogleEmail2 as Google
 import Facebook (Credentials (Credentials))
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
@@ -76,6 +77,7 @@ data App = App
     , homepageProfiles :: IORef ([Profile], Int)
     , publicProfiles :: IORef [Profile]
     , sesCreds :: Text -> SES
+    , appGoogleEmailCreds :: (Text, Text)
     }
 
 data Location = Location
@@ -420,10 +422,12 @@ instance YesodAuth App where
             _ <- insertBy $ Ident claimed uid
             return ()
 
-    authPlugins _ = [ authOpenId OPLocal []
-                  , authFacebook []
-                  , authBrowserId def
-                  ]
+    authPlugins app =
+        [ authOpenId OPLocal []
+        , authFacebook []
+        , authBrowserId def
+        , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
+        ]
 
     authHttpManager = httpManager
 
