@@ -432,12 +432,11 @@ instance YesodAuth App where
         , authBrowserId def
         , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
         ] ++ extraAuthPlugins
-        where
-          -- Determine if authDummy login setting was enabled.
-          extraAuthPlugins =
+        where extraAuthPlugins =
+            -- Determine if authDummy login setting was enabled.
             case extraAllowAuthDummy $ appExtra $ settings app of
-              Just _ -> [authDummy]
-              Nothing -> []
+                Just _ -> [authDummy]
+                Nothing -> []
 
     authHttpManager = httpManager
 
@@ -460,8 +459,8 @@ instance YesodFacebook App where
 
 login :: Widget
 login = do
-  master <- getYesod
-  toWidget $ {-addCassius $(cassiusFile "login") >> -}$(hamletFile "templates/login.hamlet")
+    master <- getYesod
+    toWidget $ {-addCassius $(cassiusFile "login") >> -}$(hamletFile "templates/login.hamlet")
 
 userR :: ((UserId, User), Maybe Username) -> Route App
 userR (_, Just (Username _ un)) = UserR un
