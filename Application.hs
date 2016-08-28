@@ -71,6 +71,7 @@ makeFoundation appSettings = do
         (appStaticDir appSettings)
 
 
+    -- @todo: Add docs
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []
     if production
@@ -83,17 +84,14 @@ makeFoundation appSettings = do
             return ()
         else fillProfs p hprofs pprofs
 
-    appHomepageProfiles = hprofs
-    appPublicProfiles = pprofs
+    let appHomepageProfiles = hprofs
+    let appPublicProfiles = pprofs
 
-    appGoogleEmailCreds = googleEmailCreds
-    appFacebookCreds = facebookCreds
-
-    appSesCreds = \email -> SES
+    let appSesCreds = \email -> SES
             { sesFrom = "webmaster@haskellers.com"
             , sesTo = [encodeUtf8 email]
-            , sesAccessKey = S8.pack access
-            , sesSecretKey = S8.pack secret
+            , sesAccessKey = S8.pack $ fst appAwsCreds appSettings
+            , sesSecretKey = S8.pack $ snd appAwsCreds appSettings
             , sesRegion = usEast1
             }
 

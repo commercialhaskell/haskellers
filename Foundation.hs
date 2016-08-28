@@ -71,16 +71,22 @@ import Network.Mail.Mime.SES (SES)
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings :: AppConfig DefaultEnv Extra
-    , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
-    , httpManager :: Manager
-    , persistConfig :: Settings.PersistConfig
+    { appSettings    :: AppSettings
+    , appStatic      :: Static -- ^ Settings for static file serving.
+    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
+    , appHttpManager :: Manager
+    , appLogger      :: Logger
+    , appServerEvent :: (Chan ServerEvent)
+
+    -- @todo: take care of old ones
     , appHomepageProfiles :: IORef ([Profile], Int)
     , appPublicProfiles :: IORef [Profile]
     , appSesCreds :: Text -> SES
-    , appGoogleEmailCreds :: (Text, Text)
-    , appFacebookCreds :: (Text, Text, Text)
+    -- ^ AWS SES email send service
+
+    -- @todo: Move to Settings.hs
+    -- , appGoogleEmailCreds :: (Text, Text)
+    -- , appFacebookCreds :: (Text, Text, Text)
     }
 
 data Location = Location

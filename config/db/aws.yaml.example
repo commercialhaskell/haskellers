@@ -1,2 +1,0 @@
-access: "_env:AWS_ACCESS_KEY:static"
-secret: "_env:AWS_SECRET_KEY:static"

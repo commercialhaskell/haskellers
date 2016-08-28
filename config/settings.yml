@@ -6,9 +6,21 @@ host:           "_env:HOST:*4" # any IPv4 host
 port:           "_env:PORT:3000" # NB: The port `yesod devel` uses is distinct from this value. Set the `yesod devel` port from the command line.
 ip-from-header: "_env:IP_FROM_HEADER:false"
 
-github:
-  client-id:     "_env:GITHUB_CLIENT_ID:'1234'"
-  client-secret: "_env:GITHUB_CLIENT_SECRET:SOME-SECRET"
+aws:
+  access: "_env:AWS_ACCESS_KEY:static"
+  secret: "_env:AWS_SECRET_KEY:static"
+
+facebook:
+  app-name:      "_env:FACEBOOK_APP_NAME:SOME-NAME"
+  client-id:     "_env:GOOGLE_CLIENT_ID:'1234'"
+  client-secret: "_env:GOOGLE_CLIENT_SECRET:SOME-SECRET"
+
+google:
+  client-id:     "_env:GOOGLE_CLIENT_ID:'1234'"
+  client-secret: "_env:GOOGLE_CLIENT_SECRET:SOME-SECRET"
+
+
+
 
 # Default behavior: determine the application root from the request headers.
 # Uncomment to set an explicit approot

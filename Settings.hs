@@ -55,6 +55,15 @@ data AppSettings = AppSettings
     -- ^ Copyright text to appear in the footer of the page
     , appAnalytics              :: Maybe Text
     -- ^ Google Analytics code
+
+    , appAwsCreds :: Text -> SES
+    -- ^ AWS SES email credentials
+
+    , appFacebookCreds :: (Text, Text, Text)
+    -- ^ Facebook app credentials
+
+    , appGoogleEmailCreds :: (Text, Text)
+    -- ^ Google email credentials
     }
 
 
@@ -72,6 +81,11 @@ instance FromJSON AppSettings where
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
+
+        fromYamlAppAwsConf        <- o .: "aws"
+        fromYamlAppFacebookConf   <- o .: "facebook"
+        fromYamlAppGoogleConf     <- o .: "google"
+
 
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
@@ -91,6 +105,10 @@ instance FromJSON AppSettings where
                   ( MySQL.connectOptions (myConnInfo fromYamlAppDatabaseConf)) ++ [MySQL.InitCommand "SET SESSION sql_mode = 'STRICT_ALL_TABLES';\0"]
               }
             }
+
+        let appAwsCreds      = (,)  fromYamlAppAwsConf
+        let appFacebookCreds = (,,) fromYamlAppFacebookConf
+        let appGoogleCreds   = (,)  fromYamlAppGoogleConf
 
         return AppSettings {..}
 
