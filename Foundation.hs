@@ -369,7 +369,21 @@ instance YesodAuth App where
             x1 <- getBy $ UniqueIdent $ credsIdentClaimed creds
             case x1 of
                 Just _ -> return x1
-                Nothing -> getBy $ UniqueIdent $ credsIdent creds
+                Nothing -> do
+                    x2 <- getBy $ UniqueIdent $ credsIdent creds
+                    case x2 of
+                        Just _ -> return x2
+                        -- work with previously verified email addresses
+                        Nothing -> do
+                            users <- selectList [UserEmail ==. Just (credsIdent creds), UserVerifiedEmail ==. True] []
+                            case users of
+                                [Entity uid _] -> do
+                                    let ident = Ident
+                                            { identIdent = credsIdent creds
+                                            , identUser = uid
+                                            }
+                                    (Just . (`Entity` ident)) <$> insert ident
+                                _ -> return Nothing
         case (x, muid) of
             (Just (Entity _ i), Nothing) -> do
                 runDB $ do
@@ -414,7 +428,7 @@ instance YesodAuth App where
                 redirect ProfileR
       where
         addBIDEmail uid
-            | credsPlugin creds == "browserid" = do
+            | credsPlugin creds `elem` ["browserid", "googleemail2"] = do
                 u <- get404 uid
                 unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
