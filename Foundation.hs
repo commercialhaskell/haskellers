@@ -30,6 +30,7 @@ import Yesod
 import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.BrowserId hiding (forwardUrl)
+import Yesod.Auth.Dummy
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook.ServerSide
 import qualified Yesod.Auth.GoogleEmail2 as Google
@@ -439,7 +440,8 @@ instance YesodAuth App where
             return ()
 
     authPlugins app =
-        [ authOpenId OPLocal []
+        [ authDummy
+        , authOpenId OPLocal []
         , authFacebook []
         , authBrowserId def
         , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
