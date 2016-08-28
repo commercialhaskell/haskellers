@@ -15,7 +15,7 @@
     <img #browserid src=@{StaticR browserid_png} alt=BrowserID>
     <span style="color:black"> via BrowserID
 
-    $maybe allowAuthDummy <- extraAllowAuthDummy $ appExtra $ settings master
+    $maybe _ <- extraAllowAuthDummy $ appExtra $ settings master
       <h3>&mdash; OR &mdash;
       <form method="post" action="@{AuthR $ PluginR "dummy" []}">
         Your new identifier is: #
