@@ -21,14 +21,14 @@ Flag library-only
     Default:       False
 
 library
+    hs-source-dirs: ., app
     exposed-modules: Application
                      Foundation
                      Import
+                     Import.NoFoundation
                      Model
-                     Model.Types
                      Settings
                      Settings.StaticFiles
-                     Settings.Development
                      Handler.Root
                      Handler.Profile
                      Handler.User
@@ -54,15 +54,18 @@ library
                 QuasiQuotes
                 OverloadedStrings
                 NoImplicitPrelude
-                CPP
                 MultiParamTypeClasses
                 TypeFamilies
                 GADTs
                 GeneralizedNewtypeDeriving
                 FlexibleContexts
+                FlexibleInstances
                 EmptyDataDecls
                 NoMonomorphismRestriction
+                DeriveDataTypeable
                 ViewPatterns
+                TupleSections
+                RecordWildCards
 
     build-depends: base
                  , yesod
