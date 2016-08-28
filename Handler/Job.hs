@@ -1,4 +1,3 @@
-{-# LANGUAGE QuasiQuotes, OverloadedStrings, TemplateHaskell #-}
 module Handler.Job
     ( getJobsR
     , postJobsR

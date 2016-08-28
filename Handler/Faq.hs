@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 module Handler.Faq
     ( getFaqR
     ) where
@@ -33,7 +32,7 @@ faqs =
 |]
     , Faq "add-feature" "I see that you have not implemented feature XYZ. Are you going to?" [shamlet|\
 <p>
-    \This site is still in its infancy, so just because we haven't implemented a feature does not mean we won't. If you have a recommendation, feel free to either email the haskell-cafe mailing list or contact 
+    \This site is still in its infancy, so just because we haven't implemented a feature does not mean we won't. If you have a recommendation, feel free to either email the haskell-cafe mailing list or contact
     <a href="http://www.haskellers.com/user/16/">Michael Snoyman
     \ directly.
 |]

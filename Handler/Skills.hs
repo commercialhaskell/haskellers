@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings, QuasiQuotes #-}
-{-# LANGUAGE CPP #-}
 module Handler.Skills
     ( postAllSkillsR
     , getAllSkillsR

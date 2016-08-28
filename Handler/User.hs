@@ -1,6 +1,3 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Handler.User
     ( getUserR
     , getByIdentR

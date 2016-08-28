@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings, QuasiQuotes #-}
-{-# LANGUAGE CPP #-}
 module Handler.Root
     ( getRootR
     , getUsersR

@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes, OverloadedStrings, TemplateHaskell #-}
-{-# LANGUAGE CPP #-}
 module Handler.Profile
     ( getProfileR
     , postProfileR
