@@ -432,10 +432,11 @@ instance YesodAuth App where
         , authBrowserId def
         , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
         ] ++ extraAuthPlugins
-        where extraAuthPlugins = case extraAllowAuthDummy $ appExtra $ settings app of
-            -- Determine if authDummy login setting was enabled.
-            Just _ -> [authDummy]
-            Nothing -> []
+        where extraAuthPlugins =
+                case extraAllowAuthDummy $ appExtra $ settings app of
+                    -- Determine if authDummy login setting was enabled.
+                    Just _ -> [authDummy]
+                    Nothing -> []
 
     authHttpManager = httpManager
 
