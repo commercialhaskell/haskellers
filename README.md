@@ -11,7 +11,7 @@ You will also need to install libicu-dev. This can be installed on debian based 
 ```
 apt-get install libicu-dev
 ```
-    
+
 ### Installation
 1. Download the source code to an appropriate folder. Just run:
     ```
@@ -39,11 +39,10 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
    and edit the latter to reflect the choices you made in step 4.
 
 6. Copy `config/db/google-email.yaml.example` to `config/db/google-email.yaml`
-   and `config/db/facebook.yaml.exaple` to `config/db/facebook.yaml`
+   and `config/db/facebook.yaml.example` to `config/db/facebook.yaml`
 
 7. Copy `config/db/aws.example` to `config/db/aws`, and in the latter
    replace `SOME-ACCESS-KEY` and `SOME-SECRET-KEY` with random,
    unguessable strings.
 
 8. Start the haskellers application by running `stack exec -- yesod devel`.
-
