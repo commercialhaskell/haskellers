@@ -117,6 +117,7 @@ postCloseMessageR mid = do
 
 getAdminUsersR :: Handler Html
 getAdminUsersR = do
+    requireAdmin
     users <- runDB $ selectList [UserVerifiedEmail ==. True] [Asc UserFullName]
     y <- getYesod
     defaultLayout $ do
