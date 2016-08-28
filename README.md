@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/snoyberg/haskellers.svg?branch=master)](https://travis-ci.org/snoyberg/haskellers)
+
 #Haskellers
 Full source code for the haskellers.com website. Use as a base for your own Haskell/Yesod applications or as a sample application to help with learning Haskell/Yesod
 
