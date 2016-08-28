@@ -105,6 +105,15 @@ makeFoundation conf = do
             Just pair -> return pair
             Nothing -> error $ "Invalid config/db/google-email.yaml: " ++ show m
 
+    facebookCreds <- do
+        m <- decodeFileEither "config/db/facebook.yaml" >>= either throwIO return
+        case (,,)
+          <$> Map.lookup ("name" :: Text) m
+          <*> Map.lookup "id" m
+          <*> Map.lookup "secret" m of
+            Just x -> return x
+            Nothing -> error $ "Invalid config/db/facebook.yaml: " ++ show m
+
     return $ App
         { settings = conf
         , getStatic = s
@@ -121,6 +130,7 @@ makeFoundation conf = do
                 , sesRegion = usEast1
                 }
         , appGoogleEmailCreds = googleEmailCreds
+        , appFacebookCreds = facebookCreds
         }
 
 -- for yesod devel

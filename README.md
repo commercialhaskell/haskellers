@@ -39,6 +39,7 @@ Alternatively download the zip archive at https://github.com/snoyberg/haskellers
    and edit the latter to reflect the choices you made in step 4.
 
 6. Copy `config/db/google-email.yaml.example` to `config/db/google-email.yaml`
+   and `config/db/facebook.yaml.exaple` to `config/db/facebook.yaml`
 
 7. Copy `config/db/aws.example` to `config/db/aws`, and in the latter
    replace `SOME-ACCESS-KEY` and `SOME-SECRET-KEY` with random,

@@ -79,6 +79,7 @@ data App = App
     , publicProfiles :: IORef [Profile]
     , sesCreds :: Text -> SES
     , appGoogleEmailCreds :: (Text, Text)
+    , appFacebookCreds :: (Text, Text, Text)
     }
 
 data Location = Location
@@ -444,10 +445,9 @@ instance YesodAuth App where
 instance YesodAuthPersist App
 
 instance YesodFacebook App where
-    fbCredentials _ = Credentials
-        "App.com"
-        "157813777573244"
-        "327e6242e855954b16f9395399164eec"
+    fbCredentials app =
+        let (name, id', secret) = appFacebookCreds app
+         in Credentials name id' secret
     fbHttpManager = httpManager
 
 login :: Widget
