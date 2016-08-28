@@ -79,12 +79,12 @@ juliusFile = (if development then J.juliusFileReload
 
 data Extra = Extra
     { extraCopyright :: Text
-    , extraAllowAuthDummy :: Maybe Bool -- ^ Allow authDummy for development purposes
+    , extraAllowAuthDummy :: Bool -- ^ Allow authDummy for development purposes
     , extraAnalytics :: Maybe Text -- ^ Google Analytics
     } deriving Show
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
 parseExtra _ o = Extra
     <$> o .:  "copyright"
-    <*> o .:? "allowAuthDummy"
+    <*> o .:? "allowAuthDummy" .!= False
     <*> o .:? "analytics"
