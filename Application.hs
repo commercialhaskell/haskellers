@@ -24,7 +24,6 @@ import Control.Monad.Logger (runNoLoggingT)
 import Control.Monad.Trans.Resource (runResourceT)
 import System.Environment (lookupEnv)
 import System.Timeout
-import qualified Model (userFullName)
 import Network.Mail.Mime.SES
 import Data.Text.Encoding (encodeUtf8)
 import qualified Data.ByteString.Char8 as S8
@@ -106,8 +105,14 @@ makeFoundation conf = do
             Just pair -> return pair
             Nothing -> error $ "Invalid config/db/google-email.yaml: " ++ show m
 
-
-    _ <- migrateData p
+    facebookCreds <- do
+        m <- decodeFileEither "config/db/facebook.yaml" >>= either throwIO return
+        case (,,)
+          <$> Map.lookup ("name" :: Text) m
+          <*> Map.lookup "id" m
+          <*> Map.lookup "secret" m of
+            Just x -> return x
+            Nothing -> error $ "Invalid config/db/facebook.yaml: " ++ show m
 
     return $ App
         { settings = conf
@@ -125,6 +130,7 @@ makeFoundation conf = do
                 , sesRegion = usEast1
                 }
         , appGoogleEmailCreds = googleEmailCreds
+        , appFacebookCreds = facebookCreds
         }
 
 -- for yesod devel
@@ -182,40 +188,3 @@ userToProfile (Entity uid u) =
                 , profileUsername = mun
                 , profileLocation = Location <$> userLongitude u <*> userLatitude u
                 }
-
-
-migrateData :: ConnectionPool -> IO ()
-migrateData pool = do
-    -- Migrate data only if "admin" is missing.
-    maybeUser <- runSqlPool (getBy $ UniqueUsername "admin") pool
-    case maybeUser of
-        Just (Entity _ _) -> do
-            putStrLn "---- Skipped migration"
-            return ()
-
-        Nothing -> do
-            -- User
-            userId1 <- runSqlPool (createUser "admin") pool
-            return ()
-            where
-              createUser name =
-                insert $ User
-                    { Model.userFullName = name
-                    , userWebsite = Nothing
-                    , userEmail = Just $ name `mappend` "@example.com"
-                    , userVerifiedEmail = False
-                    , userVerkey = Nothing
-                    , userHaskellSince = Nothing
-                    , userDesc = Nothing
-                    , userVisible = True
-                    , userReal = False
-                    , userRealPic = False
-                    , userAdmin = True
-                    , userEmployment = Nothing
-                    , userBlocked = False
-                    , userEmailPublic = True
-                    , userLocation = Nothing
-                    , userLongitude = Nothing
-                    , userLatitude = Nothing
-                    , userGooglePlus = Nothing
-                    }

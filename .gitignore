@@ -10,5 +10,6 @@ static/tmp
 /.stack-work/
 config/db/aws
 config/db/google-email.yaml
+config/db/facebook.yaml
 config/db/postgresql.yml
 yesod-devel
