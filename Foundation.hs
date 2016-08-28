@@ -169,6 +169,7 @@ instance Yesod App where
         mmsg <- getMessage
         ma <- maybeAuth'
         y <- getYesod
+        master <- getYesod
         (title', parents) <- breadcrumbs
         current <- getCurrentRoute
         let bodyClass =
@@ -198,6 +199,7 @@ instance Yesod App where
             toWidget $(Settings.juliusFile "templates/default-layout.julius")
             addScriptRemote "https://browserid.org/include.js"
             widget
+
         let login' = $(ihamletFile "templates/login.hamlet")
         let langs :: [(Text, Text)]
             langs =
