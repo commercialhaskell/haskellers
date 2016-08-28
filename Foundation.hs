@@ -30,6 +30,7 @@ import Yesod
 import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.BrowserId hiding (forwardUrl)
+import Yesod.Auth.Dummy
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook.ServerSide
 import qualified Yesod.Auth.GoogleEmail2 as Google
@@ -167,7 +168,7 @@ instance Yesod App where
     defaultLayout widget = do
         mmsg <- getMessage
         ma <- maybeAuth'
-        y <- getYesod
+        master <- getYesod
         (title', parents) <- breadcrumbs
         current <- getCurrentRoute
         let bodyClass =
@@ -190,13 +191,14 @@ instance Yesod App where
                 Just ((uid, _), _) -> toWidgetHead [hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your App Updates">
 |]
             toWidget $(Settings.cassiusFile "templates/default-layout.cassius")
-            addScriptEither $ urlJqueryJs y
-            addScriptEither $ urlJqueryUiJs y
-            addStylesheetEither $ urlJqueryUiCss y
+            addScriptEither $ urlJqueryJs master
+            addScriptEither $ urlJqueryUiJs master
+            addStylesheetEither $ urlJqueryUiCss master
             toWidget $(Settings.juliusFile "templates/analytics.julius")
             toWidget $(Settings.juliusFile "templates/default-layout.julius")
             addScriptRemote "https://browserid.org/include.js"
             widget
+
         let login' = $(ihamletFile "templates/login.hamlet")
         let langs :: [(Text, Text)]
             langs =
@@ -443,7 +445,12 @@ instance YesodAuth App where
         , authFacebook []
         , authBrowserId def
         , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
-        ]
+        ] ++ extraAuthPlugins
+        where extraAuthPlugins =
+                -- Determine if authDummy login setting was enabled.
+                if extraAllowAuthDummy $ appExtra $ settings app
+                    then [authDummy]
+                    else []
 
     authHttpManager = httpManager
 
@@ -465,7 +472,9 @@ instance YesodFacebook App where
     fbHttpManager = httpManager
 
 login :: Widget
-login = toWidget $ {-addCassius $(cassiusFile "login") >> -}$(hamletFile "templates/login.hamlet")
+login = do
+    master <- getYesod
+    toWidget $ {-addCassius $(cassiusFile "login") >> -}$(hamletFile "templates/login.hamlet")
 
 userR :: ((UserId, User), Maybe Username) -> Route App
 userR (_, Just (Username _ un)) = UserR un
