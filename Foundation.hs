@@ -76,9 +76,9 @@ data App = App
     , connPool :: Database.Persist.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
     , persistConfig :: Settings.PersistConfig
-    , homepageProfiles :: IORef ([Profile], Int)
-    , publicProfiles :: IORef [Profile]
-    , sesCreds :: Text -> SES
+    , appHomepageProfiles :: IORef ([Profile], Int)
+    , appPublicProfiles :: IORef [Profile]
+    , appSesCreds :: Text -> SES
     , appGoogleEmailCreds :: (Text, Text)
     , appFacebookCreds :: (Text, Text, Text)
     }

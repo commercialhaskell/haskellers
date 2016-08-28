@@ -34,7 +34,7 @@ import Data.Ord (comparing)
 getRootR :: Handler Html
 getRootR = do
     y <- getYesod
-    (allProfs, len) <- liftIO $ readIORef $ homepageProfiles y
+    (allProfs, len) <- liftIO $ readIORef $ appHomepageProfiles y
     gen <- liftIO newStdGen
     news <- runDB $ selectList [] [Desc NewsWhen, LimitTo 1]
     now <- liftIO getCurrentTime
@@ -150,7 +150,7 @@ yearField minY maxY = Field
 getUsersR :: Handler TypedContent
 getUsersR = do
     y <- getYesod
-    allProfs <- liftIO $ readIORef $ publicProfiles y
+    allProfs <- liftIO $ readIORef $ appPublicProfiles y
     now <- liftIO getCurrentTime
     let (maxY, _, _) = toGregorian $ utctDay now
     ((res, form), _enctype) <- runFormGet $ filterForm $ fromInteger maxY
