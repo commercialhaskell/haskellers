@@ -61,6 +61,11 @@ getUserR input = do
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . entityVal) mv
 
+    midents <-
+        if viewerIsAdmin
+            then Just <$> runDB (selectList [IdentUser ==. uid] [Asc IdentIdent])
+            else return Nothing
+
     skills <- runDB $ do
         x <- selectList [UserSkillUser ==. uid] [] >>= mapM (\(Entity _ y) -> do
             let sid = userSkillSkill y

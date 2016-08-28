@@ -24,6 +24,12 @@ $if viewerIsAdmin
                     <br>
                     \Special admin bonus: 
                     <a href="mailto:#{email}">#{email}
+                    \ (
+                    $if userVerifiedEmail u
+                        verified
+                    $else
+                        unverified
+                    )
     $maybe w <- userWebsite u
         <div .website>
             <a href="#{w}">#{w}
@@ -34,6 +40,12 @@ $if viewerIsAdmin
         <div .employment>#{e}
     $maybe l <- userLocation u
         <div .location>Living in #{l}
+    $maybe idents <- midents
+        <p>Admin bonus: identifiers
+        <ul .identifiers>
+            $forall Entity _ ident <- idents
+                <li>
+                    <code>#{identIdent ident}
 \
   $if not (null screenNames)
       <div .screen-names>
