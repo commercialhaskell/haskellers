@@ -1,6 +1,6 @@
 Default: &defaults
-  user: postgres
-  password: your_password 
+  user: root
+  password: root
   host: localhost
   port: 5432
   database: haskellers

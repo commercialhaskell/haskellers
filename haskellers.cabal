@@ -123,3 +123,47 @@ executable         haskellers
                      , yesod
 
     ghc-options:       -threaded -O2
+
+
+test-suite test
+    type:              exitcode-stdio-1.0
+    main-is:           Spec.hs
+    other-modules:     Handler.CommentSpec
+                       Handler.CommonSpec
+                       Handler.HomeSpec
+                       TestImport
+    hs-source-dirs:    test
+    ghc-options:       -Wall
+
+    extensions: TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                CPP
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                FlexibleInstances
+                EmptyDataDecls
+                NoMonomorphismRestriction
+                DeriveDataTypeable
+                ViewPatterns
+                TupleSections
+
+    build-depends: base
+                 , haskellers
+                 , yesod-test >= 1.5.0.1 && < 1.6
+                 , yesod-core
+                 , yesod
+                 , persistent
+                 , persistent-mysql
+                 , resourcet
+                 , monad-logger
+                 , shakespeare
+                 , transformers
+                 , hspec >= 2.0.0
+                 , classy-prelude
+                 , classy-prelude-yesod
+                 , aeson
