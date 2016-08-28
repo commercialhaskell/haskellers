@@ -202,7 +202,7 @@ migrateData pool = do
                 insert $ User
                     { Model.userFullName = name
                     , userWebsite = Nothing
-                    , userEmail = Nothing
+                    , userEmail = Just $ name `mappend` "@example.com"
                     , userVerifiedEmail = False
                     , userVerkey = Nothing
                     , userHaskellSince = Nothing
