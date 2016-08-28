@@ -168,7 +168,6 @@ instance Yesod App where
     defaultLayout widget = do
         mmsg <- getMessage
         ma <- maybeAuth'
-        y <- getYesod
         master <- getYesod
         (title', parents) <- breadcrumbs
         current <- getCurrentRoute
@@ -192,9 +191,9 @@ instance Yesod App where
                 Just ((uid, _), _) -> toWidgetHead [hamlet|<link href="@{UserFeedR uid}" type="application/atom+xml" rel="alternate" title="Your App Updates">
 |]
             toWidget $(Settings.cassiusFile "templates/default-layout.cassius")
-            addScriptEither $ urlJqueryJs y
-            addScriptEither $ urlJqueryUiJs y
-            addStylesheetEither $ urlJqueryUiCss y
+            addScriptEither $ urlJqueryJs master
+            addScriptEither $ urlJqueryUiJs master
+            addStylesheetEither $ urlJqueryUiCss master
             toWidget $(Settings.juliusFile "templates/analytics.julius")
             toWidget $(Settings.juliusFile "templates/default-layout.julius")
             addScriptRemote "https://browserid.org/include.js"
