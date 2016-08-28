@@ -27,6 +27,7 @@ library
                      Import
                      Import.NoFoundation
                      Model
+                     Model.Types
                      Settings
                      Settings.StaticFiles
                      Handler.Root

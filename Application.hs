@@ -20,6 +20,7 @@ import Data.Pool
 import qualified Data.Set as Set
 import Import
 import Language.Haskell.TH.Syntax           (qLocation)
+import Model.Types
 import Network.Mail.Mime.SES
 import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp             (Settings, defaultSettings,
