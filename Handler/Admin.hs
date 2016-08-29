@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes, OverloadedStrings, TemplateHaskell #-}
-{-# LANGUAGE CPP #-}
 module Handler.Admin
     ( postAdminR
     , postUnadminR

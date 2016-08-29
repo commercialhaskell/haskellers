@@ -1,22 +1,52 @@
-Default: &defaults
-  host: "*4" # any IPv4 host
-  port: 3000
-  approot: "http://localhost:3000"
-  copyright: Insert copyright statement here
-  allowAuthDummy: False
-  #analytics: UA-YOURCODE
+# Values formatted like "_env:ENV_VAR_NAME:default_value" can be overridden by the specified environment variable.
+# See https://github.com/yesodweb/yesod/wiki/Configuration#overriding-configuration-values-with-environment-variables
 
-Development:
-  <<: *defaults
+static-dir:     "_env:STATIC_DIR:static"
+host:           "_env:HOST:*4" # any IPv4 host
+port:           "_env:PORT:3000" # NB: The port `yesod devel` uses is distinct from this value. Set the `yesod devel` port from the command line.
+ip-from-header: "_env:IP_FROM_HEADER:false"
 
-Testing:
-  <<: *defaults
+aws:
+  access: "_env:AWS_ACCESS_KEY:static"
+  secret: "_env:AWS_SECRET_KEY:static"
 
-Staging:
-  <<: *defaults
+facebook:
+  app-name:      "_env:FACEBOOK_APP_NAME:SOME-NAME"
+  client-id:     "_env:GOOGLE_CLIENT_ID:'1234'"
+  client-secret: "_env:GOOGLE_CLIENT_SECRET:SOME-SECRET"
 
-Production:
-  #approot: "http://www.example.com"
-  <<: *defaults
-  # We want to be sure, auth Dummy is not enabled on production.
-  allowAuthDummy: False
+google:
+  client-id:     "_env:GOOGLE_CLIENT_ID:'1234'"
+  client-secret: "_env:GOOGLE_CLIENT_SECRET:SOME-SECRET"
+
+
+
+
+# Default behavior: determine the application root from the request headers.
+# Uncomment to set an explicit approot
+#approot:        "_env:APPROOT:http://localhost:3000"
+
+# Optional values with the following production defaults.
+# In development, they default to the inverse.
+#
+# development: false
+# detailed-logging: false
+# should-log-all: false
+# reload-templates: false
+# mutable-static: false
+# skip-combining: false
+
+# NB: If you need a numeric value (e.g. 123) to parse as a String, wrap it in single quotes (e.g. "_env:PGPASS:'123'")
+# See https://github.com/yesodweb/yesod/wiki/Configuration#parsing-numeric-values-as-strings
+
+database:
+  user:     "_env:MYSQL_USER:root"
+  password: "_env:MYSQL_PASSWORD:root"
+  host:     "_env:MYSQL_HOST:localhost"
+  port:     "_env:MYSQL_PORT:5432"
+  # See config/test-settings.yml for an override during tests
+  database: "_env:MYSQL_DATABASE:haskellers"
+  poolsize: "_env:MYSQL_POOLSIZE:10"
+
+copyright: "2016"
+#analytics: UA-YOURCODE

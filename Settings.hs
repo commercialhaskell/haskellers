@@ -1,90 +1,152 @@
+{-# Language CPP #-}
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
 -- In addition, you can configure a number of different aspects of Yesod
 -- by overriding methods in the Yesod typeclass. That instance is
 -- declared in the Foundation.hs file.
-module Settings
-    ( widgetFile
-    , PersistConfig
-    , staticRoot
-    , staticDir
-    , Extra (..)
-    , parseExtra
-    , cassiusFile
-    , juliusFile
-    ) where
+module Settings where
 
-import Prelude
-import Text.Shakespeare.Text (st)
-import Language.Haskell.TH.Syntax
+import ClassyPrelude.Yesod
+import Control.Exception          (throw)
+import Data.Aeson                 (Result (..), fromJSON, withObject, (.!=),
+                                   (.:?))
+import Data.FileEmbed             (embedFile)
+import Data.Yaml                  (decodeEither')
 import Database.Persist.Postgresql (PostgresConf)
-import Yesod.Default.Config
-import Yesod.Default.Util
-import Data.Text (Text)
-import Data.Yaml
-import Settings.Development
-import Data.Default (def)
-import Text.Hamlet
-import qualified Text.Cassius as C
-import qualified Text.Julius as J
+import Language.Haskell.TH.Syntax (Exp, Name, Q)
+import Network.Mail.Mime.SES
+import Network.Wai.Handler.Warp   (HostPreference)
+import Yesod.Default.Config2      (applyEnvValue, configSettingsYml)
+import Yesod.Default.Util         (WidgetFileSettings, widgetFileNoReload,
+                                   widgetFileReload)
 
--- | Which Persistent backend this site is using.
-type PersistConfig = PostgresConf
+-- | Runtime settings to configure this application. These settings can be
+-- loaded from various sources: defaults, environment variables, config files,
+-- theoretically even a database.
+data AppSettings = AppSettings
+    { appStaticDir              :: String
+    -- ^ Directory from which to serve static files.
+    , appDatabaseConf           :: PostgresConf
+    -- ^ Configuration settings for accessing the database.
+    , appRoot                   :: Maybe Text
+    -- ^ Base for all generated URLs. If @Nothing@, determined
+    -- from the request headers.
+    , appHost                   :: HostPreference
+    -- ^ Host/interface the server should bind to.
+    , appPort                   :: Int
+    -- ^ Port to listen on
+    , appIpFromHeader           :: Bool
+    -- ^ Get the IP address from the header when logging. Useful when sitting
+    -- behind a reverse proxy.
 
--- Static setting below. Changing these requires a recompile
+    , appDetailedRequestLogging :: Bool
+    -- ^ Use detailed request logging system
+    , appShouldLogAll           :: Bool
+    -- ^ Should all log messages be displayed?
+    , appReloadTemplates        :: Bool
+    -- ^ Use the reload version of templates
+    , appMutableStatic          :: Bool
+    -- ^ Assume that files in the static dir may change after compilation
+    , appSkipCombining          :: Bool
+    -- ^ Perform no stylesheet/script combining
 
--- | The location of static files on your system. This is a file system
--- path. The default value works properly with your scaffolded site.
-staticDir :: FilePath
-staticDir = "static"
+    -- Example app-specific configuration values.
+    , appCopyright              :: Text
+    -- ^ Copyright text to appear in the footer of the page
+    , appAnalytics              :: Maybe Text
+    -- ^ Google Analytics code
 
--- | The base URL for your static files. As you can see by the default
--- value, this can simply be "static" appended to your application root.
--- A powerful optimization can be serving static files from a separate
--- domain name. This allows you to use a web server optimized for static
--- files, more easily set expires and cache values, and avoid possibly
--- costly transference of cookies on static files. For more information,
--- please see:
---   http://code.google.com/speed/page-speed/docs/request.html#ServeFromCookielessDomain
---
--- If you change the resource pattern for StaticR in Foundation.hs, you will
--- have to make a corresponding change here.
---
--- To see how this value is used, see urlRenderOverride in Foundation.hs
-staticRoot :: AppConfig DefaultEnv x -> Text
-staticRoot conf = [st|#{appRoot conf}/static|]
+    , appAwsCreds :: (Text, Text)
+    -- ^ AWS SES email credentials
+
+    , appFacebookCreds :: (Text, Text, Text)
+    -- ^ Facebook app credentials
+
+    , appGoogleEmailCreds :: (Text, Text)
+    -- ^ Google email credentials
+    }
+
+
+instance FromJSON AppSettings where
+    parseJSON = withObject "AppSettings" $ \o -> do
+        let defaultDev =
+#if DEVELOPMENT
+                True
+#else
+                False
+#endif
+        appStaticDir              <- o .: "static-dir"
+        appDatabaseConf           <- o .: "database"
+        appRoot                   <- o .:? "approot"
+        appHost                   <- fromString <$> o .: "host"
+        appPort                   <- o .: "port"
+        appIpFromHeader           <- o .: "ip-from-header"
+
+        appAwsCreds                <- o .: "aws"
+        appFacebookCreds           <- o .: "facebook"
+        appGoogleCreds             <- o .: "google"
+
+        appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
+        appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
+        appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev
+        appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
+        appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
+
+        appCopyright              <- o .: "copyright"
+        appAnalytics              <- o .:? "analytics"
+
+
+        return AppSettings {..}
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.
+--
+-- For more information on modifying behavior, see:
+--
+-- https://github.com/yesodweb/yesod/wiki/Overriding-widgetFile
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def
-    { wfsHamletSettings = defaultHamletSettings
-        { hamletNewlines = AlwaysNewlines
-        }
-    }
+
+-- | How static files should be combined.
+combineSettings :: CombineSettings
+combineSettings = def
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
 
-widgetFile, cassiusFile, juliusFile :: String -> Q Exp
-widgetFile = (if development then widgetFileReload
-                             else widgetFileNoReload)
+widgetFile :: String -> Q Exp
+widgetFile = (if appReloadTemplates compileTimeAppSettings
+                then widgetFileReload
+                else widgetFileNoReload)
               widgetFileSettings
 
-cassiusFile = (if development then C.cassiusFileReload
-                              else C.cassiusFile)
+-- | Raw bytes at compile time of @config/settings.yml@
+configSettingsYmlBS :: ByteString
+configSettingsYmlBS = $(embedFile configSettingsYml)
 
-juliusFile = (if development then J.juliusFileReload
-                             else J.juliusFile)
+-- | @config/settings.yml@, parsed to a @Value@.
+configSettingsYmlValue :: Value
+configSettingsYmlValue = either throw id $ decodeEither' configSettingsYmlBS
 
-data Extra = Extra
-    { extraCopyright :: Text
-    , extraAllowAuthDummy :: Bool -- ^ Allow authDummy for development purposes
-    , extraAnalytics :: Maybe Text -- ^ Google Analytics
-    } deriving Show
+-- | A version of @AppSettings@ parsed at compile time from @config/settings.yml@.
+compileTimeAppSettings :: AppSettings
+compileTimeAppSettings =
+    case fromJSON $ applyEnvValue False mempty configSettingsYmlValue of
+        Error e -> error e
+        Success settings -> settings
 
-parseExtra :: DefaultEnv -> Object -> Parser Extra
-parseExtra _ o = Extra
-    <$> o .:  "copyright"
-    <*> o .:? "allowAuthDummy" .!= False
-    <*> o .:? "analytics"
+-- The following two functions can be used to combine multiple CSS or JS files
+-- at compile time to decrease the number of http requests.
+-- Sample usage (inside a Widget):
+--
+-- > $(combineStylesheets 'StaticR [style1_css, style2_css])
+
+combineStylesheets :: Name -> [Route Static] -> Q Exp
+combineStylesheets = combineStylesheets'
+    (appSkipCombining compileTimeAppSettings)
+    combineSettings
+
+combineScripts :: Name -> [Route Static] -> Q Exp
+combineScripts = combineScripts'
+    (appSkipCombining compileTimeAppSettings)
+    combineSettings

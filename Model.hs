@@ -1,17 +1,10 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-module Model
-    ( module Model
-    , module Model.Types
-    ) where
+{-# LANGUAGE FlexibleInstances #-}
 
-import Prelude
-import Yesod
-import Data.Text (Text, append)
-import Data.Char (isUpper)
-import qualified Data.Text as T
-import Data.Time (UTCTime, Day)
+module Model where
+
+import ClassyPrelude.Yesod
 import Database.Persist.Quasi
-import Data.Typeable (Typeable)
+import qualified Data.Text as T
 import Model.Types
 
 -- You can define all of your database entities in the entities file.
@@ -19,12 +12,7 @@ import Model.Types
 -- at:
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith upperCaseSettings
-        { psToDBName = \t ->
-            if not (T.null t) && isUpper (T.head t)
-                then "Haskellers__" `append` psToDBName upperCaseSettings t
-                else psToDBName upperCaseSettings t
-        } "config/models")
+    $(persistFileWith lowerCaseSettings "config/models")
 
 userFullName' :: User -> Text
 userFullName' u =

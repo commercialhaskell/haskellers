@@ -1,7 +1,8 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Model.Types where
 
+import Database.Persist.TH
 import Prelude
-import Yesod
 import Text.Blaze.Html (ToMarkup (..))
 
 data Employment = FullTime | PartTime | FullPartTime | NotLooking

@@ -1,35 +1,38 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( makeApplication
-    , getApplicationDev
+    ( getApplicationDev
+    , appMain
+    , develMain
     , makeFoundation
+    , makeLogWare
+    -- * for DevelMain
+    , getApplicationRepl
+    , shutdownApp
+    -- * for GHCI
+    , handler
+    , db
     ) where
 
-import Import
-import Settings
-import Yesod.Auth
-import Yesod.Default.Config
-import Yesod.Default.Main
-import Yesod.Default.Handlers
-import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
-import qualified Database.Persist
-import Network.HTTP.Conduit (newManager, tlsManagerSettings)
+
+import Control.Monad.Logger                 (liftLoc, runLoggingT)
 import Data.IORef
-import Control.Monad
-import Control.Concurrent
-import Database.Persist.Sql
-import Data.Maybe
+import Data.Pool
 import qualified Data.Set as Set
-import Control.Monad.Logger (runNoLoggingT)
-import Control.Monad.Trans.Resource (runResourceT)
-import System.Environment (lookupEnv)
-import System.Timeout
+import Import
+import Language.Haskell.TH.Syntax           (qLocation)
+import Model.Types
 import Network.Mail.Mime.SES
-import Data.Text.Encoding (encodeUtf8)
-import qualified Data.ByteString.Char8 as S8
-import qualified Data.Map as Map
-import Control.Exception (throwIO)
-import Data.Yaml (decodeFileEither)
+import Network.Wai (Middleware)
+import Network.Wai.Handler.Warp             (Settings, defaultSettings,
+                                             defaultShouldDisplayException,
+                                             runSettings, setHost,
+                                             setOnException, setPort, getPort)
+import Network.Wai.Middleware.RequestLogger (Destination (Logger),
+                                             IPAddrSource (..),
+                                             OutputFormat (..), destination,
+                                             mkRequestLogger, outputFormat)
+import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
+                                             toLogStr)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -48,10 +51,73 @@ import Handler.Topic
 import Handler.Bling
 import Handler.Poll
 
--- This line actually creates our YesodSite instance. It is the second half
--- of the call to mkYesodData which occurs in Foundation.hs. Please see
--- the comments there for more details.
+-- This line actually creates our YesodDispatch instance. It is the second half
+-- of the call to mkYesodData which occurs in Foundation.hs. Please see the
+-- comments there for more details.
 mkYesodDispatch "App" resourcesApp
+
+
+-- | This function allocates resources (such as a database connection pool),
+-- performs initialization and returns a foundation datatype value. This is also
+-- the place to put your migrate statements to have automatic database
+-- migrations handled by Yesod.
+makeFoundation :: AppSettings -> IO App
+makeFoundation appSettings = do
+    -- Some basic initializations: HTTP connection manager, logger, and static
+    -- subsite.
+    appHttpManager <- newManager
+    appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
+    appStatic <-
+        (if appMutableStatic appSettings then staticDevel else static)
+        (appStaticDir appSettings)
+
+
+    -- @todo: Add docs
+    hprofs <- newIORef ([], 0)
+    pprofs <- newIORef []
+    if production
+        then do
+            _ <- forkIO $ forever $ do
+                _ <- forkIO $ do
+                    _ <- timeout (1000 * 1000 * 60 * 2) $ fillProfs p hprofs pprofs
+                    return ()
+                threadDelay (1000 * 1000 * 60 * 10)
+            return ()
+        else fillProfs p hprofs pprofs
+
+    let appHomepageProfiles = hprofs
+    let appPublicProfiles = pprofs
+
+    let appSesCreds = \email -> SES
+            { sesFrom = "webmaster@haskellers.com"
+            , sesTo = [encodeUtf8 email]
+            , sesAccessKey = S8.pack $ fst appAwsCreds appSettings
+            , sesSecretKey = S8.pack $ snd appAwsCreds appSettings
+            , sesRegion = usEast1
+            }
+
+    -- We need a log function to create a connection pool. We need a connection
+    -- pool to create our foundation. And we need our foundation to get a
+    -- logging function. To get out of this loop, we initially create a
+    -- temporary foundation without a real connection pool, get a log function
+    -- from there, and then create the real foundation.
+    let mkFoundation appConnPool = App {..}
+        -- The App {..} syntax is an example of record wild cards. For more
+        -- information, see:
+        -- https://ocharles.org.uk/blog/posts/2014-12-04-record-wildcards.html
+        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
+        logFunc = messageLoggerSource tempFoundation appLogger
+
+    -- Create the database connection pool
+    pool <- flip runLoggingT logFunc $ createMySQLPool
+        (myConnInfo $ appDatabaseConf appSettings)
+        (myPoolSize $ appDatabaseConf appSettings)
+
+    -- Perform database migration using our application's logging settings.
+    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+
+    -- Return the foundation
+    return $ mkFoundation pool
 
 -- This function allocates resources (such as a database connection pool),
 -- performs initialization and creates a WAI application. This is also the
@@ -66,8 +132,8 @@ makeApplication conf = do
     logWare   = if development then logStdoutDev
                                else logStdout
 
-makeFoundation :: AppConfig DefaultEnv Extra -> IO App
-makeFoundation conf = do
+makeFoundation_REMOVE :: AppConfig DefaultEnv Extra -> IO App
+makeFoundation_REMOVE conf = do
     manager <- newManager tlsManagerSettings
     s <- staticSite
     dbconf <- withYamlEnvironment "config/db/postgresql.yml" (appEnv conf)
@@ -120,17 +186,7 @@ makeFoundation conf = do
         , connPool = p
         , httpManager = manager
         , persistConfig = dbconf
-        , homepageProfiles = hprofs
-        , publicProfiles = pprofs
-        , sesCreds = \email -> SES
-                { sesFrom = "webmaster@haskellers.com"
-                , sesTo = [encodeUtf8 email]
-                , sesAccessKey = S8.pack access
-                , sesSecretKey = S8.pack secret
-                , sesRegion = usEast1
-                }
-        , appGoogleEmailCreds = googleEmailCreds
-        , appFacebookCreds = facebookCreds
+
         }
 
 -- for yesod devel

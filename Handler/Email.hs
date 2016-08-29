@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings, QuasiQuotes #-}
-{-# LANGUAGE CPP #-}
 module Handler.Email
     ( postResetEmailR
     , postSendVerifyR
@@ -58,7 +56,7 @@ postSendVerifyR = do
             render <- getUrlRender
             let url = render $ VerifyEmailR verkey
             h <- getYesod
-            let ses = sesCreds h email
+            let ses = appSesCreds h email
             renderSendMailSES (httpManager h) ses Mail
                 { mailHeaders =
                     [ ("Subject", "Verify your email address")
