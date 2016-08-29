@@ -1,4 +1,4 @@
-
+{-# Language CPP #-}
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
 -- In addition, you can configure a number of different aspects of Yesod
@@ -14,11 +14,11 @@ import Data.FileEmbed             (embedFile)
 import Data.Yaml                  (decodeEither')
 import Database.Persist.Postgresql (PostgresConf)
 import Language.Haskell.TH.Syntax (Exp, Name, Q)
+import Network.Mail.Mime.SES
 import Network.Wai.Handler.Warp   (HostPreference)
 import Yesod.Default.Config2      (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util         (WidgetFileSettings, widgetFileNoReload,
                                    widgetFileReload)
-import qualified Database.MySQL.Base as MySQL
 
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
@@ -56,7 +56,7 @@ data AppSettings = AppSettings
     , appAnalytics              :: Maybe Text
     -- ^ Google Analytics code
 
-    , appAwsCreds :: Text -> SES
+    , appAwsCreds :: (Text, Text)
     -- ^ AWS SES email credentials
 
     , appFacebookCreds :: (Text, Text, Text)
@@ -82,10 +82,9 @@ instance FromJSON AppSettings where
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
 
-        fromYamlAppAwsConf        <- o .: "aws"
-        fromYamlAppFacebookConf   <- o .: "facebook"
-        fromYamlAppGoogleConf     <- o .: "google"
-
+        appAwsCreds                <- o .: "aws"
+        appFacebookCreds           <- o .: "facebook"
+        appGoogleCreds             <- o .: "google"
 
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
@@ -96,9 +95,6 @@ instance FromJSON AppSettings where
         appCopyright              <- o .: "copyright"
         appAnalytics              <- o .:? "analytics"
 
-        let appAwsCreds      = (,)  fromYamlAppAwsConf
-        let appFacebookCreds = (,,) fromYamlAppFacebookConf
-        let appGoogleCreds   = (,)  fromYamlAppGoogleConf
 
         return AppSettings {..}
 
