@@ -163,7 +163,7 @@ instance Yesod App where
       where
         corrected = filter (not . T.null) s
 
-    approot = ApprootMaster $ appRoot . settings
+    approot = guessApproot
 
     defaultLayout widget = do
         mmsg <- getMessage
