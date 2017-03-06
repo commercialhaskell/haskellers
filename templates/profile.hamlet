@@ -31,7 +31,7 @@ $elseif not (userVisible u)
         $maybe email <- userEmail u
             <div id="gravatar">
                 <img src="#{gravatar 120 email}" alt="Gravatar Profile Picture">
-                <a href="http://gravatar.com/">Change your Gravatar
+                <a href="https://gravatar.com/">Change your Gravatar
             <form id="reset" method="post" action="@{ResetEmailR}">
                 \Your email address is 
                 <b>#{email}
@@ -44,9 +44,9 @@ $elseif not (userVisible u)
     $else
         <p>
           \In order to have your profile show up on the homepage, you need to verify an email address. Your address will be protected with 
-          <a href="http://www.google.com/recaptcha/intro/index.html">Recaptcha mailhide
+          <a href="https://www.google.com/recaptcha/intro/index.html">Recaptcha mailhide
           \ and will be used to show a 
-          <a href="http://gravatar.com/">Gravatar.
+          <a href="https://gravatar.com/">Gravatar.
         <form method="post" action="@{SendVerifyR}">
             \Email: 
             $maybe email <- userEmail u

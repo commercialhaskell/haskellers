@@ -1,14 +1,14 @@
 <p>What is the one thing Haskell is missing? Bling. We need T-shirts, sweatshirts, coffee mugs, USB sticks, and everything else that <i>modern</i> programming languages have. This page should help bridge that gap.
 <p>Anyone who wants to advertise Haskell-specific bling on this page should <a href="@{UserR "snoyberg"}">contact me directly</a>: for obvious reasons I will not be putting up a form to get your content automatically added. I don't care if you are selling stuff, giving it away for free, whatever: just send it in.
 <div.bling-box>
-    <a href="http://haskellers.spreadshirt.com/">
+    <a href="https://haskellers.spreadshirt.com/">
         <img src=@{StaticR bling_monads_in_disguise_png} alt="Transformers: Monads in Disguise">
 <div.bling-box>
     <div>
-        <a href="http://www.zazzle.com/2_2_where_2_2_5_tshirt-235982249680614221">2 + 2 where 2 + 2 = 5
+        <a href="https://www.zazzle.com/2_2_where_2_2_5_tshirt-235982249680614221">2 + 2 where 2 + 2 = 5
     <div>
-        <a href="http://www.zazzle.com/functional_programming_tshirt-235718011363017857">Functional Programming quote
+        <a href="https://www.zazzle.com/functional_programming_tshirt-235718011363017857">Functional Programming quote
     <div>
-        <a href="http://www.zazzle.com/programming_in_c_is_tshirt-235826477539900680">Programming in C++
+        <a href="https://www.zazzle.com/programming_in_c_is_tshirt-235826477539900680">Programming in C++
     <div>
-        <a href="http://www.cafepress.com/mf/2498088/what-part-of-types-dont-you-understand_tshirt?shop=skicalc">What part of types don't you understand
+        <a href="https://www.cafepress.com/mf/2498088/what-part-of-types-dont-you-understand_tshirt?shop=skicalc">What part of types don't you understand

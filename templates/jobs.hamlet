@@ -1,6 +1,6 @@
 \<div class="subscribe">
-\<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a>
-\<a href="http://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
+\<a href="https://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml"><img src="https://www.feedburner.com/fb/images/pub/feed-icon32x32.png" alt="" style="border:0"/></a>
+\<a href="https://feeds.feedburner.com/HaskellersJobListings" title="Subscribe to my feed" rel="alternate" type="application/rss+xml">Subscribe to job listings</a>
 \</div>
 \
 $if null jobs
@@ -16,9 +16,9 @@ $else
     \You can find more Haskell jobs from 
     <ul>
         <li>
-            <a href="http://functionaljobs.com/">Functional Jobs
+            <a href="https://functionaljobs.com/">Functional Jobs
         <li>
-            <a href="http://jobs.functionalworks.com/#s=1">Functional Works
+            <a href="https://jobs.functionalworks.com/#s=1">Functional Works
 $maybe form <- mform
     <form method="post" action="@{JobsR}" .big>
         <h2>Post a new job

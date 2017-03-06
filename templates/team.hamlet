@@ -77,7 +77,7 @@ $if not (null packages)
                   <tr>
                       <th>
                           $if teamPackageHackage p
-                              <a href="http://www.stackage.org/package/#{teamPackageName p}">#{teamPackageName p}
+                              <a href="https://www.stackage.org/package/#{teamPackageName p}">#{teamPackageName p}
                           $else
                               \#{teamPackageName p}
                       <td>

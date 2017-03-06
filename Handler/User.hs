@@ -112,7 +112,7 @@ emailLink :: Text -> Text
 emailLink email = unsafePerformIO $ do
     enc <- encryptAddress email
     return $ T.concat
-        [ "http://www.google.com/recaptcha/mailhide/d?k="
+        [ "https://www.google.com/recaptcha/mailhide/d?k="
         , mailhidePublic
         , "&c="
         , enc

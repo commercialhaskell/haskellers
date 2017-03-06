@@ -63,8 +63,8 @@ getRootR = do
         addScriptEither $ urlJqueryJs y
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
-        addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
-        addScriptRemote "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"
+        addScriptRemote "https://maps.google.com/maps/api/js?sensor=false"
+        addScriptRemote "https://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"
         toWidget $(cassiusFile "templates/jobs.cassius")
         toWidget $(cassiusFile "templates/users.cassius")
         $(widgetFile "homepage")
@@ -182,7 +182,7 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (return $ json render profs) $ do
         setTitle "Browsing Haskellers"
-        addScriptRemote "http://maps.google.com/maps/api/js?sensor=false"
+        addScriptRemote "https://maps.google.com/maps/api/js?sensor=false"
         $(widgetFile "users")
   where
     json r users = object ["users" .= array (map (json' r) users)]
@@ -194,7 +194,7 @@ getUsersR = do
 
 gravatar :: Int -> Text -> Text
 gravatar s x = T.concat
-    [ "http://www.gravatar.com/avatar/"
+    [ "https://www.gravatar.com/avatar/"
     , hash
     , "?d=identicon&s="
     , pack $ show s

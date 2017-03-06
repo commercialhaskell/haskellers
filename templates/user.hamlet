@@ -73,7 +73,7 @@ $if not (null packages)
         <ul>
             $forall p <- packages
                 <li>
-                    <a href="http://www.stackage.org/package/#{p}">#{p}
+                    <a href="https://www.stackage.org/package/#{p}">#{p}
         <div .packdeps>
             <a href="#{packdeps}">Check package dependency status.
 \
