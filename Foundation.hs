@@ -23,6 +23,7 @@ module Foundation
     , addTeamNews
     , humanReadableTimeDiff
     , userFullName
+    , addMapAPI
     ) where
 
 import Prelude
@@ -581,3 +582,6 @@ fixBrowserId creds
                         return ()
                     _ -> return ()
     | otherwise = return ()
+
+addMapAPI :: Widget
+addMapAPI = addScriptRemote "https://maps.google.com/maps/api/js?key=AIzaSyDEXQ0UTJmzcw1h1AUs4iZz9qhVpuy15Ro"

@@ -74,7 +74,7 @@ makeFoundation conf = do
               Database.Persist.loadConfig >>=
               Database.Persist.applyEnv
     p <- Database.Persist.createPoolConfig (dbconf :: Settings.PersistConfig)
-    runNoLoggingT $ Database.Persist.runPool dbconf (runMigration migrateAll) p
+    --runNoLoggingT $ Database.Persist.runPool dbconf (runMigration migrateAll) p
 
     hprofs <- newIORef ([], 0)
     pprofs <- newIORef []

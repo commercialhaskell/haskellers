@@ -113,7 +113,7 @@ getProfileR = do
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
         setTitle "Edit Your Profile"
-        addScriptRemote "https://maps.google.com/maps/api/js?sensor=false"
+        addMapAPI
         $(widgetFile "profile")
   where
     notOne [_] = False

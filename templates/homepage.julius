@@ -18,7 +18,8 @@ $(function(){
             markers.push(marker);
             addMarkerLink(marker, data.locations[i].url);
         }
-        var mc = new MarkerClusterer(map, markers);
+        var options = { imagePath: "/static/images/m" };
+        var mc = new MarkerClusterer(map, markers, options);
     });
 });
 function addMarkerLink(marker, url) {

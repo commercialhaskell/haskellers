@@ -63,7 +63,7 @@ getRootR = do
         addScriptEither $ urlJqueryJs y
         addScriptEither $ urlJqueryUiJs y
         addStylesheetEither $ urlJqueryUiCss y
-        addScriptRemote "https://maps.google.com/maps/api/js?sensor=false"
+        addMapAPI
         addScript $ StaticR markerclusterer_js
         toWidget $(cassiusFile "templates/jobs.cassius")
         toWidget $(cassiusFile "templates/users.cassius")
@@ -182,7 +182,7 @@ getUsersR = do
     render <- getUrlRender
     flip defaultLayoutJson (return $ json render profs) $ do
         setTitle "Browsing Haskellers"
-        addScriptRemote "https://maps.google.com/maps/api/js?sensor=false"
+        addMapAPI
         $(widgetFile "users")
   where
     json r users = object ["users" .= array (map (json' r) users)]
