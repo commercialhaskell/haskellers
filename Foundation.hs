@@ -30,7 +30,6 @@ import Prelude
 import Yesod
 import Yesod.Static
 import Yesod.Auth
-import Yesod.Auth.BrowserId hiding (forwardUrl)
 import Yesod.Auth.Dummy
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook.ServerSide
@@ -197,7 +196,6 @@ instance Yesod App where
             addStylesheetEither $ urlJqueryUiCss master
             toWidget $(Settings.juliusFile "templates/analytics.julius")
             toWidget $(Settings.juliusFile "templates/default-layout.julius")
-            addScriptRemote "https://browserid.org/include.js"
             widget
 
         let login' = $(ihamletFile "templates/login.hamlet")
@@ -360,7 +358,6 @@ instance YesodAuth App where
     logoutDest _ = RootR
 
     getAuthId creds = do
-        fixBrowserId creds
         muid <- maybeAuth
         x <- runDB $ do
             x1 <- getBy $ UniqueIdent $ credsIdentClaimed creds
@@ -425,7 +422,7 @@ instance YesodAuth App where
                 redirect ProfileR
       where
         addBIDEmail uid
-            | credsPlugin creds `elem` ["browserid", "googleemail2"] = do
+            | credsPlugin creds `elem` ["googleemail2"] = do
                 u <- get404 uid
                 unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
@@ -438,7 +435,6 @@ instance YesodAuth App where
     authPlugins app =
         [ authOpenId OPLocal []
         , authFacebook []
-        , authBrowserId def
         , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
         ] ++ extraAuthPlugins
         where extraAuthPlugins =
@@ -562,26 +558,6 @@ userFullName =
   where
     go "" = "<Unnamed user>"
     go x = x
-
-browserIdDest :: AuthRoute
-browserIdDest = PluginR "browserid" []
-
-fixBrowserId :: Creds App -> Handler ()
-fixBrowserId creds
-    | credsPlugin creds == "browserid" = runDB $ do
-        liftIO $ putStrLn "here i am"
-        let email = credsIdent creds
-        x <- getBy $ UniqueIdent email
-        case x of
-            Just _ -> return ()
-            Nothing -> do
-                mu <- selectList [UserEmail ==. Just email, UserVerifiedEmail ==. True] [LimitTo 1]
-                case mu of
-                    [Entity uid _] -> do
-                        _ <- insert $ Ident email uid
-                        return ()
-                    _ -> return ()
-    | otherwise = return ()
 
 addMapAPI :: Widget
 addMapAPI = addScriptRemote "https://maps.google.com/maps/api/js?key=AIzaSyDEXQ0UTJmzcw1h1AUs4iZz9qhVpuy15Ro"
