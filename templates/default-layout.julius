@@ -14,14 +14,4 @@ $(function(){
     $("#haskell_bar select").change(function(){
         $("#haskell_bar form").submit();
     });
-    $("#browserid").click(function(){
-        navigator.id.getVerifiedEmail(function(assertion){
-            if (assertion) {
-                document.location = "@{AuthR browserIdDest}/" + assertion;
-            }
-            else {
-                alert("BrowserID login failed, please try again.");
-            }
-        });
-    });
 });
