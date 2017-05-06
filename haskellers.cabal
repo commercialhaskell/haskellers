@@ -111,6 +111,8 @@ library
                  , monad-logger
                  , aeson
                  , cipher-aes
+                 , xss-sanitize
+                 , regex-compat
 
 executable         haskellers
     if flag(library-only)
