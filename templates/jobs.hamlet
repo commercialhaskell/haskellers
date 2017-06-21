@@ -18,7 +18,7 @@ $else
         <li>
             <a href="https://functionaljobs.com/">Functional Jobs
         <li>
-            <a href="https://jobs.functionalworks.com/#s=1">Functional Works
+            <a href="https://functional.works-hub.com/">Functional Works
 $maybe form <- mform
     <form method="post" action="@{JobsR}" .big>
         <h2>Post a new job
