@@ -1,4 +1,4 @@
-resolver: lts-6.11
+resolver: lts-6.30
 image:
   container:
     name: snoyberg/haskellers
