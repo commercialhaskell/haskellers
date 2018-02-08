@@ -1,36 +1,40 @@
+# This is the simple Travis configuration, which is intended for use
+# on applications which do not require cross-platform and
+# multiple-GHC-version support. For more information and other
+# options, see:
+#
+# https://docs.haskellstack.org/en/stable/travis_ci/
+#
+# Copy these contents into the root directory of your Github project in a file
+# named .travis.yml
+
 # Use new container infrastructure to enable caching
 sudo: false
 
-# Choose a lightweight base image; we provide our own build tools.
-language: c
-
-# GHC depends on GMP. You can add other dependencies here as well.
-addons:
-  apt:
-    packages:
-    - libgmp-dev
-
-# The different configurations we want to test. You could also do things like
-# change flags or use --stack-yaml to point to a different file.
-env:
-- ARGS=""
-#- ARGS="--resolver lts-2"
-#- ARGS="--resolver lts-3"
-#- ARGS="--resolver lts"
-#- ARGS="--resolver nightly"
-
-before_install:
-# Download and unpack the stack executable
-- mkdir -p ~/.local/bin
-- export PATH=$HOME/.local/bin:$PATH
-- travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.4.0/stack-0.1.4.0-x86_64-linux.tar.gz | tar xz -C ~/.local/bin
-
-# This line does all of the work: installs GHC if necessary, build the library,
-# executables, and test suites, and runs the test suites. --no-terminal works
-# around some quirks in Travis's terminal implementation.
-script: stack $ARGS --no-terminal --install-ghc test --haddock --pedantic
+# Do not choose a language; we provide our own build tools.
+language: generic
 
 # Caching so the next build will be fast too.
 cache:
   directories:
   - $HOME/.stack
+
+# Ensure necessary system libraries are present
+addons:
+  apt:
+    packages:
+      - libgmp-dev
+
+before_install:
+# Download and unpack the stack executable
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+install:
+# Build dependencies
+- stack --no-terminal --install-ghc test --only-dependencies
+
+script:
+# Build the package, its tests, and its docs and run the tests
+- stack --no-terminal test --haddock --no-haddock-deps --pedantic
