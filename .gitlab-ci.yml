@@ -44,28 +44,6 @@ build:
         docker push "${CI_REGISTRY_IMAGE}:latest"
       fi
 
-deploy:
-  stage: deploy
-  only:
-    - master
-  variables:
-    DEPLOYMENT_NAME: "haskellers"
-    PROD_DEPLOYMENT_IMAGE: "snoyberg/haskellers:${CI_BUILD_REF_SLUG}_${CI_PIPELINE_ID}"
-  script:
-    - export
-      KUBE_CA_PEM="$PROD_KUBE_CA_PEM"
-      KUBE_URL="$PROD_KUBE_URL"
-      KUBE_TOKEN="$PROD_KUBE_TOKEN"
-      KUBE_NAMESPACE="$PROD_KUBE_NAMESPACE"
-    - *KUBELOGIN
-    - docker login -u "$PROD_DOCKER_USERNAME" -p "${PROD_DOCKER_PASSWORD}"
-    - docker tag "$DEPLOYMENT_IMAGE" "$PROD_DEPLOYMENT_IMAGE"
-    - docker push "$PROD_DEPLOYMENT_IMAGE"
-    - docker tag "$DEPLOYMENT_IMAGE" "snoyberg/haskellers:latest"
-    - docker push "snoyberg/haskellers:latest"
-    - kubectl set image "deployment/$DEPLOYMENT_NAME" webapps="$PROD_DEPLOYMENT_IMAGE"
-    - kubectl rollout status "deployment/$DEPLOYMENT_NAME"
-
 deploy_v2:
   stage: deploy
   only:
