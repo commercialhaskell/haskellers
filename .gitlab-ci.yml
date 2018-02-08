@@ -27,6 +27,11 @@ variables:
 build:
   stage: build
   script:
+    # FIXME Temporary
+    - stack --version
+    - stack upgrade
+    - stack --version
+
     # Clear *_TOKEN variables during code build so that libraries compile-time code can't access them
     - CI_BUILD_TOKEN="" KUBE_TOKEN="" PROD_KUBE_TOKEN="" PROD_DOCKER_PASSWORD="" stack --install-ghc image container
     - docker tag snoyberg/haskellers "${DEPLOYMENT_IMAGE}"
