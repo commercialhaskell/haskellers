@@ -38,14 +38,16 @@ build:
     - docker tag snoyberg/haskellers "${DEPLOYMENT_IMAGE}"
     - docker login -u gitlab-ci-token -p "${CI_BUILD_TOKEN}" "${CI_REGISTRY}"
     - docker push "${DEPLOYMENT_IMAGE}"
+    - |
+      if [[ "$CI_BUILD_REF_NAME" == "master" ]]; then
+        docker tag "${DEPLOYMENT_IMAGE}" "${CI_REGISTRY_IMAGE}:latest"
+        docker push "${CI_REGISTRY_IMAGE}:latest"
+      fi
 
 deploy:
   stage: deploy
   only:
     - master
-#  environment:
-#    name: fpcomplete-site-prod
-#    url: https://www.fpcomplete.com/
   variables:
     DEPLOYMENT_NAME: "haskellers"
     PROD_DEPLOYMENT_IMAGE: "snoyberg/haskellers:${CI_BUILD_REF_SLUG}_${CI_PIPELINE_ID}"
@@ -68,9 +70,6 @@ deploy_v2:
   stage: deploy
   only:
     - master
-#  environment:
-#    name: fpcomplete-site-prod
-#    url: https://www.fpcomplete.com/
   variables:
     DEPLOYMENT_NAME: "haskellers"
     PROD_DEPLOYMENT_IMAGE: "snoyberg/haskellers:${CI_BUILD_REF_SLUG}_${CI_PIPELINE_ID}"
