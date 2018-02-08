@@ -64,6 +64,7 @@ import qualified Data.Map as Map
 import System.IO.Unsafe
 import Data.IORef (IORef)
 import Yesod.Facebook
+import Yesod.GitRev (GitRev)
 import Network.Mail.Mime.SES (SES)
 
 -- | The site argument for your application. This can be a good place to
@@ -81,6 +82,7 @@ data App = App
     , sesCreds :: Text -> SES
     , appGoogleEmailCreds :: (Text, Text)
     , appFacebookCreds :: (Text, Text, Text)
+    , appGitRev :: !GitRev
     }
 
 data Location = Location
@@ -331,6 +333,7 @@ instance YesodBreadcrumbs App where
     breadcrumb MessagesFeedR{} = return ("", Nothing)
     breadcrumb MessagesFeedLinkR{} = return ("", Nothing)
     breadcrumb CloseJobR{} = return ("", Nothing)
+    breadcrumb BuildVersionR{} = return ("", Nothing)
 
 -- How to run database actions.
 instance YesodPersist App where

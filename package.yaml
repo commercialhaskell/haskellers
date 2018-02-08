@@ -78,6 +78,7 @@ dependencies:
 - monad-logger
 - aeson
 - cipher-aes
+- yesod-gitrev
 
 library:
   source-dirs: src

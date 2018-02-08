@@ -30,6 +30,7 @@ import qualified Data.ByteString.Char8 as S8
 import qualified Data.Map as Map
 import Control.Exception (throwIO)
 import Data.Yaml (decodeFileEither)
+import Yesod.GitRev
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -132,6 +133,7 @@ makeFoundation conf = do
                 }
         , appGoogleEmailCreds = googleEmailCreds
         , appFacebookCreds = facebookCreds
+        , appGitRev = $gitRev
         }
 
 -- for yesod devel

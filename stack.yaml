@@ -6,3 +6,7 @@ image:
     add:
         static: /app/static
         config: /app/config
+
+extra-deps:
+- git: https://github.com/snoyberg/gitrev.git
+  commit: 6a1a639f493ac08959eb5ddf540ca1937baaaaf9
