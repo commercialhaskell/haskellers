@@ -14,3 +14,4 @@ config/db/facebook.yaml
 config/db/postgresql.yml
 yesod-devel
 *~
+haskellers.cabal

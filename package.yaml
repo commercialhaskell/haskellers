@@ -1,0 +1,107 @@
+name:       haskellers
+author:     Michael Snoyman
+maintainer: Michael Snoyman
+license:    BSD3
+homepage:   https://www.haskellers.com/
+github:     snoyberg/haskellers
+
+flags:
+  library-only:
+    description: Build for use with "yesod devel"
+    manual: false
+    default: false
+  dev:
+    description: Turn on development settings, like auto-reload templates.
+    manual: false
+    default: false
+
+default-extensions:
+- TemplateHaskell
+- QuasiQuotes
+- OverloadedStrings
+- NoImplicitPrelude
+- CPP
+- MultiParamTypeClasses
+- TypeFamilies
+- GADTs
+- GeneralizedNewtypeDeriving
+- FlexibleContexts
+- EmptyDataDecls
+- NoMonomorphismRestriction
+- ViewPatterns
+
+dependencies:
+- base
+- yesod
+- yesod-core
+- yesod-auth
+- yesod-auth-fb
+- yesod-fb
+- yesod-static
+- yesod-form
+- yesod-newsfeed
+- yesod-test
+- clientsession
+- bytestring
+- text
+- persistent
+- persistent-postgresql
+- template-haskell
+- shakespeare
+- hjsmin
+- monad-control
+- wai-extra
+- yaml
+- http-conduit
+- directory
+- warp
+- blaze-html
+- data-default
+- time
+- transformers
+- containers
+- old-locale
+- stm
+- fb
+- http-types
+- blaze-builder
+- text-icu
+- random-shuffle
+- random
+- pureMD5
+- utf8-string
+- cryptocipher
+- base64-bytestring
+- mime-mail
+- mime-mail-ses
+- resourcet
+- monad-logger
+- aeson
+- cipher-aes
+
+library:
+  source-dirs: src
+  when:
+  - condition: (flag(dev)) || (flag(library-only))
+    then:
+      ghc-options:
+      - -Wall
+      - -O0
+      cpp-options: -DDEVELOPMENT
+    else:
+      ghc-options:
+      - -Wall
+      - -O2
+
+executables:
+  haskellers:
+    main: main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -O2
+    dependencies:
+    - haskellers
+    when:
+    - condition: flag(library-only)
+      buildable: false
