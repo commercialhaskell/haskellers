@@ -1,4 +1,4 @@
-image: registry.gitlab.fpcomplete.com/fpco/default-build-image:1009
+image: registry.gitlab.fpcomplete.com/fpco/default-build-image:1946
 
 cache:
   key: "$CI_BUILD_NAME"
@@ -27,12 +27,6 @@ variables:
 build:
   stage: build
   script:
-    # FIXME Temporary
-    - stack --version
-    - stack upgrade
-    - stack --version
-    - export PATH="$HOME/.local/bin:$PATH"
-
     # Clear *_TOKEN variables during code build so that libraries compile-time code can't access them
     - CI_BUILD_TOKEN="" KUBE_TOKEN="" PROD_KUBE_TOKEN="" PROD_DOCKER_PASSWORD="" stack --install-ghc image container
     - docker tag snoyberg/haskellers "${DEPLOYMENT_IMAGE}"
