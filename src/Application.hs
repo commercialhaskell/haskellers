@@ -128,6 +128,7 @@ makeFoundation conf = do
                 , sesAccessKey = S8.pack access
                 , sesSecretKey = S8.pack secret
                 , sesRegion = usEast1
+                , sesSessionToken = Nothing
                 }
         , appGoogleEmailCreds = googleEmailCreds
         , appFacebookCreds = facebookCreds
