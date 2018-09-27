@@ -1,4 +1,10 @@
-resolver: lts-10.4
+resolver: lts-12.10
+
+extra-deps:
+- github: snoyberg/yesod-gitrev
+  commit: 5364cf7ffa6b49b46173a99a7f1b48de4f660170
+- githash-0.1.0.1@sha256:fd8110389b1e4febf2bca0acfca6505130606233058a3cdab96bd66d7b359b84,1552
+
 image:
   container:
     name: snoyberg/haskellers
@@ -6,7 +12,3 @@ image:
     add:
         static: /app/static
         config: /app/config
-
-extra-deps:
-- git: https://github.com/snoyberg/gitrev.git
-  commit: 6a1a639f493ac08959eb5ddf540ca1937baaaaf9

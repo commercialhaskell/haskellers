@@ -362,7 +362,7 @@ instance YesodAuth App where
 
     getAuthId creds = do
         muid <- maybeAuth
-        x <- runDB $ do
+        x <- liftHandler $ runDB $ do
             x1 <- getBy $ UniqueIdent $ credsIdentClaimed creds
             case x1 of
                 Just _ -> return x1
@@ -383,11 +383,11 @@ instance YesodAuth App where
                                 _ -> return Nothing
         case (x, muid) of
             (Just (Entity _ i), Nothing) -> do
-                runDB $ do
+                liftHandler $ runDB $ do
                     addBIDEmail (identUser i)
                     addClaimed (identUser i) creds
                 return $ Just $ identUser i
-            (Nothing, Nothing) -> runDB $ do
+            (Nothing, Nothing) -> liftHandler $ runDB $ do
                 uid <- insert $ User
                     { Model.userFullName = ""
                     , userWebsite = Nothing
@@ -414,13 +414,13 @@ instance YesodAuth App where
                 return $ Just uid
             (Nothing, Just (Entity uid _)) -> do
                 setMessage "Identifier added to your account"
-                runDB $ do
+                liftHandler $ runDB $ do
                     addBIDEmail uid
                     _ <- insert $ Ident (credsIdent creds) uid
                     addClaimed uid creds
                 return $ Just uid
             (Just _, Just (Entity uid _)) -> do
-                runDB $ addClaimed uid creds
+                liftHandler $ runDB $ addClaimed uid creds
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect ProfileR
       where
@@ -446,7 +446,7 @@ instance YesodAuth App where
                     then [authDummy]
                     else []
 
-    authHttpManager = httpManager
+    authHttpManager = httpManager <$> getYesod
 
 -- Note: previous versions of the scaffolding included a deliver function to
 -- send emails. Unfortunately, there are too many different options for us to
@@ -455,7 +455,7 @@ instance YesodAuth App where
 --
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 
-    loginHandler = lift $ defaultLayout $ [whamlet|<div style="width:500px;margin:0 auto">^{login}|]
+    loginHandler = liftHandler $ defaultLayout $ [whamlet|<div style="width:500px;margin:0 auto">^{login}|]
 
 instance YesodAuthPersist App
 
@@ -463,7 +463,7 @@ instance YesodFacebook App where
     fbCredentials app =
         let (name, id', secret) = appFacebookCreds app
          in Credentials name id' secret
-    fbHttpManager = httpManager
+    fbHttpManager = authHttpManager
 
 login :: Widget
 login = do
