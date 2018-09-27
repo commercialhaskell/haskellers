@@ -14,6 +14,7 @@ module Handler.Admin
     , getMessagesFeedLinkR
     , postCloseMessageR
     , getAdminUsersR
+    , postAdminAddIdentifierR
     , requireAdmin
     ) where
 
@@ -124,3 +125,20 @@ getAdminUsersR = do
         setTitle "Admin list of users"
         addScriptEither $ urlJqueryJs y
         $(widgetFile "admin-users")
+
+postAdminAddIdentifierR :: UserId -> Handler ()
+postAdminAddIdentifierR uid = do
+    requireAdmin
+    u <- runDB $ get404 uid
+    mident <- lookupPostParam "identifier"
+    case mident of
+      Nothing -> setMessage "No identifier provided"
+      Just ident -> do
+        res <- runDB $ insertBy Ident
+          { identIdent = ident
+          , identUser = uid
+          }
+        case res of
+          Left _ -> setMessage "Duplicate key already exists"
+          Right _ -> setMessage "Identifier added successfully"
+    redirect $ userR ((uid, u), Nothing)

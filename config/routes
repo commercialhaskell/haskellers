@@ -43,6 +43,8 @@
 
 /user/#UserId/flag FlagR GET POST
 
+/user/#UserId/add-identifier AdminAddIdentifierR POST
+
 /user ByIdentR GET
 
 /profile/reset-email ResetEmailR POST

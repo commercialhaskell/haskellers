@@ -46,6 +46,10 @@ $if viewerIsAdmin
             $forall Entity _ ident <- idents
                 <li>
                     <code>#{identIdent ident}
+        <form method=post action=@{AdminAddIdentifierR uid}>
+          Add new identifier:
+          <input type=text name=identifier>
+          <input type=submit>
 \
   $if not (null screenNames)
       <div .screen-names>
