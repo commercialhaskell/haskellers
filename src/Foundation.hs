@@ -229,30 +229,41 @@ instance Yesod App where
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
 
+    errorHandler x = do
+      liftIO $ print x
+      defaultErrorHandler x
+
 instance YesodBreadcrumbs App where
     breadcrumb RootR = return ("Homepage", Nothing)
     breadcrumb FaqR = return ("Frequently Asked Questions", Just RootR)
     breadcrumb BlingR = return ("Bling", Just RootR)
     breadcrumb NewsR = return ("News Archive", Just RootR)
     breadcrumb (NewsItemR nid) = do
-        n <- runDB $ get404 nid
-        return (newsTitle n, Just NewsR)
+        mn <- runDB $ get nid
+        return (maybe "Unknown news item" newsTitle mn, Just NewsR)
     breadcrumb UsersR = return ("Browse Users", Just RootR)
     breadcrumb AllSkillsR = return ("Browse Skills", Just RootR)
     breadcrumb (SkillR sid) = do
-        s <- runDB $ get404 sid
-        return (skillName s, Just AllSkillsR)
+        ms <- runDB $ get sid
+        return (maybe "Unknown skill" skillName ms, Just AllSkillsR)
     breadcrumb (FlagR uid) = return ("Report a User", Just $ UserR $ toPathPiece uid)
     breadcrumb (UserR str) = do
         u <- runDB $
             case Data.Text.Read.decimal str :: Either String (Int, Text) of
-                Right (_, "") -> get404 $ fromJust $ fromPathPiece str
+                Right (_, "") -> do
+                  mu <- get $ fromJust $ fromPathPiece str
+                  pure $
+                    case mu of
+                      Nothing -> "Unknown user"
+                      Just u -> Foundation.userFullName u
                 _ -> do
                     x <- getBy $ UniqueUsername str
                     case x of
-                        Nothing -> lift notFound
-                        Just (Entity _ un) -> get404 $ usernameUser un
-        return (Foundation.userFullName u, Nothing)
+                        Nothing -> pure "Unknown user"
+                        Just (Entity _ un) -> do
+                          u <- get404 $ usernameUser un
+                          pure $ Foundation.userFullName u
+        return (u, Nothing)
     breadcrumb ProfileR = return ("Edit Your Profile", Just RootR)
     breadcrumb VerifyEmailR{} = return ("Verify Your Email Address", Nothing)
     breadcrumb AdminUsersR = return ("User List- Admin", Nothing)
@@ -262,28 +273,30 @@ instance YesodBreadcrumbs App where
     breadcrumb DebugR = return ("Database pool debug info", Just RootR)
     breadcrumb PollsR = return ("Polls", Just RootR)
     breadcrumb (PollR pollid) = do
-        poll <- runDB $ get404 pollid
-        return (pollQuestion poll, Just PollsR)
+        mpoll <- runDB $ get pollid
+        return (maybe "Unknown poll question" pollQuestion mpoll, Just PollsR)
 
     breadcrumb JobsR = return ("Job Listings", Just RootR)
     breadcrumb (JobR jid) = do
-        j <- runDB $ get404 jid
-        return (T.concat
+        mj <- runDB $ get jid
+        return (maybe "Unknown job listing" (\j -> T.concat
             [ jobTitle j
             , " - "
             , T.pack . prettyDay . utctDay . jobPostedAt $ j
-            ], Just JobsR
-            )
+            ]) mj, Just JobsR)
     breadcrumb TeamsR = return ("Special Interest Groups", Just RootR)
     breadcrumb (TeamR tid) = do
-        t <- runDB $ get404 tid
-        return (teamName t, Just TeamsR)
+        mt <- runDB $ get tid
+        return (maybe "Unknown team" teamName mt, Just TeamsR)
     breadcrumb (TeamPackagesR tid) = return ("Add Package", Just $ TeamR tid)
 
     breadcrumb (TopicsR tid) = return ("Discussion Topics", Just $ TeamR tid)
     breadcrumb (TopicR toid) = do
-        t <- runDB $ get404 toid
-        return (topicTitle t, Just $ TopicsR $ topicTeam t)
+        mt <- runDB $ get toid
+        pure $
+          case mt of
+            Nothing -> ("Unknown topic", Nothing)
+            Just t -> (topicTitle t, Just $ TopicsR $ topicTeam t)
 
     -- These pages never call breadcrumb
     breadcrumb StaticR{} = return ("", Nothing)
