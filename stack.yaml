@@ -3,6 +3,8 @@ resolver: lts-12.10
 extra-deps:
 - github: snoyberg/yesod-gitrev
   commit: 5364cf7ffa6b49b46173a99a7f1b48de4f660170
+  sha256: 427f1b2baec1635d3ba93e91eafcce2bb62a949e033d7a499db3257b8b90d2be
+  size: 2983
 - githash-0.1.0.1@sha256:fd8110389b1e4febf2bca0acfca6505130606233058a3cdab96bd66d7b359b84,1552
 
 image:
