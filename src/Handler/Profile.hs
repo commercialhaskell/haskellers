@@ -78,11 +78,9 @@ userForm maxY u = renderTable $ User
     <*> aopt doubleField "Latitude"
             { fsId = Just "latitude"
             } (Just $ userLatitude u)
-    <*> aopt (checkBool validGooglePlus ("Not a Google+ link" :: T.Text) urlField)
-            "Google+ Profile Link" (Just $ userGooglePlus u)
+    <*> pure (userGooglePlus u)
   where
     empOpts = map (pack . prettyEmployment &&& id) [minBound..maxBound]
-    validGooglePlus t = "https://plus.google.com/" `T.isPrefixOf` t
 
 getProfileR :: Handler Html
 getProfileR = do
