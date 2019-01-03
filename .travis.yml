@@ -37,4 +37,5 @@ install:
 
 script:
 # Build the package, its tests, and its docs and run the tests
-- stack --no-terminal test --haddock --no-haddock-deps --pedantic
+- stack --no-terminal test --pedantic
+# Skipping Haddocks, they don't work due to a Haddock bug
