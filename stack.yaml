@@ -10,7 +10,7 @@ extra-deps:
 image:
   container:
     name: snoyberg/haskellers
-    base: fpco/stack-run
+    base: snoyberg/haskellers-build-image:e17739d1c2c043aae11924fee66c9ee4304ad37d
     add:
         static: /app/static
         config: /app/config
