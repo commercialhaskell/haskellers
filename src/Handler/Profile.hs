@@ -36,7 +36,8 @@ screenNameFormlet uid = renderTable $ ScreenName
     <*> areq (selectFieldList servopts) "Service" Nothing
     <*> areq textField "Screen name" Nothing
   where
-    servopts = map (T.pack . show &&& id) [minBound..maxBound]
+    servopts = map (T.pack . show &&& id)
+             $ filter (/= GooglePlus) [minBound..maxBound]
 
 userForm :: Int -> User -> Form User
 userForm maxY u = renderTable $ User
@@ -102,7 +103,8 @@ getProfileR = do
         )
     packages <- runDB $ selectList [PackageUser ==. uid] [Asc PackageName]
     idents <- runDB $ selectList [IdentUser ==. uid] [Asc IdentIdent]
-    screenNames <- runDB $ selectList [ScreenNameUser ==. uid]
+    screenNames <- runDB $ selectList
+      [ScreenNameUser ==. uid, ScreenNameService !=. GooglePlus]
                     [Asc ScreenNameService, Asc ScreenNameName]
     ((_, screenNameForm), _) <- runFormGet $ screenNameFormlet uid
     defaultLayout $ do

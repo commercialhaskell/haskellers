@@ -75,7 +75,8 @@ getUserR input = do
     packages <- runDB
               $ fmap (map $ T.unpack . packageName . entityVal)
               $ selectList [PackageUser ==. uid] [Asc PackageName]
-    screenNames <- runDB $ selectList [ScreenNameUser ==. uid]
+    screenNames <- runDB $ selectList
+                    [ScreenNameUser ==. uid, ScreenNameService !=. GooglePlus]
                     [Asc ScreenNameService, Asc ScreenNameName]
     let email = fromMaybe "fake@email.com" $ userEmail u
     y <- getYesod
