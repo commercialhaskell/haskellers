@@ -1,4 +1,4 @@
-image: snoyberg/haskellers-build-image:38a3bb229080cf7c61c19c6ff95a48a3de487e02
+image: snoyberg/haskellers-build-image:bc84ecc2e093e60856d00527f6ba2ef677e54176
 
 cache:
   key: "$CI_BUILD_NAME"
