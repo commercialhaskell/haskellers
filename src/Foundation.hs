@@ -33,12 +33,13 @@ import Yesod.Auth
 import Yesod.Auth.Dummy
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook.ServerSide
-import qualified Yesod.Auth.GoogleEmail2 as Google
+import Yesod.Auth.OAuth2 (oauth2Url)
+import qualified Yesod.Auth.OAuth2.Google as Google
 import Facebook (Credentials (Credentials))
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Network.HTTP.Conduit (Manager)
-import Control.Monad (unless)
+import Control.Monad (unless, guard)
 import Data.Char (isSpace)
 import qualified Settings
 import qualified Database.Persist
@@ -52,9 +53,10 @@ import Text.Hamlet
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Data.Text (Text)
+import Data.Text.Encoding (encodeUtf8)
 import qualified Data.Text as T
 import qualified Data.Text.Read
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Time
 import qualified Data.Set as Set
 import Yesod.Form.Jquery
@@ -66,6 +68,8 @@ import Data.IORef (IORef)
 import Yesod.Facebook
 import Yesod.GitRev (GitRev)
 import Network.Mail.Mime.SES (SES)
+import qualified Data.HashMap.Strict as HM
+import Data.Aeson (decodeStrict)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -374,7 +378,7 @@ instance YesodAuth App where
     loginDest _ = ProfileR
     logoutDest _ = RootR
 
-    getAuthId creds = do
+    getAuthId creds0 = do
         muid <- maybeAuth
         x <- liftHandler $ runDB $ do
             x1 <- getBy $ UniqueIdent $ credsIdentClaimed creds
@@ -438,8 +442,14 @@ instance YesodAuth App where
                 setMessage "That identifier is already attached to an account. Please detach it from the other account first."
                 redirect ProfileR
       where
+        creds = fromMaybe creds0 $ do
+          guard $ credsPlugin creds0 == "google"
+          ur <- lookup "userResponse" $ credsExtra creds0
+          Object o <- decodeStrict $ encodeUtf8 ur
+          String email <- HM.lookup "email" o
+          Just creds0 { credsIdent = email }
         addBIDEmail uid
-            | credsPlugin creds `elem` ["googleemail2"] = do
+            | credsPlugin creds `elem` ["google"] = do
                 u <- get404 uid
                 unless (userVerifiedEmail u) $ update uid [UserEmail =. Just (credsIdent creds), UserVerifiedEmail =. True]
             | otherwise = return ()
@@ -452,7 +462,7 @@ instance YesodAuth App where
     authPlugins app =
         [ authOpenId OPLocal []
         , authFacebook []
-        , uncurry Google.authGoogleEmail (appGoogleEmailCreds app)
+        , uncurry (Google.oauth2GoogleScoped ["email", "profile"]) (appGoogleEmailCreds app)
         ] ++ extraAuthPlugins
         where extraAuthPlugins =
                 -- Determine if authDummy login setting was enabled.

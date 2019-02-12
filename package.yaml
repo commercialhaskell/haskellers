@@ -36,6 +36,7 @@ dependencies:
 - yesod-core
 - yesod-auth
 - yesod-auth-fb
+- yesod-auth-oauth2
 - yesod-fb
 - yesod-static
 - yesod-form
@@ -79,6 +80,7 @@ dependencies:
 - aeson
 - cipher-aes
 - yesod-gitrev
+- unordered-containers
 
 library:
   source-dirs: src
