@@ -33,7 +33,7 @@ import Yesod.Auth
 import Yesod.Auth.Dummy
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook.ServerSide
-import Yesod.Auth.OAuth2 (oauth2Url)
+import Yesod.Auth.OAuth2 (oauth2Url, getUserResponseJSON)
 import qualified Yesod.Auth.OAuth2.Google as Google
 import Facebook (Credentials (Credentials))
 import Yesod.Default.Config
@@ -53,7 +53,6 @@ import Text.Hamlet
 import Blaze.ByteString.Builder.Char.Utf8 (fromText)
 import Network.HTTP.Types (encodePath, queryTextToQuery)
 import Data.Text (Text)
-import Data.Text.Encoding (encodeUtf8)
 import qualified Data.Text as T
 import qualified Data.Text.Read
 import Data.Maybe (fromJust, fromMaybe)
@@ -69,7 +68,6 @@ import Yesod.Facebook
 import Yesod.GitRev (GitRev)
 import Network.Mail.Mime.SES (SES)
 import qualified Data.HashMap.Strict as HM
-import Data.Aeson (decodeStrict)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -444,8 +442,7 @@ instance YesodAuth App where
       where
         creds = fromMaybe creds0 $ do
           guard $ credsPlugin creds0 == "google"
-          ur <- lookup "userResponse" $ credsExtra creds0
-          Object o <- decodeStrict $ encodeUtf8 ur
+          Object o <- either (const Nothing) Just $ getUserResponseJSON creds0
           String email <- HM.lookup "email" o
           Just creds0 { credsIdent = email }
         addBIDEmail uid
