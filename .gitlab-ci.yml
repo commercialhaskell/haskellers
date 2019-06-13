@@ -29,8 +29,7 @@ build:
   script:
     # Clear *_TOKEN variables during code build so that libraries compile-time code can't access them
     - stack setup --verbose
-    - CI_BUILD_TOKEN="" KUBE_TOKEN="" PROD_KUBE_TOKEN="" PROD_DOCKER_PASSWORD="" stack --install-ghc image container
-    - docker tag snoyberg/haskellers "${DEPLOYMENT_IMAGE}"
+    - CI_BUILD_TOKEN="" KUBE_TOKEN="" PROD_KUBE_TOKEN="" PROD_DOCKER_PASSWORD="" docker build . --tag "${DEPLOYMENT_IMAGE}"
     - docker login -u gitlab-ci-token -p "${CI_BUILD_TOKEN}" "${CI_REGISTRY}"
     - docker push "${DEPLOYMENT_IMAGE}"
     - |
