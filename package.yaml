@@ -81,6 +81,7 @@ dependencies:
 - cipher-aes
 - yesod-gitrev
 - unordered-containers
+- unliftio
 
 library:
   source-dirs: src

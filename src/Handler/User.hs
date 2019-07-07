@@ -17,14 +17,17 @@ import Data.Maybe (fromMaybe)
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as S8
 import qualified Data.ByteString.UTF8 as SU
-import System.IO.Unsafe (unsafePerformIO)
 import Yesod.Form.Jquery (urlJqueryJs)
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8, decodeUtf8With)
+import Data.Text.Encoding.Error (lenientDecode)
 import qualified Data.Text.Read
 import qualified Data.ByteString.Base64 as B64
 import qualified Crypto.Cipher.AES as AES
 import Network.HTTP.Types (status301)
+import Network.HTTP.Simple
+import UnliftIO (tryAny)
 
 getByIdentR :: Handler Value
 getByIdentR = do
@@ -98,48 +101,30 @@ getUserR input = do
     let packdeps = "http://packdeps.haskellers.com/specific/?" ++
             intercalate "&"
                 (map (\x -> "package=" ++ percentEncode x) packages)
+    let sortaRoot = "https://www.sortasecret.com" :: String
+    mencryptedEmail <-
+      case (userEmail u, userEmailPublic u) of
+        (Nothing, _) -> pure EENone
+        (Just email', True) -> pure $ EEPlaintext email'
+        (Just email', False) -> do
+          req <-  setRequestQueryString [("secret", Just $ encodeUtf8 email')] <$>
+                  parseRequestThrow (sortaRoot ++ "/v1/encrypt")
+          eres <- tryAny $ httpBS req
+          case eres of
+            Left e -> do
+              $logError $ T.pack $ show e
+              pure $ EEError "Unable to communicate with Sorta Secret service"
+            Right encrypted -> pure $ EEEncrypted $ decodeUtf8With lenientDecode $ getResponseBody encrypted
     flip defaultLayoutJson (return json) $ do
         setTitle $ toHtml $ "Haskellers profile for " `mappend` userFullName u
         addScriptEither $ urlJqueryJs y
         $(widgetFile "user")
 
-mailhidePublic :: Text
-mailhidePublic = "01_o4fjI3uXdNz6rLrIquvlw=="
-
-mailhidePrivate :: S.ByteString
-mailhidePrivate = S8.pack "\x42\x40\x54\x79\x07\x8c\x47\xb0\x50\xd7\x9a\x33\xc6\x09\x69\x1c"
-
-emailLink :: Text -> Text
-emailLink email = unsafePerformIO $ do
-    enc <- encryptAddress email
-    return $ T.concat
-        [ "https://www.google.com/recaptcha/mailhide/d?k="
-        , mailhidePublic
-        , "&c="
-        , enc
-        ]
-
-encryptAddress :: Text -> IO Text
-encryptAddress =
-    fmap (T.pack . map b64Url . S8.unpack . B64.encode) . encrypt . pad . T.unpack
-  where
-    b64Url '+' = '-'
-    b64Url '/' = '_'
-    b64Url c   = c
-
-pad :: String -> S.ByteString
-pad s =
-    let bs' = SU.fromString s
-        blockSize = 16
-        numpad = blockSize - (S.length bs' `mod` blockSize)
-        padding = S.replicate numpad $ fromIntegral numpad
-     in bs' `S.append` padding
-
-encrypt :: S.ByteString -> IO S.ByteString
-encrypt bs = do
-    let key = AES.initAES mailhidePrivate
-    let iv = S.replicate 16 0
-    return $ AES.encryptCBC key iv bs
+data EncryptedEmail
+  = EEPlaintext !Text
+  | EEEncrypted !Text
+  | EENone
+  | EEError !Text
 
 getFlagR :: UserId -> Handler Html
 getFlagR uid = do

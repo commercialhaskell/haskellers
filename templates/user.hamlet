@@ -14,12 +14,16 @@ $if viewerIsAdmin
     <div .name>#{userFullName u}
     $maybe y <- userHaskellSince u
         <div .since>Using Haskell since #{show y}
-    $maybe email <- userEmail u
-        <div .email>
-            $if userEmailPublic u
+    <div .email>
+        $case mencryptedEmail
+            $of EENone
+                No email address available
+            $of EEError err
+                Error showing email address: #{err}
+            $of EEPlaintext email
                 <a href="mailto:#{email}">#{email}
-            $else
-                <a href="#{emailLink email}">Reveal email address
+            $of EEEncrypted encryptedEmail
+                <a target=_blank href=#{sortaRoot}/v1/show?secret=#{encryptedEmail}>Reveal email address
                 $if viewerIsAdmin
                     <br>
                     \Special admin bonus: 
