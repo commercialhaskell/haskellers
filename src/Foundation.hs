@@ -364,7 +364,7 @@ instance YesodPersist App where
 instance YesodJquery App where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
 instance YesodNic App where
-    urlNicEdit _ = Right "https://js.nicedit.com/nicEdit-latest.js"
+    urlNicEdit _ = Right "https://cdnjs.cloudflare.com/ajax/libs/NicEdit/0.93/nicEdit.min.js"
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
