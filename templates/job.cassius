@@ -19,6 +19,7 @@ td
     margin: 10px 20px
     padding: 3px
     background-color: white
+    color: black
     *
         color: black
     p
