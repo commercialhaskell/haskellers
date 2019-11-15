@@ -77,7 +77,7 @@ statusFormlet =
     opts = map (T.pack . show &&& id) [minBound..maxBound]
 
 messageForm :: Form Html
-messageForm = renderTable $ areq nicHtmlField "Your message" Nothing
+messageForm = renderTable $ areq snHtmlField "Your message" Nothing
 
 getTopicR :: TopicId -> Handler Html
 getTopicR toid = do

@@ -41,7 +41,7 @@ canAddTeam ma = do
 teamFormlet :: Maybe Team -> Form Team
 teamFormlet mt = renderTable $ Team
     <$> areq textField "Name" (fmap teamName mt)
-    <*> areq nicHtmlField "Description"
+    <*> areq snHtmlField "Description"
             { fsId = Just "team-desc"
             } (fmap teamDesc mt)
 

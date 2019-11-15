@@ -7,9 +7,6 @@ packages:
 - completed:
     size: 2983
     url: https://github.com/snoyberg/yesod-gitrev/archive/5364cf7ffa6b49b46173a99a7f1b48de4f660170.tar.gz
-    cabal-file:
-      size: 896
-      sha256: 0d7612e3a90b6d5af4dd82b60fc7d4b06ba6400fc99b8165b0a0318d0e170966
     name: yesod-gitrev
     version: 0.2.1.0
     sha256: 427f1b2baec1635d3ba93e91eafcce2bb62a949e033d7a499db3257b8b90d2be
@@ -48,9 +45,20 @@ packages:
       sha256: 86a5bafd2080c702b27216c9019283456df88f31a3fe1a97510a162f9f24c7c1
   original:
     hackage: uri-bytestring-aeson-0.1.0.7@sha256:33d83caa4704f07112564b98cb4b2e7b87f3f185e2e520c8d3444b95967d11f3
+- completed:
+    size: 4268
+    url: https://github.com/snoyberg/yesod-form-richtext/archive/bf6c21b296b080e481d5f07cb73a2ac87fe5cf0f.tar.gz
+    name: yesod-form-richtext
+    version: 0.2.0.0
+    sha256: b79394cf9c6187bf58a73d0381a557adf0c61e02eb773b8f4b591dacf91cef82
+    pantry-tree:
+      size: 381
+      sha256: f661f747c2b6b540301ce5349b7ca3bbd0f202cc7b1cd12aa259d21e362c277b
+  original:
+    url: https://github.com/snoyberg/yesod-form-richtext/archive/bf6c21b296b080e481d5f07cb73a2ac87fe5cf0f.tar.gz
 snapshots:
 - completed:
-    size: 503639
+    size: 503674
     url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/12/10.yaml
-    sha256: 601910ccc6db01795ab16281ea4a7ab290cb3b2de41cb61986158fad256093ea
+    sha256: 3f6a3139a4fe86c154496156ba9bc45328debae508485f0e314609eb9cc7e467
   original: lts-12.10

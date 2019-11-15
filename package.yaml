@@ -40,6 +40,7 @@ dependencies:
 - yesod-fb
 - yesod-static
 - yesod-form
+- yesod-form-richtext
 - yesod-newsfeed
 - yesod-test
 - clientsession

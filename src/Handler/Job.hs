@@ -31,7 +31,7 @@ jobFormlet uid now mj = renderTable $ Job
     <*> areq boolField "Full time option?" (fmap jobFullTime mj)
     <*> areq boolField "Part time option?" (fmap jobPartTime mj)
     <*> pure (Textarea "Please see HTML description")
-    <*> fmap Just (areq nicHtmlField "Description"
+    <*> fmap Just (areq snHtmlField "Description"
             { fsId = Just "desc"
             } (mj >>= jobDescHtml))
     <*> pure True

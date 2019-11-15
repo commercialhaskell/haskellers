@@ -16,7 +16,7 @@ import Data.Time (getCurrentTime)
 newsForm :: Form (Text, Html)
 newsForm = renderTable $ (,)
     <$> areq textField "Title" Nothing
-    <*> areq nicHtmlField "Content"
+    <*> areq snHtmlField "Content"
         { fsId = Just "content"
         } Nothing
 

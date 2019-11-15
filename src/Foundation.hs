@@ -24,6 +24,7 @@ module Foundation
     , humanReadableTimeDiff
     , userFullName
     , addMapAPI
+    , snHtmlField
     ) where
 
 import Prelude
@@ -59,7 +60,7 @@ import Data.Maybe (fromJust, fromMaybe)
 import Data.Time
 import qualified Data.Set as Set
 import Yesod.Form.Jquery
-import Yesod.Form.Nic
+import Yesod.Form.Summernote
 import Control.Concurrent.STM
 import qualified Data.Map as Map
 import System.IO.Unsafe
@@ -363,8 +364,7 @@ instance YesodPersist App where
 
 instance YesodJquery App where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
-instance YesodNic App where
-    urlNicEdit _ = Right "https://cdnjs.cloudflare.com/ajax/libs/NicEdit/0.93/nicEdit.min.js"
+instance YesodSummernote App
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

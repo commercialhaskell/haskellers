@@ -9,3 +9,5 @@ extra-deps:
 - yesod-auth-oauth2-0.6.1.0@sha256:8dcee69de8e2f61da5ce1007b585ba079de764815c449ae0a6df35540ebf3511
 - hoauth2-1.8.3@sha256:32e1a6fcdc999d3eef522ee31c165805626e5c154aa828d603402767d02f2bc6
 - uri-bytestring-aeson-0.1.0.7@sha256:33d83caa4704f07112564b98cb4b2e7b87f3f185e2e520c8d3444b95967d11f3
+- github: snoyberg/yesod-form-richtext
+  commit: bf6c21b296b080e481d5f07cb73a2ac87fe5cf0f
