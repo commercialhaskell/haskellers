@@ -363,7 +363,7 @@ instance YesodPersist App where
             (connPool master)
 
 instance YesodJquery App where
-    urlJqueryJs _ = Right "http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"
+    urlJqueryJs _ = Right "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
 instance YesodSummernote App
 
