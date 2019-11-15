@@ -365,7 +365,7 @@ instance YesodPersist App where
 instance YesodJquery App where
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
 instance YesodSummernote App where
-    summernoteLoadLibrariesAndCss = True
+    summernoteLoadLibrariesAndCss _ = True
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
