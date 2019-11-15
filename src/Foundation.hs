@@ -363,9 +363,9 @@ instance YesodPersist App where
             (connPool master)
 
 instance YesodJquery App where
+    urlJqueryJs _ = Right "http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"
     urlJqueryUiCss _ = Left $ StaticR jquery_ui_css
-instance YesodSummernote App where
-    summernoteLoadLibrariesAndCss _ = True
+instance YesodSummernote App
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

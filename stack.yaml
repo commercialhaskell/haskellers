@@ -10,4 +10,4 @@ extra-deps:
 - hoauth2-1.8.3@sha256:32e1a6fcdc999d3eef522ee31c165805626e5c154aa828d603402767d02f2bc6
 - uri-bytestring-aeson-0.1.0.7@sha256:33d83caa4704f07112564b98cb4b2e7b87f3f185e2e520c8d3444b95967d11f3
 - github: snoyberg/yesod-form-richtext
-  commit: cbd3529caa7720089bd602fce53844806c7f88d2
+  commit: c1d76b3b1b690db1c5452926fc55d5f585ca49c1

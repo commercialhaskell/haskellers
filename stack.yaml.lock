@@ -46,16 +46,16 @@ packages:
   original:
     hackage: uri-bytestring-aeson-0.1.0.7@sha256:33d83caa4704f07112564b98cb4b2e7b87f3f185e2e520c8d3444b95967d11f3
 - completed:
-    size: 4268
-    url: https://github.com/snoyberg/yesod-form-richtext/archive/bf6c21b296b080e481d5f07cb73a2ac87fe5cf0f.tar.gz
+    size: 3866
+    url: https://github.com/snoyberg/yesod-form-richtext/archive/c1d76b3b1b690db1c5452926fc55d5f585ca49c1.tar.gz
     name: yesod-form-richtext
     version: 0.2.0.0
-    sha256: b79394cf9c6187bf58a73d0381a557adf0c61e02eb773b8f4b591dacf91cef82
+    sha256: f61b361243342af60f65581e987773a8eef8ef90958db1ff8961db1d236b7f03
     pantry-tree:
       size: 381
-      sha256: f661f747c2b6b540301ce5349b7ca3bbd0f202cc7b1cd12aa259d21e362c277b
+      sha256: d4f208391a91d81d3d34644c72f2d6aacd468fd46036c2c5d2084acfa7fd229e
   original:
-    url: https://github.com/snoyberg/yesod-form-richtext/archive/bf6c21b296b080e481d5f07cb73a2ac87fe5cf0f.tar.gz
+    url: https://github.com/snoyberg/yesod-form-richtext/archive/c1d76b3b1b690db1c5452926fc55d5f585ca49c1.tar.gz
 snapshots:
 - completed:
     size: 503674
