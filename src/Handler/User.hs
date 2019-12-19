@@ -101,7 +101,7 @@ getUserR input = do
     let packdeps = "http://packdeps.haskellers.com/specific/?" ++
             intercalate "&"
                 (map (\x -> "package=" ++ percentEncode x) packages)
-    let sortaRoot = "https://backup.sortasecret.com" :: String
+    let sortaRoot = "https://www.sortasecret.com" :: String
     mencryptedEmail <-
       case (userEmail u, userEmailPublic u) of
         (Nothing, _) -> pure EENone
