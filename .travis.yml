@@ -33,6 +33,7 @@ before_install:
 
 install:
 # Build dependencies
+- rm stack.yaml.lock
 - stack --no-terminal --install-ghc test --only-dependencies
 
 script:
