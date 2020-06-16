@@ -1,0 +1,29 @@
+name: Runtime image
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Log into Github registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Build image
+        run: docker build . --tag image
+
+      - name: Push to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login --username snoyberg --password-stdin
+          IMAGE_ID=snoyberg/haskellers
+          docker tag image $IMAGE_ID
+          docker push $IMAGE_ID
+          IMAGE_ID=$IMAGE_ID:$GITHUB_SHA
+          docker tag image $IMAGE_ID
+          docker push $IMAGE_ID
