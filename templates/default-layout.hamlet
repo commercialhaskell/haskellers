@@ -72,7 +72,10 @@
                 <p>
                     Design by 
                       <a href="/user/nubis/">Nubis
-                <a href="https://github.com/snoyberg/haskellers">View Source
+                <p>
+                    <a href="https://github.com/snoyberg/haskellers">View Source
+                    \ | #
+                    <a href=@PrivacyR>Privacy policy
                 <div .addthis_toolbox .addthis_default_style>
                     <a href="https://www.addthis.com/bookmark.php?v=250&amp;username=snoyberg" .addthis_button_compact>Share
                     <span .addthis_separator>|

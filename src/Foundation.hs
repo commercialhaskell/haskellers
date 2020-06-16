@@ -239,6 +239,7 @@ instance Yesod App where
 instance YesodBreadcrumbs App where
     breadcrumb RootR = return ("Homepage", Nothing)
     breadcrumb FaqR = return ("Frequently Asked Questions", Just RootR)
+    breadcrumb PrivacyR = return ("Privacy", Nothing)
     breadcrumb BlingR = return ("Bling", Just RootR)
     breadcrumb NewsR = return ("News Archive", Just RootR)
     breadcrumb (NewsItemR nid) = do

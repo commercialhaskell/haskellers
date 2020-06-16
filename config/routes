@@ -96,3 +96,5 @@
 /poll/#PollId/close PollCloseR POST
 
 /build-version BuildVersionR GitRev appGitRev
+
+/privacy PrivacyR GET

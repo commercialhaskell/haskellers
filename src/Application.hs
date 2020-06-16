@@ -42,6 +42,7 @@ import Handler.Email
 import Handler.Skills
 import Handler.Package
 import Handler.Faq
+import Handler.Privacy
 import Handler.News
 import Handler.Job
 import Handler.Team
