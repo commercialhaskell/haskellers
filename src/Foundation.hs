@@ -259,14 +259,19 @@ instance YesodBreadcrumbs App where
                   pure $
                     case mu of
                       Nothing -> "Unknown user"
-                      Just u -> Foundation.userFullName u
+                      Just u
+                        | userBlocked u -> "Blocked user"
+                        | otherwise -> Foundation.userFullName u
                 _ -> do
                     x <- getBy $ UniqueUsername str
                     case x of
                         Nothing -> pure "Unknown user"
                         Just (Entity _ un) -> do
                           u <- get404 $ usernameUser un
-                          pure $ Foundation.userFullName u
+                          pure $
+                            if userBlocked u
+                              then "Blocked user"
+                              else Foundation.userFullName u
         return (u, Nothing)
     breadcrumb ProfileR = return ("Edit Your Profile", Just RootR)
     breadcrumb VerifyEmailR{} = return ("Verify Your Email Address", Nothing)
