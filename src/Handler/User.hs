@@ -64,6 +64,8 @@ getUserR input = do
     mv <- maybeAuth
     let viewerIsAdmin = maybe False (userAdmin . entityVal) mv
 
+    when (userBlocked u && ((entityKey <$> mv) /= Just uid) && not viewerIsAdmin) notFound
+
     midents <-
         if viewerIsAdmin
             then Just <$> runDB (selectList [IdentUser ==. uid] [Asc IdentIdent])
