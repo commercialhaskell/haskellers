@@ -7,10 +7,19 @@ RUN stack install --stack-yaml /src/stack.yaml --local-bin-path /artifacts/bin
 FROM snoyberg/haskellers-build-image:e17739d1c2c043aae11924fee66c9ee4304ad37d
 RUN mkdir -p /app
 
-WORKDIR /app
-CMD ["/usr/local/bin/haskellers"]
-ENV PORT 3000
-
 COPY --from=build-app /artifacts/bin/haskellers /usr/local/bin
 COPY --from=build-app /src/static /app/static
 COPY --from=build-app /src/config /app/config
+
+WORKDIR /app
+
+COPY ./run.sh /app/run.sh
+
+ADD https://github.com/fpco/pid1-rs/releases/download/v0.1.0/pid1-x86_64-unknown-linux-musl /usr/bin/pid1
+RUN chmod +x /usr/bin/pid1
+
+ENTRYPOINT [ "pid1" ]
+
+CMD ["/app/run.sh"]
+
+ENV PORT 3000
