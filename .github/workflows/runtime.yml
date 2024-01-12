@@ -3,6 +3,7 @@ name: Runtime image
 on:
   push:
     branches: [master]
+  pull_request:
 
 jobs:
   push:
