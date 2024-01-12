@@ -2,9 +2,6 @@
 
 set -euo pipefail
 
-curl -L "https://github.com/fpco/amber/releases/download/v0.1.5/amber-x86_64-unknown-linux-musl" -o "amber"
-chmod +x amber
-
 BASE_DIR="./config/db"
 
 amber write-file --key  HASKELLERS_AWS --dest "$BASE_DIR/aws"

@@ -18,6 +18,9 @@ COPY ./run.sh /app/run.sh
 ADD https://github.com/fpco/pid1-rs/releases/download/v0.1.0/pid1-x86_64-unknown-linux-musl /usr/bin/pid1
 RUN chmod +x /usr/bin/pid1
 
+ADD https://github.com/fpco/amber/releases/download/v0.1.5/amber-x86_64-unknown-linux-musl /usr/bin/amber
+RUN chmod +x /usr/bin/amber
+
 ENTRYPOINT [ "pid1" ]
 
 CMD ["/app/run.sh"]
