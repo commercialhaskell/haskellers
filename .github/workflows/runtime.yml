@@ -3,12 +3,11 @@ name: Runtime image
 on:
   push:
     branches: [master]
+  pull_request:
 
 jobs:
   push:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
     steps:
       - uses: actions/checkout@v2
 
