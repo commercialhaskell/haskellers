@@ -21,6 +21,8 @@ RUN chmod +x /usr/bin/pid1
 ADD https://github.com/fpco/amber/releases/download/v0.1.5/amber-x86_64-unknown-linux-musl /usr/bin/amber
 RUN chmod +x /usr/bin/amber
 
+COPY amber.yaml /app/amber.yaml
+
 ENTRYPOINT [ "pid1" ]
 
 CMD ["/app/run.sh"]
